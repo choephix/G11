@@ -1,0 +1,28 @@
+
+
+
+
+
+
+
+
+
+
+
+New Horse/Snake Year Changelog v0.130102.2000
+
+Time management (забавен кадър етс.)
+Мн процеси мн нещо...
+Действия (текущите възможни действия се изписват номерирани на екрана)
+Defend - намаля шанса на единицата да бъде уцелена с 50%
+
+чейнджлог v0.121228.1515:
+
+Some shit fixed
+Some shit broken
+Animations and postures are more adequate
+Parkour (units traverse small obstructions in their path)
+"Line of sight" (no shoot through fucking walls)
+Melee weapons (kind of)
+Weapon switching ([TAB])
+GameOver - kill all or die to see "GAME OVER"

@@ -1,0 +1,1 @@
+{"myArmory":[],"myUnits":[{"name":"Johnny Bravo","accuracy":99,"modelN":0,"equipment":[0,2,5],"primaryWeapon":{"uid":0,"weaponN":0,"ammoN":1,"addons":[2,3]}},{"name":"Liza Tee","accuracy":88,"modelN":1,"equipment":[8],"primaryWeapon":{"uid":0,"weaponN":0,"ammoN":1,"addons":[2,3]}}]}
