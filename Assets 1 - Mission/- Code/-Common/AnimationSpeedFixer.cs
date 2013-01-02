@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+[RequireComponent( typeof( Animation ) )]
 public class AnimationSpeedFixer : MonoBehaviour {
 
 	void Update () {

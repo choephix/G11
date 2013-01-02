@@ -48,8 +48,8 @@ public class GodOfPathfinding : MissionBaseClass {
 			if( i == 20 ) { Debug.LogWarning( "TOO MUCH PATH" ); }
 			yield return new WaitForSeconds( .02f ); // .04f
 
-			prevStepNodes.Sort( delegate( GridTile t1, GridTile t2 ) 
-				{ return nodes[t1].pathLen.CompareTo( nodes[t2].pathLen ); } );
+			prevStepNodes.Sort( 
+				( GridTile t1, GridTile t2 ) => nodes[t1].pathLen.CompareTo( nodes[t2].pathLen ) );
 
 			foreach( GridTile prevTile in prevStepNodes ) {
 

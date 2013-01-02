@@ -6,7 +6,9 @@ public class AutoAnimated : MonoBehaviour {
 	public Vector3 rotationSpeed;
 
 	void Update () {
-		transform.eulerAngles += rotationSpeed;
+		unchecked {
+			transform.eulerAngles = rotationSpeed * GodOfTime.time;
+		}
 	}
 
 }

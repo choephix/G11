@@ -172,12 +172,14 @@ public abstract class Process {
 	public bool hasAttached { get { return attachedPassiveProcesses.Count > 0; } }
 	public readonly List<Process> attachedPassiveProcesses = new List<Process>();
 
+	public readonly bool strictlyBackground = false; //TODO replace the process queues with ProcessTree and deprecate this shit
+
 	public Process( string name, bool stackable = true ) {
 		this.name = name;
 		this.stackable = stackable;
 	}
 
-	public void Update() {
+	public virtual void Update() {
 
 		if( !started ) {
 			Start();
@@ -229,15 +231,25 @@ public abstract class Process {
 
 public class ProcessBook : MissionBaseClass {
 
-	public class Nothing : Process {
+	// GENERIC PROCESSES
 
-		public Nothing() : base( "Generic" ) { }
+	public class GenericProcess : Process {
 
-		protected override void _Update() {	End(); }
+		public GenericProcess( string name, bool stackable = true ) : base( name, stackable ) { }
+
+		public sealed override void Update() { base.Update(); }
 
 	}
 
-	public class Wait : Process {
+	public class Nothing : GenericProcess {
+
+		public Nothing() : base( "Nothing" ) { }
+
+		protected override void _Update() { End(); }
+
+	}
+
+	public class Wait : GenericProcess {
 
 		protected int framesLeft;
 
@@ -259,7 +271,7 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
-	public class WaitSeconds : Process {
+	public class WaitSeconds : GenericProcess {
 
 		protected float timeLeft;
 
@@ -281,7 +293,7 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
-	public class ChangeTimeSpeed : Process {
+	public class ChangeTimeSpeed : GenericProcess {
 
 		private float newSpeed;
 		private float processDuration;
@@ -347,11 +359,27 @@ public class ProcessBook : MissionBaseClass {
 	public abstract class UnitProcess : Process {
 
 		protected readonly Unit u;
+		protected readonly bool evenInDeath;
 
-		public UnitProcess( string name, Unit subject ) : base( name ) {
+		public UnitProcess( string name, Unit subject, bool evenInDeath = false ) : base( name ) {
+			this.evenInDeath = evenInDeath;
 			this.u = subject;
 		}
-		
+
+		public sealed override void Update() {
+
+			if( u.concious || evenInDeath ) {
+
+				base.Update();
+
+			} else {
+
+				End();
+
+			}
+
+		}
+
 	}
 
 	public class HighlightWalkableTiles : UnitProcess {
@@ -463,13 +491,21 @@ public class ProcessBook : MissionBaseClass {
 			}
 
 		}
+
 		private void OnNextTileReached() {
 
 			u.ClearFog( nextTile ); //TODO move to Grid
 
 			path.RemoveAt( 0 );
+
 			if( path.Count == 0 ) {
+
 				End();
+
+			} else {
+
+				processQueue.Add( new ProcessBook.ChangeTimeSpeed( path[0].obstructed ? .75f : 1f, .1f ), true );
+
 			}
 
 		}
@@ -549,11 +585,9 @@ public class ProcessBook : MissionBaseClass {
 		}
 
 		protected override void _End() {
-			processQueue.JumpAdd( new ProcessBook.ChangeTimeSpeed( 1f ) );
 			GameMode.cinematic = false;
 		}
 		
-
 	}
 
 }

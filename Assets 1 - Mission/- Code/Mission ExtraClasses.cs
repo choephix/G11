@@ -51,16 +51,12 @@ public class SelectionManager : MissionBaseClass {
 	}
 
 	internal static void ReorderLists() {
-		selectableUnits.Sort( delegate( Unit u1, Unit u2 ) {
-			return u2.transform.position.x.CompareTo( u1.transform.position.x );
-		} );
-		targetableUnits.Sort( delegate( Unit u1, Unit u2 ) {
-			if( selectedUnit ) {
-				return selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) );
-			} else {
-				return u2.transform.position.x.CompareTo( u1.transform.position.x );
-			}
-		} );
+		selectableUnits.Sort( ( Unit u1, Unit u2 ) =>
+			u2.transform.position.x.CompareTo( u1.transform.position.x ) );
+		targetableUnits.Sort( ( Unit u1, Unit u2 ) =>
+			selectedUnit == null ? u2.transform.position.x.CompareTo( u1.transform.position.x ) :
+			selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) )
+		 );
 	}
 
 	internal static bool SelectAnotherUnit( bool backwards = false ) {

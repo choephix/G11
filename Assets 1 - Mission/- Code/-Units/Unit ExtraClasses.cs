@@ -89,7 +89,7 @@ public class Actions {
 
 
 			if( action.subjectType == ActionSubjectType.Self ) {
-				action._Execute( null );
+				action.Execute();
 			} else {
 				action.OnSelected();
 			}
@@ -139,10 +139,10 @@ public class Actions {
 
 	private void DoSelected( object subject ) {
 		if( God.selectedAction != null ) {
-			Do( God.selectedAction, subject );
+			Do( God.selectedAction as Action<object>, subject );
 		}
 	}
-	private void Do( Action action, object subject ) {
+	private void Do( Action<object> action, object subject ) {
 
 		if( action.IsSubjectViable( subject ) ) {
 			Debug.Log( owner + " begins action " + action + " on subject " + subject );

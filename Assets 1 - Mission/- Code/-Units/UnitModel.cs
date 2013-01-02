@@ -119,8 +119,7 @@ public class UnitModel : WorldObject {
 		idle = false;
 		if( loopingClip != clipName ) {
 			loopingClip = clipName;
-			animation.CrossFade( clipName, fadeLength );
-			animation[clipName].speed = 1.0f;
+			animation.CrossFade( clipName, fadeLength/GodOfTime.speed );
 		}
 	}
 	public void LoopIdleClip( float fadeLength = .25f ) {
@@ -130,8 +129,7 @@ public class UnitModel : WorldObject {
 
 	public void PlayClip( string clipName ) {
 		animation.Play( clipName );
-		animation[clipName].speed = 1.0f;
-		animation.CrossFadeQueued( loopingClip, .1f );
+		animation.CrossFadeQueued( loopingClip, .1f / GodOfTime.speed );
 	}
 
 	public void Aim() {

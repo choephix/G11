@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Obstruction : HoloObject {
+public class Obstruction : HoloObject, IDamageable {
 
 	public float coverValue = .5f;
 	public TextMesh label;
@@ -12,13 +12,17 @@ public class Obstruction : HoloObject {
 	//	coverValue = (Random.Range( 1, 4 ) * .25f);
 	}
 
+	void Start () {
+		holoOut();
+	}
+
 	void Update() {
 		transform.localScale = new Vector3( 1, coverValue*2, 1 );
 		label.text = (int)( coverValue * 100 ) + "%";
 	}
 
-	void Start () {
-		holoOut();
+	public void Damage( float amount, DamageType type, Unit attacker = null ) {
+		GameObject.Destroy( this );
 	}
 
 	internal void holoUp() {

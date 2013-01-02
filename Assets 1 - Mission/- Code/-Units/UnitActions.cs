@@ -36,15 +36,17 @@ public abstract class Action {
 		this.name = name;
 		this.subjectType = subjectType;
 		this.exhaustible = false;
-
+		this.cooldown = cooldown;
+		this.cost = cost;
+		
 		F.NullCheck( owner, this + "'s owner" );
 		F.NullCheck( owner, this + "'s source" );
 
 	}
 
-	public virtual bool IsSubjectViable( object subject ) { return true; }
+//	public virtual bool IsSubjectViable( object subject ) { return true; }
 
-	public void Execute( object subject ) {
+	public void Execute() {
 
 		cooldownLeft += cooldown;
 
@@ -52,7 +54,7 @@ public abstract class Action {
 
 	}
 
-	public abstract void _Execute( object subject );
+	public abstract void _Execute();
 
 	public void OnSelected() {
 
@@ -101,11 +103,33 @@ public abstract class Action {
 
 }
 
+public abstract class Action<T> : Action {
+
+	public virtual bool IsSubjectViable( T subject ) { return true; }
+
+	protected internal Action (
+				Unit owner, object source, string name = "Unnamed",
+				ActionSubjectType subjectType = ActionSubjectType.Self,
+				byte cooldown = 0, byte cost = 1
+			) : base( owner, source, name, subjectType, cooldown, cost) {}
+
+	public void Execute( T subject ) {
+
+		base.Execute();
+
+		_Execute( subject );
+
+	}
+
+	public abstract void _Execute( T subject );
+
+}
+
 /// <summary>
 /// 
 /// GUIDELINES:
 /// 
-/// Override _possible and IsSubjectViable()
+/// Override _possible and IsSubjectViable() to determine when the action can be used
 /// 
 /// Override _OnSelected() to set up the stage for picking a subjectUnit for your action.
 /// (if it's an instant action (e.g. ActionSubjectType = Self) skip this)
@@ -123,7 +147,7 @@ public class ActionsBook : MissionBaseClass {
 		public InstantAction( Unit owner, object source, string name, byte cooldown = 0, byte cost = 1 )
 			: base( owner, source, name, ActionSubjectType.Self, cooldown, cost ) { }
 
-		public virtual void _Execute() {
+		public override void _Execute() {
 			_Execute( null );
 		}
 
@@ -134,7 +158,7 @@ public class ActionsBook : MissionBaseClass {
 		public Test( Unit owner )
 			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
 
-		public override void _Execute( object subject ) {
+		public override void _Execute() {
 
 			Process p;
 
@@ -145,13 +169,18 @@ public class ActionsBook : MissionBaseClass {
 			p = new ProcessBook.WaitSeconds( .25f );
 			processQueue += p;
 
-			p = new ProcessBook.ChangeTimeSpeed( .2f, 2f );
+			p = new ProcessBook.ChangeTimeSpeed( .2f, 1f );
 			processQueue += p;
 
-			p = new ProcessBook.WaitSeconds( .25f );
+			p = new ProcessBook.WaitSeconds( .1f );
 			processQueue += p;
 
-			p = new ProcessBook.ChangeTimeSpeed( 1f, 2f );
+			Buff b = new Buff( "Bleeding" );
+			b.duration = 100;
+			b.TurnStartEvent += delegate { owner.Damage( 2, DamageType.INTERNAL, owner ); };
+			owner.buffs.Add( b );
+
+			p = new ProcessBook.ChangeTimeSpeed( 1f, 1f );
 			processQueue += p;
 
 			p = new ProcessBook.Wait( 10 );
@@ -160,17 +189,36 @@ public class ActionsBook : MissionBaseClass {
 			p.eventEnded += Finish;
 
 		}
-		
+
 	}
 
-	public class Move : Action {
+	public class Watch : Action {
+
+		public Watch( Unit owner )
+			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
+
+		public override void _Execute() {
+
+			Process p;
+
+
+			p = new ProcessBook.Wait( 10 );
+			processQueue += p;
+
+			p.eventEnded += Finish;
+
+		}
+
+	}
+
+	public class Move : Action<GridTile> {
 
 		public Move( Unit owner, object source )
 			: base( owner, source, "Move", ActionSubjectType.GridTile ) { }
 
 		protected override bool _possible { get { return owner.canMove; } }
 
-		public override bool IsSubjectViable( object subject ) {
+		public override bool IsSubjectViable( GridTile subject ) {
 			return subject is GridTile && ( subject as GridTile ).selectable;
 		}
 
@@ -180,7 +228,7 @@ public class ActionsBook : MissionBaseClass {
 			processQueue.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
 		}
 
-		public override void _Execute( object subject ) {
+		public override void _Execute( GridTile subject ) {
 
 			if( subject is GridTile ) {
 
@@ -218,14 +266,14 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class Attack : Action {
+	public class Attack : Action<Unit> {
 
 		public Attack( Unit owner, Weapon source )
 			: base( owner, source, "Attack", ActionSubjectType.Unit ) { }
 
 		protected override bool _possible { get { return owner.canAttack; } }
 
-		public override bool IsSubjectViable( object subject ) {
+		public override bool IsSubjectViable( Unit subject ) {
 			return subject is Unit && owner.CanTarget( subject as Unit ); ;
 		}
 
@@ -234,7 +282,7 @@ public class ActionsBook : MissionBaseClass {
 			SelectionManager.TargetUnit();
 		}
 
-		public override void _Execute( object subject ) {
+		public override void _Execute( Unit subject ) {
 			if( subject is Unit ) {
 
 				Process p;
@@ -242,7 +290,13 @@ public class ActionsBook : MissionBaseClass {
 				p = new ProcessBook.UnitAttack( owner, subject as Unit );
 				processQueue += p;
 
-				p = new ProcessBook.WaitSeconds(.6f);
+				p = new ProcessBook.WaitSeconds(.15f);
+				processQueue += p;
+
+				p = new ProcessBook.ChangeTimeSpeed( 1f );
+				processQueue.Add( p );
+
+				p = new ProcessBook.WaitSeconds( .3f );
 				processQueue += p;
 
 				p.eventEnded += Finish;
@@ -284,10 +338,10 @@ public class ActionsBook : MissionBaseClass {
 
 		protected override bool _possible { get { return !owner.buffs[ BuffPropFlag.Defending ]; } }
 
-		public override void _Execute( object subject ) {
+		public override void _Execute() {
 
 			Logger.Respond( owner + " defending." );
-			owner.buffs.Add( new Buff( new BuffPropFlag[] { BuffPropFlag.Defending } ) );
+			owner.buffs.Add( new Buff( "Evasive", BuffPropFlag.Defending ) );
 
 			Finish();
 
@@ -302,7 +356,7 @@ public class ActionsBook : MissionBaseClass {
 
 		protected override bool _possible { get { return ( source as Firearm ).ammoLeft < ( source as Firearm ).ammoClipSize; } }
 
-		public override void _Execute( object subject ) {
+		public override void _Execute() {
 
 			owner.model.Reload();
 			( source as Firearm ).Reload();

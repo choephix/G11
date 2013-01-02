@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Unit : MissionBaseClass {
+public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile {
 	
 	internal UnitModel model;
 
@@ -14,7 +14,7 @@ public class Unit : MissionBaseClass {
 	public UnitStatus status;
 	
 	private GridTile _currentTile;
-    internal GridTile currentTile {
+	public GridTile currentTile {
       	get{ return _currentTile; }
       	set{
 
@@ -55,6 +55,7 @@ public class Unit : MissionBaseClass {
 
 	internal bool alive = true;
 	internal bool activated = false;
+	internal bool concious { get { return ( alive ); } }
 	internal bool inPlay { get { return ready && alive && activated && !currentTile.fogged; } }
 	internal bool selectable { get { return ( canAct && atCurrentTile && team.isTheirTurn ); } }
 	internal bool targetable { get { return ( inPlay ); } }
@@ -66,6 +67,7 @@ public class Unit : MissionBaseClass {
 
 	// PROPERTY GETTERS
 
+
 	public float propAccuracy { get { return currentWeapon.ranged ? props.skillRanged : props.skillMelee; } }
 	public float propAttackDamage { get { return currentWeapon.damage; } }
 	public float propAttackRange { get { return currentWeapon.range; } }
@@ -74,6 +76,7 @@ public class Unit : MissionBaseClass {
 
 	public float chanceToBeHit { get { return buffs[ BuffPropFlag.Defending ] ? .5f : 1f; } }
 
+	public float propHealth { get { return status.health; } }
 	public float coverValue { get { return 0.5f * props.size; } }
 
 	// VISUAL BS
@@ -290,8 +293,8 @@ public class Unit : MissionBaseClass {
 		eventTileReached.Invoke( this );
 
 	}
-	
-	internal void Damage( float amount, DamageType type, Unit attacker = null ) {
+
+	public void Damage( float amount, DamageType type, Unit attacker = null ) {
 
 		status.ReceiveDamage( amount, type );
 
@@ -302,8 +305,8 @@ public class Unit : MissionBaseClass {
 		}
 
 	}
-	
-	internal void Die( Unit killer ) {
+
+	public void Die( Unit killer ) {
 
 		alive = false;
 		currentTile.currentUnit = null;
@@ -317,7 +320,7 @@ public class Unit : MissionBaseClass {
 
 	}
 
-	internal void SwitchWeapon() {
+	public void SwitchWeapon() {
 
 		EquipWeapon( currentWeapon == weaponPrimary ? weaponSecondary : weaponPrimary );
 		if( targeting ) {
@@ -330,7 +333,7 @@ public class Unit : MissionBaseClass {
 
 	}
 
-	internal void EquipWeapon( Weapon weapon ) {
+	public void EquipWeapon( Weapon weapon ) {
 
 		Debug.Log( this + " equipping new weapon " + weapon + ", instead of " + F.ToStringOrNull( currentWeapon ) );
 

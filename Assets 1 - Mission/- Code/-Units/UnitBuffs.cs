@@ -7,7 +7,13 @@ public class UnitBuffs {
 	private List<Buff> buffs = new List<Buff>();
 
 	public void Add( Buff buff ) {
+
+		if( !buff.stackable ) {
+
+		}
+
 		buffs.Add( buff );
+
 	}
 
 	public void OnTurnStart() {
@@ -26,6 +32,7 @@ public class UnitBuffs {
 				if( buff.duration <= 0 ) {
 					RemoveBuff( buff );
 				} else {
+					buff.OnTurnStart();
 					i++;
 				}
 
@@ -76,38 +83,48 @@ public class UnitBuffs {
 public enum BuffPropFlag { Defending }
 public enum BuffPropMult { Accuracy, RangedDamage, MeleeDamage, Evasion }
 
-public class Buff {
+public class Buff : object {
+
+	public readonly string name;
 
 	public int duration = 1;
 
-	public bool stackable = true; //TODO implement
+	public bool stackable = true; //TODO test
 	public bool eternal = true;
 
-	public List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
-	public List<Mult> multProps = new List<Mult>();
+	public readonly List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
+	public readonly List<Mult> multProps = new List<Mult>();
+
+	public event EventHandler TurnStartEvent;
 
 	//CONSTRUCTORS
 
-	public Buff( Mult multiplier = null ) {
-		this.multProps.Add( multiplier );
-	}
+	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null ) : this( name ) {
 
-	public Buff( BuffPropFlag flagProp ) {
 		this.flagProps.Add( flagProp );
+
+		if( multiplier!=null ) {
+			this.multProps.Add( multiplier );
+		}
+
 	}
 
-	public Buff( Mult[] multipliers = null ) {
-		this.multProps.AddRange( multipliers );
-	}
+	public Buff( string name, BuffPropFlag[] flagProps, Mult[] multipliers = null ) : this( name ) {
 
-	public Buff( BuffPropFlag[] flagProps ) {
 		this.flagProps.AddRange( flagProps );
+
+		if( multipliers != null ) {
+			this.multProps.AddRange( multipliers );
+		}
+
 	}
 
-	public Buff( BuffPropFlag[] flagProps, Mult[] multipliers ) {
-		this.flagProps.AddRange( flagProps );
-		this.multProps.AddRange( multipliers );
+	public Buff( string name ) {
+
+		this.name = name;
+
 	}
+
 
 	//OTHER STUFF
 
@@ -125,6 +142,12 @@ public class Buff {
 		return r;
 	}
 
+	public void OnTurnStart() {
+		TurnStartEvent.Invoke();
+	}
+
+	//OPERATORS
+
 	public bool this[BuffPropFlag flag] {
 		get { return GetFlag( flag ); }
 	}
@@ -135,12 +158,16 @@ public class Buff {
 
 	//VIRTUAL
 
-	public override string ToString() {
+	public string ToLongString() {
 		string s = "";
 		foreach( BuffPropFlag flag in flagProps ) {
-			s += "[" + flag + "]";
+			s += '[' + flag + ']';
 		}
 		return s;
+	}
+
+	public override string ToString() {
+		return name;
 	}
 
 	//CLASSES

@@ -7,7 +7,7 @@ public class AutoAnimatedMaterial : MonoBehaviour {
 
 	void Update () {
 		if( renderer.enabled ) {
-			renderer.material.mainTextureOffset += offsetSpeed;
+			renderer.material.mainTextureOffset = new Vector2( offsetSpeed.x * GodOfTime.time % 1, offsetSpeed.y * GodOfTime.time % 1 );
 		}
 	}
 
