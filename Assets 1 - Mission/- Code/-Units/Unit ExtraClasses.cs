@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActionSubjectType { Self, GridTile, Unit }
-
 public class Actions {
 
 	public static Action selectedAction {
@@ -67,6 +65,7 @@ public class Actions {
 		eventListChanged.Invoke();
 	}
 
+
 	internal void Select( int i = 0 ) {
 
 		if( M.IsIntInRange( i, possibleActionsList.Count - 1 ) ) {
@@ -78,26 +77,24 @@ public class Actions {
 	}
 	internal void Select( Action action ) {
 
-		if( selectedAction != null ) {
-			AbortSelected();
-		}
-
 		if( action.possible ) {
+
+			if( selectedAction != null ) {
+				AbortSelected();
+			}
 
 			Debug.Log( owner + " selecting action " + action.ToLongString() );
 			selectedAction = action;
 
+			action.OnSelected();
 
-			if( action.subjectType == ActionSubjectType.Self ) {
-				action.Execute();
-			} else {
-				action.OnSelected();
+			if( action.instant ) {
+				ConfirmSelectedAction();
 			}
 
-			if( action.subjectType == ActionSubjectType.GridTile ) {
+			if( action.subjectType == ActionSubjectType.GridTile ) { //RE-FUCKING-MOVE THIS SHIT AND REWRITE GAMEMODE
 				GameMode.Set( GameModes.PickTile );
-			}
-
+			} else 
 			if( action.subjectType == ActionSubjectType.Unit ) {
 				GameMode.Set( GameModes.PickUnit );
 			}
@@ -133,26 +130,36 @@ public class Actions {
 
 	}
 
-	public void ConfirmSelectedActionOn( object subject ) {
-		DoSelected( subject );
-	}
+	public void ConfirmSelectedActionOn(object subject ) {
 
-	private void DoSelected( object subject ) {
-		if( God.selectedAction != null ) {
-			Do( God.selectedAction as Action<object>, subject );
-		}
-	}
-	private void Do( Action<object> action, object subject ) {
+		if( selectedAction.IsSubjectViable( subject ) ) {
 
-		if( action.IsSubjectViable( subject ) ) {
-			Debug.Log( owner + " begins action " + action + " on subject " + subject );
-			owner.OnAction( action );
-			action._Execute( subject );
+			Debug.Log( owner + " begins action " + selectedAction + " on subject " + subject );
+
+			selectedAction.Execute( subject );
+
 		} else {
-			Debug.LogWarning( owner + " tried action " + action + " on inviable subject " + subject );
+
+			Debug.LogWarning( owner + " tried action " + selectedAction + " on inviable Subject " + subject );
+
 		}
 
 	}
+
+	public void ConfirmSelectedAction() {
+
+		if( selectedAction.possible ) {
+
+			selectedAction.Execute( null );
+
+		} else {
+
+			Debug.LogWarning( owner + " tried impossible action " + selectedAction );
+
+		}
+
+	}
+
 
 	public void OnFinished( Action action ) {
 
@@ -186,7 +193,7 @@ public class Actions {
 	internal void OnTilePicked( GridTile tile ) {
 
 		if( active && selectedAction.subjectType == ActionSubjectType.GridTile ) {
-			if( selectedAction.IsSubjectViable( tile ) ) {
+			if( (selectedAction).IsSubjectViable( tile ) ) {
 				ConfirmSelectedActionOn( tile );
 			}
 		}
@@ -195,7 +202,7 @@ public class Actions {
 	internal void OnUnitPicked( Unit unit ) {
 
 		if( active && selectedAction.subjectType == ActionSubjectType.Unit ) {
-			if( selectedAction.IsSubjectViable( unit ) ) {
+			if( (selectedAction).IsSubjectViable( unit ) ) {
 				ConfirmSelectedActionOn( unit );
 			}
 		}
@@ -407,8 +414,6 @@ public static class UnitMath {
 
 }
 
-public enum UnitModelPosture { Normal, CoverWall, CoverDucked }
-
 public static class UnitAnimation {
 
 	//looping
@@ -479,7 +484,7 @@ public class UnitStatus {
 	}
 
 	internal byte _maxActions;
-	internal byte actionsLeft;
+	internal byte actionPoints;
 
 	internal void Init( UnitProperties props ) {
 		_armor = props.armor;
@@ -490,7 +495,7 @@ public class UnitStatus {
 	}
 
 	internal void ResetActions() {
-		actionsLeft = _maxActions;
+		actionPoints = _maxActions;
 	}
 
 	internal void ReceiveDamage( float amount, DamageType type ) {

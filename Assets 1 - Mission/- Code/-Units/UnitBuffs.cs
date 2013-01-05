@@ -80,9 +80,6 @@ public class UnitBuffs {
 
 }
 
-public enum BuffPropFlag { Defending }
-public enum BuffPropMult { Accuracy, RangedDamage, MeleeDamage, Evasion }
-
 public class Buff : object {
 
 	public readonly string name;

@@ -12,7 +12,6 @@ public class UnitModel : WorldObject {
 
 	internal Weapon currentWeapon;
 
-	internal enum Clip : byte { Idle, Run, Shoot, Die }
 	internal Clip currentClip = 0;
 
 	internal UnitModelPosture posture = UnitModelPosture.Normal;

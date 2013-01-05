@@ -49,7 +49,7 @@ public class MissionGUI : MissionBaseClass {
 				}
 
 				sb.Append( "Actions:" );
-				for( byte i=0 ; i < selectedUnit.status.actionsLeft ; i++ ) { sb.Append( "{O}" ); }
+				for( byte i=0 ; i < selectedUnit.status.actionPoints ; i++ ) { sb.Append( "{O}" ); }
 				sb.AppendLine();
 
 				sb.AppendLine( "\nBuffs:" + selectedUnit.buffs );

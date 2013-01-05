@@ -63,7 +63,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	//internal bool canAct { get { return inPlay && hasActions && actions.count > 0; } }
 	internal bool canMove { get { return canAct; } }
 	internal bool canAttack { get { return canAct && objectsInRange.HaveEnemies() && currentWeapon.canAttack; } }
-	internal bool hasActions { get { return ( status.actionsLeft > 0 ); } }
+	internal bool hasActions { get { return ( status.actionPoints > 0 ); } }
 
 	// PROPERTY GETTERS
 
@@ -228,7 +228,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		acting = true;
 
-		status.actionsLeft -= action.cost;
+		status.actionPoints -= action.cost;
 
 		if( ready ) {
 			GameMode.Disable();

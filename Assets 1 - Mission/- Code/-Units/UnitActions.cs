@@ -11,15 +11,15 @@ public abstract class Action {
 	public readonly string name;
 	public readonly ActionSubjectType subjectType;
 	public readonly byte cost;
-	public readonly bool exhaustible;
 
-	public readonly byte cooldown = 0;
+	public readonly bool instant;
+	public readonly byte cooldown;
 	public int cooldownLeft = 0;
 
-	public bool possible { get { return owner.canAct && cooldownLeft == 0 && _possible; } }
-	protected virtual bool _possible { get { return true; } }
 	public bool visible { get { return owner.canAct && _visible; } }
 	protected virtual bool _visible { get { return _possible; } } //TODO implemento
+	public bool possible { get { return owner.canAct && cooldownLeft == 0 && owner.status.actionPoints >= cost && _possible; } }
+	protected virtual bool _possible { get { return true; } }
 	public virtual bool canDoAgain { get { return possible && subjectType != ActionSubjectType.Self; } }
 
 	public event EventHandler<Action> eventFinished = delegate { };
@@ -28,33 +28,34 @@ public abstract class Action {
 	protected internal Action(
 				Unit owner, object source, string name = "Unnamed",
 				ActionSubjectType subjectType = ActionSubjectType.Self,
-				byte cooldown = 0, byte cost = 1
+				byte cooldown = 0, byte cost = 1, bool instant = false
 			) {
 
 		this.owner = owner;
 		this.source = source;
 		this.name = name;
 		this.subjectType = subjectType;
-		this.exhaustible = false;
 		this.cooldown = cooldown;
 		this.cost = cost;
-		
-		F.NullCheck( owner, this + "'s owner" );
-		F.NullCheck( owner, this + "'s source" );
+		this.instant = instant;
 
 	}
 
-//	public virtual bool IsSubjectViable( object subject ) { return true; }
+	public bool IsSubjectViable( object subject ) { return _IsSubjectViable( subject ); }
 
-	public void Execute() {
+	public virtual bool _IsSubjectViable( object subject ) { return true; }
 
-		cooldownLeft += cooldown;
+	public void Execute( object subject ) {
+
+		cooldownLeft = cooldown;
+
+		owner.OnAction( this );
 
 		_Execute( subject );
 
 	}
 
-	public abstract void _Execute();
+	public abstract void _Execute( object subject );
 
 	public void OnSelected() {
 
@@ -103,27 +104,38 @@ public abstract class Action {
 
 }
 
-public abstract class Action<T> : Action {
+//public abstract class Action<T> : Action {
 
-	public virtual bool IsSubjectViable( T subject ) { return true; }
+//    public virtual bool _IsSubjectViable( T subject ) { return true; }
 
-	protected internal Action (
-				Unit owner, object source, string name = "Unnamed",
-				ActionSubjectType subjectType = ActionSubjectType.Self,
-				byte cooldown = 0, byte cost = 1
-			) : base( owner, source, name, subjectType, cooldown, cost) {}
+//    public virtual bool _IsSubjectViable( object subject ) { return true; }
 
-	public void Execute( T subject ) {
+//    public virtual bool IsSubjectViable( object subject ) { return subject is T; }
 
-		base.Execute();
+//    protected internal Action(
+//                Unit owner, object source, string name = "Unnamed",
+//                ActionSubjectType subjectType = ActionSubjectType.Self,
+//                byte cooldown = 0, byte cost = 1
+//            )
+//        : base( owner, source, name, subjectType, cooldown, cost, false ) { }
 
-		_Execute( subject );
+//    public override void _Execute() {
+//        throw new UnityException( "don't use _Execute() for this type" );
+//    }
 
-	}
+//    public virtual void _Execute( object subject ) { }
 
-	public abstract void _Execute( T subject );
+//    public virtual void _Execute( T subject ) { }
 
-}
+//    public void Execute( T subject ) {
+
+//        _Execute();
+
+//        _Execute( subject );
+
+//    }
+
+//}
 
 /// <summary>
 /// 
@@ -145,10 +157,10 @@ public class ActionsBook : MissionBaseClass {
 	public abstract class InstantAction : Action {
 
 		public InstantAction( Unit owner, object source, string name, byte cooldown = 0, byte cost = 1 )
-			: base( owner, source, name, ActionSubjectType.Self, cooldown, cost ) { }
+			: base( owner, source, name, ActionSubjectType.Self, cooldown, cost, true ) { }
 
-		public override void _Execute() {
-			_Execute( null );
+		public override void _Execute( object subject ) {
+			throw new UnityException( "InstantAction is abstract, fool." );
 		}
 
 	}
@@ -158,7 +170,7 @@ public class ActionsBook : MissionBaseClass {
 		public Test( Unit owner )
 			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
 
-		public override void _Execute() {
+		public override void _Execute( object subject ) {
 
 			Process p;
 
@@ -197,7 +209,7 @@ public class ActionsBook : MissionBaseClass {
 		public Watch( Unit owner )
 			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
 
-		public override void _Execute() {
+		public override void _Execute( object subject ) {
 
 			Process p;
 
@@ -211,14 +223,14 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class Move : Action<GridTile> {
+	public class Move : Action {
 
 		public Move( Unit owner, object source )
 			: base( owner, source, "Move", ActionSubjectType.GridTile ) { }
 
 		protected override bool _possible { get { return owner.canMove; } }
 
-		public override bool IsSubjectViable( GridTile subject ) {
+		public override bool _IsSubjectViable( object subject ) {
 			return subject is GridTile && ( subject as GridTile ).selectable;
 		}
 
@@ -228,7 +240,7 @@ public class ActionsBook : MissionBaseClass {
 			processQueue.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
 		}
 
-		public override void _Execute( GridTile subject ) {
+		public override void _Execute( object subject ) {
 
 			if( subject is GridTile ) {
 
@@ -266,14 +278,14 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class Attack : Action<Unit> {
+	public class Attack : Action {
 
 		public Attack( Unit owner, Weapon source )
 			: base( owner, source, "Attack", ActionSubjectType.Unit ) { }
 
 		protected override bool _possible { get { return owner.canAttack; } }
 
-		public override bool IsSubjectViable( Unit subject ) {
+		public override bool _IsSubjectViable( object subject ) {
 			return subject is Unit && owner.CanTarget( subject as Unit ); ;
 		}
 
@@ -282,7 +294,7 @@ public class ActionsBook : MissionBaseClass {
 			SelectionManager.TargetUnit();
 		}
 
-		public override void _Execute( Unit subject ) {
+		public override void _Execute( object subject ) {
 			if( subject is Unit ) {
 
 				Process p;
@@ -338,7 +350,7 @@ public class ActionsBook : MissionBaseClass {
 
 		protected override bool _possible { get { return !owner.buffs[ BuffPropFlag.Defending ]; } }
 
-		public override void _Execute() {
+		public override void _Execute( object subject ) {
 
 			Logger.Respond( owner + " defending." );
 			owner.buffs.Add( new Buff( "Evasive", BuffPropFlag.Defending ) );
@@ -356,7 +368,7 @@ public class ActionsBook : MissionBaseClass {
 
 		protected override bool _possible { get { return ( source as Firearm ).ammoLeft < ( source as Firearm ).ammoClipSize; } }
 
-		public override void _Execute() {
+		public override void _Execute( object subject ) {
 
 			owner.model.Reload();
 			( source as Firearm ).Reload();

@@ -2,11 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum TargetType : byte { Any, Enemy, Ally }
-public enum AmmoType : byte { bulletSmall, bulletLarge, rocket }
-public enum ItemType : byte { undefined, rangedOneHanded, rangedTwoHanded, rangedHeavy, meleeFist, meleeWielded, throwable }
-public enum equipmentHolder : byte { none, beltRight, beltLeft, backRight, backLeft, head }
-public enum DamageType : byte { NORMAL, INTERNAL, ANTIARMOR, HEALING, TRANQUILIZER } //normal, biological, armor-piercing
 
 	//TODO WorldObject public new Renderer renderer;
 

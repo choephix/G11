@@ -1,24 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-public enum Side : byte { LEFT, CENTER, RIGHT }
-public static class Sides {
-
-	internal static Side FloatToSide( float n ) {
-
-		if( n < 0 ) {
-			return Side.LEFT;
-		}
-
-		if( n > 0 ) {
-			return Side.RIGHT;
-		}
-
-		return Side.CENTER;
-
-	}
-
-}
 
 public static class M {
 

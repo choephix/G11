@@ -235,7 +235,6 @@ public class TurnManager : MissionBaseClass {
 
 }
 
-public enum GameModes : byte { Disabled, Normal, PickTile, PickUnit, GameOver, Default }
 public class GameMode {
 
 	internal static EventHandler<GameModes, GameModes> eventChanged;

@@ -7,7 +7,7 @@ public class AutoAnimated : MonoBehaviour {
 
 	void Update () {
 		unchecked {
-			transform.eulerAngles = rotationSpeed * GodOfTime.time;
+			transform.localEulerAngles += rotationSpeed * GodOfTime.deltaTime;
 		}
 	}
 

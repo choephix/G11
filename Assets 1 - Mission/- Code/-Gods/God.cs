@@ -33,23 +33,28 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 				GameMode.Reset();
 			}
 
-			//if( selectedAction == null && TurnManager.isUserTurn ) {
+			if( selectedUnit && GameMode.interactive ) {
 
-			//    Debug.Log( "God: NULL action handling" );
+				if( selectedUnit.canAct ) {
 
-			//    if( selectedUnit ) {
-			//        if( selectedUnit.canAct ) {
-			//            if( selectedUnit.actions.shouldSelectPreviousAction ) {
-			//                selectedUnit.actions.SelectPrevious();
-			//            } else {
-			//                selectedUnit.actions.SelectDefault();
-			//            }
-			//        } else {
-			//            God.OnSelectedUnitCantAct();
-			//        }
-			//    }
+					if( selectedAction == null && TurnManager.isUserTurn ) {
 
-			//}
+						Debug.Log( "God: NULL action handling" );
+						if( selectedUnit.actions.shouldSelectPreviousAction ) {
+							selectedUnit.actions.SelectPrevious();
+						} else {
+							selectedUnit.actions.SelectDefault();
+						}
+
+					}
+
+				} else {
+
+					God.OnSelectedUnitCantAct();
+
+				}
+
+			}
 
 		}
 
