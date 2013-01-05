@@ -84,7 +84,7 @@ public class Buff : object {
 
 	public readonly string name;
 
-	public int duration = 1;
+	public int duration = 1; //TODO is this implemented?
 
 	public bool stackable = true; //TODO test
 	public bool eternal = true;
@@ -92,8 +92,11 @@ public class Buff : object {
 	public readonly List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
 	public readonly List<Mult> multProps = new List<Mult>();
 
-	public event EventHandler TurnStartEvent;
-
+    public event EventHandler TurnStartEvent;
+    public event EventHandler<int> TurnsPassedEvent;
+    
+    private int turnsPassed = 0;
+    
 	//CONSTRUCTORS
 
 	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null ) : this( name ) {
@@ -140,7 +143,12 @@ public class Buff : object {
 	}
 
 	public void OnTurnStart() {
+        
 		TurnStartEvent.Invoke();
+        
+        turnsPassed++;
+        TurnsPassedEvent.Invoke(turnsPassed);
+        
 	}
 
 	//OPERATORS
@@ -182,3 +190,41 @@ public class Buff : object {
 	}
 
 }
+
+public static class CommonBuffs {
+    
+    public static Buff Bleeding( Damageable buffee ) {
+        
+    	Buff b = new Buff( "Bleeding" );
+		b.eternal = true;
+		b.TurnStartEvent += delegate { buffee.Damage( 2, DamageType.INTERNAL, buffee ); };
+		owner.buffs.Add( b );
+        
+    }
+    
+    public static Buff Poisoned( Damageable buffee ) {
+        
+    	Buff b = new Buff( "Poisoned" );
+		b.duration = 10;
+		b.TurnStartEvent += delegate { buffee.Damage( 1, DamageType.INTERNAL, buffee ); };
+		owner.buffs.Add( b );
+        
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

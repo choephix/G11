@@ -4,6 +4,8 @@ using System.Collections;
 public class MeleeWeapon : Weapon {
 
 	// CHANGABLES
+    
+    public float chanceBleeding = 0;
 
 	// PROPERTY GETTERS
 
@@ -11,7 +13,17 @@ public class MeleeWeapon : Weapon {
 	public float speed = 100;
 
 	public override void Attack( Unit targetUnit, bool hit ) {
-
+        
+        if( hit ) {
+            
+            if( Chance(chanceBleeding) ) {
+                
+                targetUnit.buffs += CommonBuffs.Bleeding(targetUnit);
+                
+            }
+            
+        }
+        
 		StartCoroutine( AttackCoroutine() );
 
 	}
