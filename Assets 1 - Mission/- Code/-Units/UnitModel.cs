@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
+using System.Collections.Generic;
+
 public class UnitModel : WorldObject {
 
 	internal SkinnedMeshRenderer meshRenderer;
@@ -179,5 +181,21 @@ public class UnitModel : WorldObject {
 	}
 
 
+
+	public Material bloodyMat;
+	public void BloodyUp() {
+
+		List<Material> list = new List<Material>();
+
+		list.AddRange( meshRenderer.materials );
+
+		Material m = new Material( bloodyMat );
+		m.mainTextureOffset = new Vector2( rand, rand );
+
+		list.Add( m );
+
+		meshRenderer.materials = list.ToArray();
+
+	}
 
 }

@@ -76,7 +76,10 @@ public class BaseClass : MonoBehaviour {
 	}
 
 	public static void Spit( object s ) {
-		Debug.LogWarning( s.ToString() );
+		if( s == null )
+			Debug.LogWarning( "NULL" );
+		else
+			Debug.LogWarning( s.ToString() );
 	}
 
 }

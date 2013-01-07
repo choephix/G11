@@ -127,7 +127,7 @@ public class Buff : object {
 	public readonly List<Mult> multProps = new List<Mult>();
 
     public event EventHandler TurnStartEvent;
-    public event EventHandler<int> TurnsPassedEvent;
+	public event EventHandler<int> TurnsPassedEvent = delegate { };
     
     private int turnsPassed = 0;
 

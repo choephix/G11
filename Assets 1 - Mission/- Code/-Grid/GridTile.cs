@@ -174,7 +174,7 @@ public class GridTile : MissionBaseClass {
 	internal void Blink() {
 		animation.Rewind();
 		animation.Play( "blink" );
-	//	animation.PlayQueued( "idle" );
+	//	animation.PlayQueued( "IDLE" );
 	}
 
 	internal void UnFog() {

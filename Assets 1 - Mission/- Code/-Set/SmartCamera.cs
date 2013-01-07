@@ -135,11 +135,11 @@ public class SmartCamera : MissionBaseClass {
 
 	}
 
-	internal void OverTheShoulderAndLookTarget( bool rightSide ) {
+	internal void OverTheShoulderAndLookTarget( bool rightSide, float damping = -1 ) {
 		if( rightSide ) {
-			setDestinations( God.selectedUnit.spots.right, God.targetedUnit.model.torso, 1f, .8f );
+			setDestinations( God.selectedUnit.spots.right, God.targetedUnit.model.torso, 1f, damping );
 		} else {
-			setDestinations( God.selectedUnit.spots.left, God.targetedUnit.model.torso, 1f, .8f );
+			setDestinations( God.selectedUnit.spots.left, God.targetedUnit.model.torso, 1f, damping );
 		}
 		//	setDestinations( God.selectedUnit.spots.overHead, God.targetedUnit.model.torso, 1f, .5f );
 	}
@@ -148,7 +148,9 @@ public class SmartCamera : MissionBaseClass {
 
 	internal void OnUnitTargeted( Unit unit ) {
 
-		OverTheShoulderAndLookTarget( selectedUnit.actionSide );
+		if( TurnManager.isUserTurn ) {
+			OverTheShoulderAndLookTarget( selectedUnit.actionSide, .8f );
+		}
 
 	}
 

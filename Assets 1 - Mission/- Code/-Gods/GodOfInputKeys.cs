@@ -32,7 +32,7 @@ public class GodOfInputKeys : MonoBehaviour {
 
 	void Update() {
 
-		if( GodOfInteraction.handleUserInput ) {
+		if( GodOfInteraction.handleUserInputForCamera ) {
 
 			if( Input.GetAxis( B_AXIS_H ) != 0 ) {
 				GodOfInteraction.OnInput_Horizontal( -Input.GetAxis( B_AXIS_H ) * Time.deltaTime * 6 );
@@ -46,6 +46,11 @@ public class GodOfInputKeys : MonoBehaviour {
 			if( Input.GetAxis( B_AXIS_WHEEL ) != 0 ) {
 				GodOfInteraction.OnInput_Wheel( Input.GetAxis( B_AXIS_WHEEL ) * Time.deltaTime );
 			}
+
+		}
+
+		if( GodOfInteraction.handleUserInput ) {
+			
 			if( Input.GetButtonDown( B_CONFIRM ) ) {
 				GodOfInteraction.OnInput_Confirm();
 			}

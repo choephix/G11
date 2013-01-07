@@ -88,7 +88,8 @@ public class SelectionManager : MissionBaseClass {
 
 		Debug.Log( "Will select unit " + ( n + 1 ) + " of " + selectableUnits.Count + " (" + selectableUnits[n] + ")" );
 
-		SelectUnit( selectableUnits[n], true );
+		SelectUnit( selectableUnits[n], TurnManager.isUserTurn ); //TODO change this back
+		//SelectUnit( selectableUnits[n], true );
 		return true;
 
 	}
@@ -227,7 +228,7 @@ public class TurnManager : MissionBaseClass {
 
 	private static void GiveTurn( Team team ) {
 		currentTeam = team;
-		allUnits.ForEach( u => u.collider.enabled = true );
+		allUnits.ForEach( u => { if( u.alive ) u.collider.enabled = true; } );
 		currentTeam.units.ForEach( u => u.OnOurTurnStart() );
 		God.OnTurnStart();
 	}

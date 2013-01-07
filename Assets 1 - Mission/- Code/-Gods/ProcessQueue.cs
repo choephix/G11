@@ -156,7 +156,27 @@ using System.Collections.Generic;
 
 		public static ProcessQueue operator +( ProcessQueue pq, Process p ) { pq.Add( p ); return pq; }
 
+		//-- -- -- -- -- -- -- -- -- -- -- TREE
+
+		protected readonly List<Process> current = new List<Process>();
+		public bool aempty { get { return current.Count == 0; } }
+		public bool arunning = false;
+
+		void aUpdate() {
+
+			if( !aempty ) {
+				arunning = true;
+				for( int i = 0 ; i < current.Count ; i++ ) {
+					UpdateProcess( current[i] );
+				}
+			} else {
+				arunning = false;
+			}
+
+		}
+
 	}
+
 
 
 	public abstract class Process {
@@ -215,9 +235,11 @@ using System.Collections.Generic;
 
 		protected virtual void _End() { }
 
-		public void AttachPassive( Process process ) {
+		public Process AttachPassive( Process process ) {
 
 			attachedPassiveProcesses.Add( process );
+
+			return process;
 
 		}
 
@@ -227,7 +249,18 @@ using System.Collections.Generic;
 
 		}
 
+		//-- -- -- -- -- -- -- -- -- -- -- TREE
+
+		public readonly List<Process> enqueued = new List<Process>();
+
+		public Process Enqueue( Process process ) {
+			enqueued.Add( process );
+			return process;
+		}
+
 	}
+
+
 
 	public class ProcessBook : MissionBaseClass {
 
@@ -364,6 +397,91 @@ using System.Collections.Generic;
 				}
 
 				return name + " (" + M.Round( GodOfTime.speed, 2 ) + '/' + newSpeed + ')';
+
+			}
+
+		}
+
+		public class BulletTime : SimpleProcess {
+
+			private readonly bool instant;
+			private readonly float tempSpeed;
+			private readonly float duration;
+			private readonly float fade;
+			private float time;
+
+			private float stepPerSecond;
+			
+			public BulletTime( float tempSpeed, float duration = 1f, float fade = 0f )
+				: base( "BulletTime", false ) {
+
+				this.tempSpeed = tempSpeed;
+				this.duration = duration;
+				this.fade = fade;
+				this.time = 0;
+
+				this.instant = fade <= 0;
+
+			}
+
+			protected override void _Start() {
+
+				if( !instant ) {
+
+					stepPerSecond = tempSpeed - GodOfTime.speed;
+					stepPerSecond /= fade;
+
+				}
+
+			}
+
+			protected override void _Update() {
+
+				time += Time.deltaTime;
+
+				if( instant ) {
+
+					if( time < duration ) {
+						GodOfTime.speed = tempSpeed;
+					} else {
+						End();
+					}
+
+				} else {
+
+					if( time < fade ) {
+
+						GodOfTime.speed += Time.deltaTime * stepPerSecond;
+
+					} else if( time < duration - fade ) {
+
+						GodOfTime.speed = tempSpeed;
+
+					} else if( time < duration ) {
+
+						GodOfTime.speed -= Time.deltaTime * stepPerSecond;
+
+					} else {
+
+						End();
+
+					}
+
+				}
+
+			}
+
+			protected override void _End() {
+				GodOfTime.speed = 1f;
+			}
+
+			public override string ToString() {
+
+				if( !started ) {
+					return name;
+				}
+
+				return name + " (" + M.Round( GodOfTime.speed, 2 ) + '/' + tempSpeed + ')';
 
 			}
 
@@ -572,7 +690,9 @@ using System.Collections.Generic;
 
 				} else {
 
-					processQueue.Add( new ProcessBook.ChangeTimeSpeed( path[0].obstructed ? .75f : 1f, .1f ), true );
+					if( path[0].obstructed ) {
+						processQueue.Add( new ProcessBook.BulletTime( .22f, .4f ) );
+					}
 
 				}
 
@@ -613,7 +733,7 @@ using System.Collections.Generic;
 
 				if( attacker.canAttack ) {
 
-					GameMode.cinematic = true;
+					//GameMode.cinematic = true;
 
 					bool successful = result.msg == AttackResult.Message.SUCCESS;
 
@@ -628,9 +748,6 @@ using System.Collections.Generic;
 					if( successful ) {
 						p.eventEnded += delegate {
 							attackee.Damage( attacker.propAttackDamage, attacker.currentWeapon.damageType, attacker );
-							if( !attackee.alive ) {
-								processQueue.Add( new ProcessBook.ChangeTimeSpeed( .2f ), true );
-							}
 						};
 					}
 
@@ -653,19 +770,49 @@ using System.Collections.Generic;
 
 		}
 
+		public class UnitHeal : UnitProcess {
+
+			public readonly float healingSpeed = .25f;
+
+			public readonly float healingAmount;
+			public float healingProgress;
+
+			public UnitHeal( Unit subject, float amount )
+				: base( "Healing", subject ) {
+					this.healingAmount = amount;
+			}
+
+			protected override void _Update() {
+				
+				if( healingProgress < healingAmount ) {
+
+					healingProgress += healingSpeed;
+					u.status.health += healingSpeed;
+
+				} else {
+
+					End();
+
+				}
+
+			}
+
+		}
+
 		public class Throw : UnitProcess {
+
+			protected const float speed		= .04f;
+			protected const float height	= 1.5f;
 
 			protected readonly Unit thrower;
 			protected readonly Transform throwee;
-			protected readonly Vector3 destination;
 
-			protected readonly float speed = .1f;
-
-			protected float height = 3f;
-
-			protected Vector3 startPosition;
+			protected Vector3 positionEnd;
+			protected Vector3 positionStart;
 			protected float distance;
 
+			protected Vector3 startPosition;
+			
 			protected float progress = 0;
 
 			public Throw( Unit thrower, Transform throwee, GridTile destination )
@@ -673,31 +820,38 @@ using System.Collections.Generic;
 
 				this.thrower = thrower;
 				this.throwee = throwee;
-				this.destination = destination.transform.position;
+				this.positionEnd = destination.transform.position;
 
 			}
 
 			protected override void _Start() {
-
-				//distance = Vector3.Distance( destination, throwee.position );
-				//throwee.position = thrower.spots.head.position;
+				thrower.model.Reload();
+				this.positionStart = throwee.transform.position;
+				this.distance = Vector3.Distance( positionStart, positionEnd );
 				throwee.transform.parent = null;
-
 			}
 
 			protected override void _Update() {
 
-				//Vector3.MoveTowards( throwee.position, destination, speed );
+				progress += speed;
 
-				//progress = Vector3.Distance( startPosition, throwee.position ) / distance;
+				throwee.position = CalculatePosition();
 
-				height -= .2f;
-
-				throwee.position = destination + Vector3.up * height;
-
-				if( height <= 0 ) {
+				if( progress >= 1f ) {
 					End();
 				}
+
+			}
+
+			private Vector3 CalculatePosition() {
+
+				Vector3 r = new Vector3();
+
+				r = Vector3.MoveTowards( positionStart, positionEnd, progress*distance );
+
+				r += Vector3.up * Mathf.Sin( progress * Mathf.PI ) * height;
+
+				return r;
 
 			}
 
@@ -755,8 +909,8 @@ using System.Collections.Generic;
 					BookOfEverything.me.gfx[0], center, Quaternion.identity ) as TempObject;
 				splosion.eventDeath += End;
 
-				TempObject decal = Instantiate( 
-					BookOfEverything.me.gfx[1], center, Quaternion.identity ) as TempObject;
+				Instantiate( 
+					BookOfEverything.me.gfx[1], center, Quaternion.identity );
 
 			}
 

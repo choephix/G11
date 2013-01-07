@@ -57,6 +57,10 @@ public class Actions {
 		actionsList.AddRange( collection );
 		eventListChanged.Invoke();
 	}
+	internal void Remove( Action action ) {
+		actionsList.Remove( action );
+		eventListChanged.Invoke();
+	}
 	internal void RemoveAll( List<Action> list ) {
 		actionsList.RemoveAll( a => list.Contains( a ) );
 		eventListChanged.Invoke();
@@ -165,7 +169,13 @@ public class Actions {
 
 		Debug.Log( owner + " finished selected action " + selectedAction );
 
-		Deselect();
+		if( !action.canDoAgain ) {
+			Deselect();
+		}
+
+		if( action.oneUse ) {
+			Remove( action );
+		}
 
 	}
 	public void AbortSelected() {
@@ -173,6 +183,7 @@ public class Actions {
 		Debug.Log( owner + " aborted selected action " + selectedAction );
 
 		Deselect();
+		previousAction = null;
 
 	}
 
@@ -378,6 +389,8 @@ public class UnitStatus {
 
 	private int _maxActions;
 	public int actionPoints;
+
+	public bool fullHealth { get { return health >= _maxHealth; } }
 
 	internal void Init( UnitProperties props ) {
 		_armor = props.armor;

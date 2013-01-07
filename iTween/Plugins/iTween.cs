@@ -1332,13 +1332,13 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's position over time to a supplied destination with MINIMUM customization options.
+	/// Changes a GameObject's position over time to a supplied positionEnd with MINIMUM customization options.
 	/// </summary>
 	/// <subjectUnit name="attackee">
 	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="position">
-	/// A <see cref="Vector3"/> for the destination Vector3.
+	/// A <see cref="Vector3"/> for the positionEnd Vector3.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -1348,7 +1348,7 @@ public class iTween : MonoBehaviour{
 	}	
 		
 	/// <summary>
-	/// Changes a GameObject's position over time to a supplied destination with FULL customization options.
+	/// Changes a GameObject's position over time to a supplied positionEnd with FULL customization options.
 	/// </summary>
 	/// <subjectUnit name="position">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a point in space the GameObject will animate to.
@@ -1449,13 +1449,13 @@ public class iTween : MonoBehaviour{
 	}
 		
 	/// <summary>
-	/// Instantly changes a GameObject's position to a supplied destination then returns it to it's starting position over time with MINIMUM customization options.
+	/// Instantly changes a GameObject's position to a supplied positionEnd then returns it to it's starting position over time with MINIMUM customization options.
 	/// </summary>
 	/// <subjectUnit name="attackee">
 	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="position">
-	/// A <see cref="Vector3"/> for the destination Vector3.
+	/// A <see cref="Vector3"/> for the positionEnd Vector3.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -1465,7 +1465,7 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Instantly changes a GameObject's position to a supplied destination then returns it to it's starting position over time with FULL customization options.
+	/// Instantly changes a GameObject's position to a supplied positionEnd then returns it to it's starting position over time with FULL customization options.
 	/// </summary>
 	/// <subjectUnit name="position">
 	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a point in space the GameObject will animate to.

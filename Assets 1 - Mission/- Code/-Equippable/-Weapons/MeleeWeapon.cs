@@ -15,8 +15,6 @@ public class MeleeWeapon : Weapon {
 	public override void Attack( Unit targetUnit, IDamageable hittee ) {
 
 		if( hittee == targetUnit ) {
-
-			God.Spit( "SLASH!" );
             
             if( God.Chance(chanceBleeding) ) {
                 

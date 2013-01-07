@@ -31,7 +31,7 @@ public class Obstruction : HoloObject, IDamageable {
 			model.enabled = true;
 			label.renderer.enabled = true;
 			//animation.Play( "holoUp" );
-			//animation.CrossFadeQueued( "idle", .05f );
+			//animation.CrossFadeQueued( "IDLE", .05f );
 			animation.Play( "idle" );
 			animation.Rewind();
 		}

@@ -3,6 +3,9 @@ using System.Collections;
 
 public class Grenade : Throwable {
 
+	[SerializeField]
+	protected LineRenderer line;
+
 	public override void Init( Unit owner ) {
 
 		base.Init( owner );

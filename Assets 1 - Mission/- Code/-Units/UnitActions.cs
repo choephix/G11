@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -11,6 +12,7 @@ public abstract class Action {
 	public readonly string name;
 	public readonly ActionSubjectType subjectType;
 	public readonly byte cost;
+	public bool oneUse = false;
 
 	public readonly bool instant;
 	public readonly byte cooldown;
@@ -21,7 +23,7 @@ public abstract class Action {
 	public bool possible { get { return owner.canAct && cooldownLeft == 0 && owner.status.actionPoints >= cost && _possible; } }
 	protected virtual bool _possible { get { return true; } }
 	public bool canDoAgain { get { return possible && _canDoAgain; } }
-	public virtual bool _canDoAgain { get { return subjectType != ActionSubjectType.Self; } }
+	protected virtual bool _canDoAgain { get { return subjectType != ActionSubjectType.Self; } }
 
 	public event EventHandler<Action> eventFinished = delegate { };
 
@@ -63,7 +65,7 @@ public abstract class Action {
 		Debug.Log( owner + " selected action " + ToLongString() );
 
 		_OnSelected();
-	
+
 	}
 
 	public virtual void _OnSelected() { }
@@ -72,7 +74,7 @@ public abstract class Action {
 
 		owner.OnActionFinished( this );
 
-		eventFinished.Invoke(this);
+		eventFinished.Invoke( this );
 
 		//OnDeselected();
 
@@ -178,7 +180,7 @@ public class ActionsBook : MissionBaseClass {
 			Process p;
 
 
-			p = new ProcessBook.Wait( 30 );
+			p = new ProcessBook.Wait( 3 );
 			processQueue += p;
 
 			p = new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 8, DamageType.NORMAL );
@@ -225,6 +227,7 @@ public class ActionsBook : MissionBaseClass {
 			: base( owner, source, "Move", ActionSubjectType.GridTile ) { }
 
 		protected override bool _possible { get { return owner.canMove; } }
+		protected override bool _canDoAgain { get { return false; } }
 
 		public override bool _IsSubjectViable( object subject ) {
 			return subject is GridTile && ( subject as GridTile ).selectable;
@@ -287,7 +290,7 @@ public class ActionsBook : MissionBaseClass {
 		}
 
 		public override void _OnSelected() {
-		//	GameMode.Set( GameModes.PickUnit );
+			//	GameMode.Set( GameModes.PickUnit );
 			SelectionManager.TargetUnit();
 		}
 
@@ -299,13 +302,7 @@ public class ActionsBook : MissionBaseClass {
 				p = new ProcessBook.UnitAttack( owner, subject as Unit );
 				processQueue += p;
 
-				p = new ProcessBook.WaitSeconds(.15f);
-				processQueue += p;
-
-				p = new ProcessBook.ChangeTimeSpeed( 1f );
-				processQueue.Add( p );
-
-				p = new ProcessBook.WaitSeconds( .3f );
+				p = new ProcessBook.WaitSeconds( .20f );
 				processQueue += p;
 
 				p.eventEnded += Finish;
@@ -344,11 +341,12 @@ public class ActionsBook : MissionBaseClass {
 
 		private readonly Buff buff;
 
-		public Defend( Unit owner, object source ) : base( owner, source, "Defend" ) {
+		public Defend( Unit owner, object source )
+			: base( owner, source, "Defend" ) {
 			buff = BuffsBook.Alert( owner );
 		}
 
-		protected override bool _possible { get { return !owner.buffs.HasDuplicates(buff); } }
+		protected override bool _possible { get { return !owner.buffs.HasDuplicates( buff ); } }
 
 		public override void _Execute( object subject ) {
 
@@ -379,19 +377,39 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
+	public class Heal : InstantAction {
+
+		protected int healAmount;
+
+		public Heal( Unit owner, Equippable source, int amount )
+			: base( owner, source, "Heal "+amount ) { oneUse = true; healAmount = amount; }
+
+		protected override bool _possible { get { return !owner.status.fullHealth; } }
+
+		public override void _Execute( object subject ) {
+
+			Process p = new ProcessBook.UnitHeal( owner, healAmount );
+			processQueue += p;
+			p.eventEnded += Finish;
+
+		}
+
+	}
+
 	public class ThrowGrenade : Action {
 
 		public ThrowGrenade( Unit owner, Grenade source )
-			: base( owner, source, "ThrowGrenade", ActionSubjectType.GridTile ) { }
+			: base( owner, source, "ThrowGrenade", ActionSubjectType.GridTile ) { oneUse = true; }
 
 		protected override bool _possible { get { return true; } }
-		public override bool _canDoAgain { get { return false; } }
+		protected override bool _canDoAgain { get { return false; } }
 
 		public override bool _IsSubjectViable( object subject ) {
 			return subject is GridTile && ( subject as GridTile ).selectable;
 		}
 
 		public override void _OnSelected() {
+
 			GameMode.Set( GameModes.PickTile );
 			processQueue.Add( new ProcessBook.Wait( 1 ) );
 			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, 6 ) );
@@ -400,6 +418,9 @@ public class ActionsBook : MissionBaseClass {
 			owner.model.Show( source as Equippable );
 			owner.model.Equip( source as Equippable, owner.model.finger );
 			owner.model.Reload();
+
+
+
 		}
 
 		public override void _Execute( object subject ) {
@@ -410,7 +431,7 @@ public class ActionsBook : MissionBaseClass {
 
 				Process p;
 
-				p = new ProcessBook.Throw( owner , source as Grenade , subject as GridTile );
+				p = new ProcessBook.Throw( owner, source as Grenade, subject as GridTile );
 				processQueue.Add( p );
 
 				p = new ProcessBook.Wait( 5 );
@@ -419,9 +440,8 @@ public class ActionsBook : MissionBaseClass {
 				//p = new ProcessBook.ChangeTimeSpeed( .2f, 3f );
 				//processQueue.Add( p, true );
 
-				p = new ProcessBook.AreaDamage( (subject as GridTile).transform.position, 4, 8, DamageType.NORMAL );
+				p = new ProcessBook.AreaDamage( ( subject as GridTile ).transform.position, 4, 8, DamageType.NORMAL );
 				processQueue += p;
-				//p.AttachPassive( new ProcessBook.ChangeTimeSpeed( 1f, .5f ) );
 
 				p.eventEnded += Finish;
 

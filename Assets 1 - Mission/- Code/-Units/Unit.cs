@@ -312,6 +312,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 				transform.LookAt( attacker.transform );
 			}
 
+			model.BloodyUp();
+
 			if( status.health <= 0 ) {
 				Die( attacker );
 			} else {
@@ -332,10 +334,16 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			model.Die();
 			eventDeath.Invoke( this, killer );
 
-			Object splatter = Instantiate(
+			processQueue.Add( new ProcessBook.BulletTime( .05f, .85f, .2f ), true );
+
+			TempObject bloodspatter = Instantiate(
 					BookOfEverything.me.gfx[2],
 					transform.position,
-					transform.rotation ); 
+					transform.rotation ) as TempObject;
+
+			if( killer ) {
+				bloodspatter.transform.LookAt( killer.transform );
+			}
 
 		}
 

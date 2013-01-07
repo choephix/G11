@@ -82,8 +82,6 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 			StartGame();
 		}
 
-		//new ActionsBook.Move();
-
 	}
 	
 	private static void StartGame() {
@@ -95,12 +93,6 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 		GodOfInteraction.eventUnitPicked += OnUnitPicked;
 		SelectionManager.UnitSelectedEvent += OnUnitSelected;
 		SelectionManager.UnitTargetedEvent += OnUnitTargeted;
-
-		//foreach( Team team in allTeams ) {
-		//    if( team.isUserControlled ) {
-		//        team.ActivateSquad( 0 );
-		//    }
-		//}
 
 		GameMode.SetDefault( GameModes.Normal );
 		GameMode.Reset();
@@ -127,8 +119,10 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 		Debug.Log( "Updating all units." );
 
 		foreach( Unit unit in allUnits ) {
-			unit.collider.enabled = CanTarget( unit );
-			unit.UpdateEverything();
+			if( unit.alive ) {
+				unit.collider.enabled = CanTarget( unit );
+				unit.UpdateEverything();
+			}
 		}
 
 		SelectionManager.RefreshList();
@@ -191,20 +185,20 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 	internal static void OnUnitPicked( Unit unit ) {
 
-		//if( GameMode.targeting ) {
-		//    if( unit.targeted ) {
-		//        OnInput_Confirm(); //TODO (delegates?)
-		//    } else if( God.CanTarget( unit ) ) {
-		//        SelectionManager.TargetUnit( unit );
-		//    }
-		//    return;
-		//}
-		//if( GameMode.selecting ) {
-		//    if( unit.selectable ) {
-		//        SelectionManager.SelectUnit( unit, false );
-		//    }
-		//    return;
-		//}
+		if( GameMode.targeting ) {
+			if( unit.targeted ) {
+				GodOfInteraction.OnInput_Confirm(); //TODO (delegates?)
+			} else if( CanTarget( unit ) ) {
+				SelectionManager.TargetUnit( unit );
+			}
+			return;
+		}
+		if( GameMode.selecting ) {
+			if( unit.selectable ) {
+				SelectionManager.SelectUnit( unit, false );
+			}
+			return;
+		}
 
 	}
 
@@ -284,7 +278,8 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 		Debug.Log( TurnManager.currentTeam + "'s turn has started" );
 
-		SelectionManager.SelectUnit(null, true);
+	//	SelectionManager.SelectUnit( null, true );
+		SelectionManager.SelectUnit( null, false );
 
 	}
 

@@ -43,8 +43,15 @@ public class GodOfInteraction : MissionBaseClass {
 
 	}
 
-	public static bool handleUserInput { get { 
-		return GameMode.interactive && TurnManager.isUserTurn; } }
+	public static bool handleUserInput {
+		get {
+			return GameMode.interactive && TurnManager.isUserTurn;
+		}
+	}
+
+	public static bool handleUserInputForCamera {
+		get {return true;}
+	}
 
 	internal static void OnInput_Action( int i ) {
 		if( GameMode.interactive ) {

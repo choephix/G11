@@ -70,9 +70,9 @@ public class MissionGUI : MissionBaseClass {
 						);
 				}
 
-				GUI.Label( rect.selectedUnit, new GUIContent( sb.ToString() ), "UnitCard" );
+				GUI.Label( rect.selectedUnit, new GUIContent( sb.ToString() ), "UnitCard"+(TurnManager.isUserTurn?"":"Enemy") );
 
-				GUI.Label( rect.console, consoleLog, "Log" );
+				GUI.Label( rect.console, consoleLog, "Log" + ( TurnManager.isUserTurn ? "" : "Enemy" ) );
 
 				sb = new StringBuilder("Round " + TurnManager.roundN +
 					"\n[TeamsWithTurn:" + TurnManager.activeTeamsWithTurn.Count + "/" + TurnManager.activeTeams.Count + "]" +
@@ -82,13 +82,13 @@ public class MissionGUI : MissionBaseClass {
 					"\nTimeSpeed:" + GodOfTime.speed +
 					"\n..");
 
-				GUI.Label( rect.watchBox, sb.ToString(), "Log" );
+				GUI.Label( rect.watchBox, sb.ToString(), "Log" + ( TurnManager.isUserTurn ? "" : "Enemy" ) );
 
 				GUI.Label( rect.equipment, selectedUnit.currentWeapon + "  " + selectedAction + "\n" + selectedUnit.actions.ToStringRibbon(), "EquipmentRibbon" );
 
 			} else {
 
-				GUI.Label( rect.selectedUnit, new GUIContent( TurnManager.currentTeam.name + "'s Turn." ), "UnitCard" );
+				GUI.Label( rect.selectedUnit, new GUIContent( TurnManager.currentTeam.name + "'s Turn." ), "UnitCard" + ( TurnManager.isUserTurn ? "" : "Enemy" ) );
 
 			}
 
@@ -96,7 +96,7 @@ public class MissionGUI : MissionBaseClass {
 
 			if( God.gameStarted && TurnManager.currentTeam.isCpuControlled ) {
 
-				GUI.Label( rect.selectedUnit, new GUIContent( TurnManager.currentTeam.name + "'s Turn. >>" ), "UnitCard" );
+				GUI.Label( rect.selectedUnit, new GUIContent( TurnManager.currentTeam.name + "'s Turn. >>" ), "UnitCard" + ( TurnManager.isUserTurn ? "" : "Enemy" ) );
 
 			}
 
