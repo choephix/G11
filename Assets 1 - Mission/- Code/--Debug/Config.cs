@@ -6,7 +6,7 @@ public static class Config {
 
 	public static bool USE_FOG = false;
 
-	public static int DEV_UNIT_SIGHT_RANGE = 8;
+	public static int DEV_UNIT_SIGHT_RANGE = 24;
 	public static int DEV_UNIT_MOVE_RANGE = 8;
 
 	public static float DEV_HIT_CHANCE_MULTIPLIER = 1.25f;
@@ -22,6 +22,8 @@ public static class Config {
 	public static bool OVERRIDE_HIT_CHANCE_COVER = false;
 	/// Covers do not apply to hit chance
 	public static bool OVERRIDE_HIT_CHANCE_UNIT_SIZE = false;
+	/// Covers do not apply to hit chance
+	public static bool OVERRIDE_HIT_CHANCE_UNIT_EVASION = false;
 
 
 	public static bool SHOW_PATH_ARROWS = false;

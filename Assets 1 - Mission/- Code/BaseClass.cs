@@ -28,9 +28,10 @@ public class BaseClass : MonoBehaviour {
 		while(v.y<min) v.y+=delta;
 		return v;
 	}
-	
-	internal static bool Chance(float v) { return rand*100<v; }
-	internal static bool Chance(int v) { return rand*100<v; }
+
+	internal static bool Chance( float v ) { return rand * 100 < v; }
+	internal static bool Chance( int v ) { return rand * 100 < v; }
+	internal static bool Chance1( float v ) { return rand < v; }
 
 	//internal static void OffsetVector( ref Vector3 v, float x, float y = 0, float z = 0 ) {
 	//    v = v + new Vector3( x, y, z );

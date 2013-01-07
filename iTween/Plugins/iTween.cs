@@ -210,8 +210,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Sets up a GameObject to avoid hiccups when an initial iTween is added. It's advisable to run this on every object you intend to run iTween on in its Start or Awake.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target to be initialized for iTween.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee to be initialized for iTween.
 	/// </subjectUnit>
 	public static void Init(GameObject target){
 		MoveBy(target,Vector3.zero,0);
@@ -453,10 +453,10 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter. 
+	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation. Identical to using ColorFrom and using the "a" parameter. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="alpha">
 	/// A <see cref="System.Single"/> for the final alpha value of the animation.
@@ -469,7 +469,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorFrom and using the "a" parameter.
+	/// Changes a GameObject's alpha value instantly then returns it to the provided alpha over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation. Identical to using ColorFrom and using the "a" parameter.
 	/// </summary>
 	/// <subjectUnit name="alpha">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the initial alpha value of the animation.
@@ -524,10 +524,10 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's alpha value over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
+	/// Changes a GameObject's alpha value over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation. Identical to using ColorTo and using the "a" parameter.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="alpha">
 	/// A <see cref="System.Single"/> for the final alpha value of the animation.
@@ -540,7 +540,7 @@ public class iTween : MonoBehaviour{
 	}	
 
 	/// <summary>
-	/// Changes a GameObject's alpha value over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation. Identical to using ColorTo and using the "a" parameter.
+	/// Changes a GameObject's alpha value over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation. Identical to using ColorTo and using the "a" parameter.
 	/// </summary>
 	/// <subjectUnit name="alpha">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the final alpha value of the animation.
@@ -595,10 +595,10 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
+	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="color">
 	/// A <see cref="Color"/> to change the GameObject's color to.
@@ -611,7 +611,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the target of the animation.
+	/// Changes a GameObject's color values instantly then returns them to the provided properties over time with FULL customization options.  If a GUIText or GUITexture component is attached, it will become the attackee of the animation.
 	/// </summary>
 	/// <subjectUnit name="color">
 	/// A <see cref="Color"/> to change the GameObject's color to.
@@ -753,10 +753,10 @@ public class iTween : MonoBehaviour{
 	}		
 	
 	/// <summary>
-	/// Changes a GameObject's color values over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// Changes a GameObject's color values over time with MINIMUM customization options.  If a GUIText or GUITexture component is attached, they will become the attackee of the animation.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="color">
 	/// A <see cref="Color"/> to change the GameObject's color to.
@@ -769,7 +769,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Changes a GameObject's color values over time with FULL customization options.  If a GUIText or GUITexture component is attached, they will become the target of the animation.
+	/// Changes a GameObject's color values over time with FULL customization options.  If a GUIText or GUITexture component is attached, they will become the attackee of the animation.
 	/// </summary>
 	/// <subjectUnit name="color">
 	/// A <see cref="Color"/> to change the GameObject's color to.
@@ -858,13 +858,13 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly changes an AudioSource's volume and pitch then returns it to it's starting volume and pitch over time with MINIMUM customization options. Default AudioSource attached to GameObject will be used (if one exists) if not supplied.
 	/// </summary>
-	/// <subjectUnit name="target"> 
-	/// A <see cref="GameObject"/> to be the target of the animation which holds the AudioSource to be changed.
+	/// <subjectUnit name="attackee"> 
+	/// A <see cref="GameObject"/> to be the attackee of the animation which holds the AudioSource to be changed.
 	/// </subjectUnit>
-	/// <subjectUnit name="volume"> for the target level of volume.
+	/// <subjectUnit name="volume"> for the attackee level of volume.
 	/// A <see cref="System.Single"/>
 	/// </subjectUnit>
-	/// <subjectUnit name="pitch"> for the target pitch.
+	/// <subjectUnit name="pitch"> for the attackee pitch.
 	/// A <see cref="System.Single"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
@@ -881,10 +881,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="AudioSource"/> for which AudioSource to use.
 	/// </subjectUnit> 
 	/// <subjectUnit name="volume">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target level of volume.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee level of volume.
 	/// </subjectUnit>
 	/// <subjectUnit name="pitch">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target pitch.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee pitch.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -980,13 +980,13 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Fades volume and pitch of an AudioSource with MINIMUM customization options.  Default AudioSource attached to GameObject will be used (if one exists) if not supplied. 
 	/// </summary>
-	/// <subjectUnit name="target"> 
-	/// A <see cref="GameObject"/> to be the target of the animation which holds the AudioSource to be changed.
+	/// <subjectUnit name="attackee"> 
+	/// A <see cref="GameObject"/> to be the attackee of the animation which holds the AudioSource to be changed.
 	/// </subjectUnit>
-	/// <subjectUnit name="volume"> for the target level of volume.
+	/// <subjectUnit name="volume"> for the attackee level of volume.
 	/// A <see cref="System.Single"/>
 	/// </subjectUnit>
-	/// <subjectUnit name="pitch"> for the target pitch.
+	/// <subjectUnit name="pitch"> for the attackee pitch.
 	/// A <see cref="System.Single"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
@@ -1003,10 +1003,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="AudioSource"/> for which AudioSource to use.
 	/// </subjectUnit> 
 	/// <subjectUnit name="volume">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target level of volume.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee level of volume.
 	/// </subjectUnit>
 	/// <subjectUnit name="pitch">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target pitch.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee pitch.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -1065,8 +1065,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Plays an AudioClip once based on supplied volume and pitch and following any delay with MINIMUM customization options. AudioSource is optional as iTween will provide one.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation which holds the AudioSource to be utilized.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation which holds the AudioSource to be utilized.
 	/// </subjectUnit>
 	/// <subjectUnit name="audioclip">
 	/// A <see cref="AudioClip"/> for a reference to the AudioClip to be played.
@@ -1088,10 +1088,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="AudioSource"/> for which AudioSource to use
 	/// </subjectUnit> 
 	/// <subjectUnit name="volume">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target level of volume.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee level of volume.
 	/// </subjectUnit>
 	/// <subjectUnit name="pitch">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target pitch.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee pitch.
 	/// </subjectUnit>
 	/// <subjectUnit name="delay">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the action will wait before beginning.
@@ -1135,11 +1135,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly rotates a GameObject to look at the supplied Vector3 then returns it to it's starting rotation over time with MINIMUM customization options. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> to be the Vector3 that the target will look towards.
+	/// A <see cref="Vector3"/> to be the Vector3 that the attackee will look towards.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -1152,7 +1152,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly rotates a GameObject to look at a supplied Transform or Vector3 then returns it to it's starting rotation over time with FULL customization options. 
 	/// </summary>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
@@ -1209,10 +1209,10 @@ public class iTween : MonoBehaviour{
 		//set look:
 		tempRotation=target.transform.eulerAngles;
 		if (args["looktarget"].GetType() == typeof(Transform)) {
-			//target.transform.LookAt((Transform)args["looktarget"]);
+			//attackee.transform.LookAt((Transform)args["looktarget"]);
 			target.transform.LookAt((Transform)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 		}else if(args["looktarget"].GetType() == typeof(Vector3)){
-			//target.transform.LookAt((Vector3)args["looktarget"]);
+			//attackee.transform.LookAt((Vector3)args["looktarget"]);
 			target.transform.LookAt((Vector3)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 		}
 		
@@ -1248,11 +1248,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Rotates a GameObject to look at the supplied Vector3 over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> to be the Vector3 that the target will look towards.
+	/// A <see cref="Vector3"/> to be the Vector3 that the attackee will look towards.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -1265,7 +1265,7 @@ public class iTween : MonoBehaviour{
 	/// Rotates a GameObject to look at a supplied Transform or Vector3 over time with FULL customization options.
 	/// </summary>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
@@ -1334,8 +1334,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Changes a GameObject's position over time to a supplied destination with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="position">
 	/// A <see cref="Vector3"/> for the destination Vector3.
@@ -1372,7 +1372,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -1451,8 +1451,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly changes a GameObject's position to a supplied destination then returns it to it's starting position over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="position">
 	/// A <see cref="Vector3"/> for the destination Vector3.
@@ -1489,7 +1489,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -1639,8 +1639,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Translates a GameObject's position over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
@@ -1671,7 +1671,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -1737,8 +1737,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Adds the supplied coordinates to a GameObject's postion with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount of change in position to move the GameObject.
@@ -1769,7 +1769,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -1835,8 +1835,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Changes a GameObject's scale over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="scale">
 	/// A <see cref="Vector3"/> for the final scale.
@@ -1928,8 +1928,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly changes a GameObject's scale then returns it to it's starting scale over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="scale">
 	/// A <see cref="Vector3"/> for the final scale.
@@ -2043,8 +2043,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Adds to a GameObject's scale over time with FULL customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount of scale to be added to the GameObject's current scale.
@@ -2126,8 +2126,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Multiplies a GameObject's scale over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount of scale to be multiplied by the GameObject's current scale.
@@ -2209,11 +2209,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Rotates a GameObject to the supplied Euler angles in degrees over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// A <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate to.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -2226,7 +2226,7 @@ public class iTween : MonoBehaviour{
 	/// Rotates a GameObject to the supplied Euler angles in degrees over time with FULL customization options.
 	/// </summary>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate to.
 	/// </subjectUnit>
 	/// <subjectUnit name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
@@ -2305,11 +2305,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Instantly changes a GameObject's Euler angles in degrees then returns it to it's starting rotation over time (if allowed) with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Vector3"/> for the target Euler angles in degrees to rotate from.
+	/// A <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate from.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -2322,7 +2322,7 @@ public class iTween : MonoBehaviour{
 	/// Instantly changes a GameObject's Euler angles in degrees then returns it to it's starting rotation over time (if allowed) with FULL customization options.
 	/// </summary>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate to.
 	/// </subjectUnit>
 	/// <subjectUnit name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
@@ -2439,8 +2439,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Adds supplied Euler angles in degrees to a GameObject's rotation over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount of Euler angles in degrees to add to the current rotation of the GameObject.
@@ -2525,8 +2525,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Multiplies supplied values by 360 and rotates a GameObject by calculated amount over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the amount to be multiplied by 360 to rotate the GameObject.
@@ -2614,8 +2614,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Randomly shakes a GameObject's position by a diminishing amount over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of shake.
@@ -2649,7 +2649,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -2703,8 +2703,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Randomly shakes a GameObject's scale by a diminishing amount over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of shake.
@@ -2780,8 +2780,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Randomly shakes a GameObject's rotation by a diminishing amount over time with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of shake.
@@ -2860,8 +2860,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Applies a jolt of force to a GameObject's position and wobbles it back to its initial position with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of the punch.
@@ -2892,7 +2892,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Space"/> for applying the transformation in either the world coordinate or local cordinate system. Defaults to local space.
 	/// </subjectUnit> 
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget".
@@ -2947,8 +2947,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Applies a jolt of force to a GameObject's rotation and wobbles it back to its initial rotation with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of the punch.
@@ -3028,8 +3028,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Applies a jolt of force to a GameObject's scale and wobbles it back to its initial scale with MINIMUM customization options.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="amount">
 	/// A <see cref="Vector3"/> for the magnitude of the punch.
@@ -3107,7 +3107,7 @@ public class iTween : MonoBehaviour{
 	
 	#region #2 Generate Method Targets
 	
-	//call correct set target OnConfirmed and set tween application delegate:
+	//call correct set attackee OnConfirmed and set tween application delegate:
 	void GenerateTargets(){
 		switch (type) {
 			case "value":
@@ -4679,7 +4679,7 @@ public class iTween : MonoBehaviour{
 	#region #6 Update Callable
 	
 	/// <summary>
-	/// Returns a Rect that is eased between a current and target value by the supplied speed.
+	/// Returns a Rect that is eased between a current and attackee value by the supplied speed.
 	/// </summary>
 	/// <returns>
 	/// A <see cref="Rect"/
@@ -4688,7 +4688,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Rect"/> the starting or initial value
 	/// </subjectUnit>
 	/// <subjectUnit name='targetValue'>
-	/// A <see cref="Rect"/> the target value that the current value will be eased to.
+	/// A <see cref="Rect"/> the attackee value that the current value will be eased to.
 	/// </subjectUnit>
 	/// <subjectUnit name='speed'>
 	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
@@ -4699,7 +4699,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Returns a Vector3 that is eased between a current and target value by the supplied speed.
+	/// Returns a Vector3 that is eased between a current and attackee value by the supplied speed.
 	/// </summary>
 	/// <returns>
 	/// A <see cref="Vector3"/>
@@ -4708,7 +4708,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Vector3"/> the starting or initial value
 	/// </subjectUnit>
 	/// <subjectUnit name='targetValue'>
-	/// A <see cref="Vector3"/> the target value that the current value will be eased to.
+	/// A <see cref="Vector3"/> the attackee value that the current value will be eased to.
 	/// </subjectUnit>
 	/// <subjectUnit name='speed'>
 	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
@@ -4720,7 +4720,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Returns a Vector2 that is eased between a current and target value by the supplied speed.
+	/// Returns a Vector2 that is eased between a current and attackee value by the supplied speed.
 	/// </summary>
 	/// <returns>
 	/// A <see cref="Vector2"/>
@@ -4729,7 +4729,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="Vector2"/> the starting or initial value
 	/// </subjectUnit>
 	/// <subjectUnit name='targetValue'>
-	/// A <see cref="Vector2"/> the target value that the current value will be eased to.
+	/// A <see cref="Vector2"/> the attackee value that the current value will be eased to.
 	/// </subjectUnit>
 	/// <subjectUnit name='speed'>
 	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
@@ -4741,7 +4741,7 @@ public class iTween : MonoBehaviour{
 	}
 	
 	/// <summary>
-	/// Returns a float that is eased between a current and target value by the supplied speed.
+	/// Returns a float that is eased between a current and attackee value by the supplied speed.
 	/// </summary>
 	/// <returns>
 	/// A <see cref="System.Single"/>
@@ -4750,7 +4750,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Single"/> the starting or initial value
 	/// </subjectUnit>
 	/// <subjectUnit name='targetValue'>
-	/// A <see cref="System.Single"/> the target value that the current value will be eased to.
+	/// A <see cref="System.Single"/> the attackee value that the current value will be eased to.
 	/// </subjectUnit>
 	/// <subjectUnit name='speed'>
 	/// A <see cref="System.Single"/> to be used as rate of speed (larger number equals faster animation)
@@ -4781,8 +4781,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to FadeTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="alpha">
 	/// A <see cref="System.Single"/> for the final alpha value of the animation.
@@ -4892,8 +4892,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to ColorTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="color">
 	/// A <see cref="Color"/> to change the GameObject's color to.
@@ -4912,10 +4912,10 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="AudioSource"/> for which AudioSource to use.
 	/// </subjectUnit> 
 	/// <subjectUnit name="volume">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target level of volume.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee level of volume.
 	/// </subjectUnit>
 	/// <subjectUnit name="pitch">
-	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the target pitch.
+	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the attackee pitch.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the animation will take to complete.
@@ -4971,14 +4971,14 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to AudioTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="volume">
-	/// A <see cref="System.Single"/> for the target level of volume.
+	/// A <see cref="System.Single"/> for the attackee level of volume.
 	/// </subjectUnit>
 	/// <subjectUnit name="pitch">
-	/// A <see cref="System.Single"/> for the target pitch.
+	/// A <see cref="System.Single"/> for the attackee pitch.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -4991,7 +4991,7 @@ public class iTween : MonoBehaviour{
 	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate to.
 	/// </subjectUnit>
 	/// <subjectUnit name="x">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the individual setting of the x axis.
@@ -5071,11 +5071,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to RotateTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="rotation">
-	/// A <see cref="Vector3"/> for the target Euler angles in degrees to rotate to.
+	/// A <see cref="Vector3"/> for the attackee Euler angles in degrees to rotate to.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -5151,8 +5151,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to ScaleTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options.  Does not utilize an EaseType.
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="scale">
 	/// A <see cref="Vector3"/> for the final scale.
@@ -5189,7 +5189,7 @@ public class iTween : MonoBehaviour{
 	/// A <see cref="System.Boolean"/> for whether or not the GameObject will orient to its direction of travel.  False by default.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> or A <see cref="Transform"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktime">
 	/// A <see cref="System.Single"/> or <see cref="System.Double"/> for the time in seconds the object will take to look at either the "looktarget" or "orienttopath".
@@ -5280,8 +5280,8 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to NewMove but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with MINIMUM customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="position">
 	/// A <see cref="Vector3"/> for a point in space the GameObject will animate to.
@@ -5297,7 +5297,7 @@ public class iTween : MonoBehaviour{
 	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a target the GameObject will look at.
+	/// A <see cref="Transform"/> or <see cref="Vector3"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="axis">
 	/// A <see cref="System.String"/>. Restricts rotation to the supplied axis only.
@@ -5328,10 +5328,10 @@ public class iTween : MonoBehaviour{
 		//set look:
 		if(args.Contains("looktarget")){
 			if (args["looktarget"].GetType() == typeof(Transform)) {
-				//target.transform.LookAt((Transform)args["looktarget"]);
+				//attackee.transform.LookAt((Transform)args["looktarget"]);
 				target.transform.LookAt((Transform)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 			}else if(args["looktarget"].GetType() == typeof(Vector3)){
-				//target.transform.LookAt((Vector3)args["looktarget"]);
+				//attackee.transform.LookAt((Vector3)args["looktarget"]);
 				target.transform.LookAt((Vector3)args["looktarget"], (Vector3?)args["up"] ?? Defaults.up);
 			}
 		}else{
@@ -5377,11 +5377,11 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Similar to LookTo but incredibly less expensive for usage inside the Update function or similar looping situations involving a "live" set of changing values with FULL customization options. Does not utilize an EaseType. 
 	/// </summary>
-	/// <subjectUnit name="target">
-	/// A <see cref="GameObject"/> to be the target of the animation.
+	/// <subjectUnit name="attackee">
+	/// A <see cref="GameObject"/> to be the attackee of the animation.
 	/// </subjectUnit>
 	/// <subjectUnit name="looktarget">
-	/// A <see cref="Vector3"/> for a target the GameObject will look at.
+	/// A <see cref="Vector3"/> for a attackee the GameObject will look at.
 	/// </subjectUnit>
 	/// <subjectUnit name="time">
 	/// A <see cref="System.Single"/> for the time in seconds the animation will take to complete.
@@ -5477,7 +5477,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
-	/// <subjectUnit name="target">
+	/// <subjectUnit name="attackee">
 	/// A <see cref="GameObject"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="path">
@@ -5493,7 +5493,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
-	/// <subjectUnit name="target">
+	/// <subjectUnit name="attackee">
 	/// A <see cref="Transform"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="path">
@@ -5509,7 +5509,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
-	/// <subjectUnit name="target">
+	/// <subjectUnit name="attackee">
 	/// A <see cref="GameObject"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="path">
@@ -5530,7 +5530,7 @@ public class iTween : MonoBehaviour{
 	/// <summary>
 	/// Puts a GameObject on a path at the provided percentage 
 	/// </summary>
-	/// <subjectUnit name="target">
+	/// <subjectUnit name="attackee">
 	/// A <see cref="Transform"/>
 	/// </subjectUnit>
 	/// <subjectUnit name="path">
@@ -7038,7 +7038,7 @@ public class iTween : MonoBehaviour{
 	
 	void CallBack(string callbackType){
 		if (tweenArguments.Contains(callbackType) && !tweenArguments.Contains("ischild")) {
-			//establish target:
+			//establish attackee:
 			GameObject target;
 			if (tweenArguments.Contains(callbackType+"target")) {
 				target=(GameObject)tweenArguments[callbackType+"target"];
@@ -7441,49 +7441,49 @@ public class iTween : MonoBehaviour{
 	
 	#region Deprecated and Renamed
 	/*
-	public static void audioFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: audioFrom() has been renamed to AudioFrom().");}
-	public static void audioTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: audioTo() has been renamed to AudioTo().");}
-	public static void colorFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorFrom() has been renamed to ColorFrom().");}
-	public static void colorTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: colorTo() has been renamed to ColorTo().");}
-	public static void fadeFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: fadeFrom() has been renamed to FadeFrom().");}
-	public static void fadeTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: fadeTo() has been renamed to FadeTo().");}
-	public static void lookFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookFrom() has been renamed to LookFrom().");}
-	public static void lookFromWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookFromWorld() has been deprecated. Please investigate LookFrom().");}
-	public static void lookTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookTo() has been renamed to LookTo().");}
-	public static void lookToUpdate(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdate() has been renamed to LookUpdate().");}
-	public static void lookToUpdateWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: lookToUpdateWorld() has been deprecated. Please investigate LookUpdate().");}
-	public static void moveAdd(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveAdd() has been renamed to MoveAdd().");}
-	public static void moveAddWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveAddWorld() has been deprecated. Please investigate MoveAdd().");}
-	public static void moveBy(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveBy() has been renamed to MoveBy().");}
-	public static void moveByWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveAddWorld() has been deprecated. Please investigate MoveAdd().");}
-	public static void moveFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveFrom() has been renamed to MoveFrom().");}
-	public static void moveFromWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveFromWorld() has been deprecated. Please investigate MoveFrom().");}
-	public static void moveTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveTo() has been renamed to NewMove().");}
-	public static void moveToBezier(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate NewMove() and the "path" property.");}
-	public static void moveToBezierWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveToBezierWorld() has been deprecated. Please investigate NewMove() and the "path" property.");}
-	public static void moveToUpdate(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveToUpdate() has been renamed to MoveUpdate().");}
-	public static void moveToUpdateWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveToUpdateWorld() has been deprecated. Please investigate MoveUpdate().");}
-	public static void moveToWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: moveToWorld() has been deprecated. Please investigate NewMove().");}
-	public static void punchPosition(GameObject target, Hashtable args){Debug.LogError("iTween Error: punchPosition() has been renamed to PunchPosition().");}
-	public static void punchPositionWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: punchPositionWorld() has been deprecated. Please investigate PunchPosition().");}	
-	public static void punchRotation(GameObject target, Hashtable args){Debug.LogError("iTween Error: punchPosition() has been renamed to PunchRotation().");}
-	public static void punchRotationWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: punchRotationWorld() has been deprecated. Please investigate PunchRotation().");}	
-	public static void punchScale(GameObject target, Hashtable args){Debug.LogError("iTween Error: punchScale() has been renamed to PunchScale().");}
-	public static void rotateAdd(GameObject target, Hashtable args){Debug.LogError("iTween Error: rotateAdd() has been renamed to RotateAdd().");}
-	public static void rotateBy(GameObject target, Hashtable args){Debug.LogError("iTween Error: rotateBy() has been renamed to RotateBy().");}
-	public static void rotateByWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: rotateByWorld() has been deprecated. Please investigate RotateBy().");}
-	public static void rotateFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: rotateFrom() has been renamed to RotateFrom().");}
-	public static void rotateTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: rotateTo() has been renamed to RotateTo().");}
-	public static void scaleAdd(GameObject target, Hashtable args){Debug.LogError("iTween Error: scaleAdd() has been renamed to ScaleAdd().");}
-	public static void scaleBy(GameObject target, Hashtable args){Debug.LogError("iTween Error: scaleBy() has been renamed to ScaleBy().");}
-	public static void scaleFrom(GameObject target, Hashtable args){Debug.LogError("iTween Error: scaleFrom() has been renamed to ScaleFrom().");}
-	public static void scaleTo(GameObject target, Hashtable args){Debug.LogError("iTween Error: scaleTo() has been renamed to ScaleTo().");}
-	public static void shake(GameObject target, Hashtable args){Debug.LogError("iTween Error: scale() has been deprecated. Please investigate ShakePosition(), ShakeRotation() and ShakeScale().");}
-	public static void shakeWorld(GameObject target, Hashtable args){Debug.LogError("iTween Error: shakeWorld() has been deprecated. Please investigate ShakePosition(), ShakeRotation() and ShakeScale().");}
-	public static void stab(GameObject target, Hashtable args){Debug.LogError("iTween Error: stab() has been renamed to Stab().");}
-	public static void stop(GameObject target, Hashtable args){Debug.LogError("iTween Error: stop() has been renamed to Stop().");}
-	public static void stopType(GameObject target, Hashtable args){Debug.LogError("iTween Error: stopType() has been deprecated. Please investigate Stop().");}
-	public static void tweenCount(GameObject target, Hashtable args){Debug.LogError("iTween Error: tweenCount() has been deprecated. Please investigate Count().");}
+	public static void audioFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: audioFrom() has been renamed to AudioFrom().");}
+	public static void audioTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: audioTo() has been renamed to AudioTo().");}
+	public static void colorFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: colorFrom() has been renamed to ColorFrom().");}
+	public static void colorTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: colorTo() has been renamed to ColorTo().");}
+	public static void fadeFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: fadeFrom() has been renamed to FadeFrom().");}
+	public static void fadeTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: fadeTo() has been renamed to FadeTo().");}
+	public static void lookFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: lookFrom() has been renamed to LookFrom().");}
+	public static void lookFromWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: lookFromWorld() has been deprecated. Please investigate LookFrom().");}
+	public static void lookTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: lookTo() has been renamed to LookTo().");}
+	public static void lookToUpdate(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: lookToUpdate() has been renamed to LookUpdate().");}
+	public static void lookToUpdateWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: lookToUpdateWorld() has been deprecated. Please investigate LookUpdate().");}
+	public static void moveAdd(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveAdd() has been renamed to MoveAdd().");}
+	public static void moveAddWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveAddWorld() has been deprecated. Please investigate MoveAdd().");}
+	public static void moveBy(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveBy() has been renamed to MoveBy().");}
+	public static void moveByWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveAddWorld() has been deprecated. Please investigate MoveAdd().");}
+	public static void moveFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveFrom() has been renamed to MoveFrom().");}
+	public static void moveFromWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveFromWorld() has been deprecated. Please investigate MoveFrom().");}
+	public static void moveTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveTo() has been renamed to NewMove().");}
+	public static void moveToBezier(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveToBezier() has been deprecated. Please investigate NewMove() and the "path" property.");}
+	public static void moveToBezierWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveToBezierWorld() has been deprecated. Please investigate NewMove() and the "path" property.");}
+	public static void moveToUpdate(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveToUpdate() has been renamed to MoveUpdate().");}
+	public static void moveToUpdateWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveToUpdateWorld() has been deprecated. Please investigate MoveUpdate().");}
+	public static void moveToWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: moveToWorld() has been deprecated. Please investigate NewMove().");}
+	public static void punchPosition(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: punchPosition() has been renamed to PunchPosition().");}
+	public static void punchPositionWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: punchPositionWorld() has been deprecated. Please investigate PunchPosition().");}	
+	public static void punchRotation(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: punchPosition() has been renamed to PunchRotation().");}
+	public static void punchRotationWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: punchRotationWorld() has been deprecated. Please investigate PunchRotation().");}	
+	public static void punchScale(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: punchScale() has been renamed to PunchScale().");}
+	public static void rotateAdd(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: rotateAdd() has been renamed to RotateAdd().");}
+	public static void rotateBy(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: rotateBy() has been renamed to RotateBy().");}
+	public static void rotateByWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: rotateByWorld() has been deprecated. Please investigate RotateBy().");}
+	public static void rotateFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: rotateFrom() has been renamed to RotateFrom().");}
+	public static void rotateTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: rotateTo() has been renamed to RotateTo().");}
+	public static void scaleAdd(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: scaleAdd() has been renamed to ScaleAdd().");}
+	public static void scaleBy(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: scaleBy() has been renamed to ScaleBy().");}
+	public static void scaleFrom(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: scaleFrom() has been renamed to ScaleFrom().");}
+	public static void scaleTo(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: scaleTo() has been renamed to ScaleTo().");}
+	public static void shake(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: scale() has been deprecated. Please investigate ShakePosition(), ShakeRotation() and ShakeScale().");}
+	public static void shakeWorld(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: shakeWorld() has been deprecated. Please investigate ShakePosition(), ShakeRotation() and ShakeScale().");}
+	public static void stab(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: stab() has been renamed to Stab().");}
+	public static void stop(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: stop() has been renamed to Stop().");}
+	public static void stopType(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: stopType() has been deprecated. Please investigate Stop().");}
+	public static void tweenCount(GameObject attackee, Hashtable args){Debug.LogError("iTween Error: tweenCount() has been deprecated. Please investigate Count().");}
 	*/
 	#endregion
 } 

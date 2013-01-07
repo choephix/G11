@@ -20,7 +20,8 @@ public abstract class Action {
 	protected virtual bool _visible { get { return _possible; } } //TODO implemento
 	public bool possible { get { return owner.canAct && cooldownLeft == 0 && owner.status.actionPoints >= cost && _possible; } }
 	protected virtual bool _possible { get { return true; } }
-	public virtual bool canDoAgain { get { return possible && subjectType != ActionSubjectType.Self; } }
+	public bool canDoAgain { get { return possible && _canDoAgain; } }
+	public virtual bool _canDoAgain { get { return subjectType != ActionSubjectType.Self; } }
 
 	public event EventHandler<Action> eventFinished = delegate { };
 
@@ -73,6 +74,8 @@ public abstract class Action {
 
 		eventFinished.Invoke(this);
 
+		//OnDeselected();
+
 	}
 
 	protected virtual void _Finish() { }
@@ -94,7 +97,7 @@ public abstract class Action {
 
 
 	public virtual string ToLongString() {
-		return "{" + name + "<-" + source.ToString() + "}";
+		return "{" + name + "}";
 	}
 
 	public override string ToString() {
@@ -165,35 +168,26 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class Test : Action {
+	public class Test : InstantAction {
 
 		public Test( Unit owner )
-			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
+			: base( owner, owner, "Test", 3 ) { }
 
 		public override void _Execute( object subject ) {
 
 			Process p;
 
 
-			p = new ProcessBook.Wait( 10 );
+			p = new ProcessBook.Wait( 30 );
 			processQueue += p;
 
-			p = new ProcessBook.WaitSeconds( .25f );
-			processQueue += p;
-
-			p = new ProcessBook.ChangeTimeSpeed( .2f, 1f );
-			processQueue += p;
-
-			p = new ProcessBook.WaitSeconds( .1f );
+			p = new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 8, DamageType.NORMAL );
 			processQueue += p;
 
 			Buff b = new Buff( "Bleeding" );
 			b.duration = 100;
 			b.TurnStartEvent += delegate { owner.Damage( 2, DamageType.INTERNAL, owner ); };
 			owner.buffs.Add( b );
-
-			p = new ProcessBook.ChangeTimeSpeed( 1f, 1f );
-			processQueue += p;
 
 			p = new ProcessBook.Wait( 10 );
 			processQueue += p;
@@ -225,6 +219,8 @@ public class ActionsBook : MissionBaseClass {
 
 	public class Move : Action {
 
+		private const int DELAY = 2;
+
 		public Move( Unit owner, object source )
 			: base( owner, source, "Move", ActionSubjectType.GridTile ) { }
 
@@ -236,8 +232,9 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void _OnSelected() {
 			GameMode.Set( GameModes.PickTile );
-			processQueue.Add( new ProcessBook.Wait( 2 ) );
+			processQueue.Add( new ProcessBook.Wait( 1 ) );
 			processQueue.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.HoloUnit;
 		}
 
 		public override void _Execute( object subject ) {
@@ -251,13 +248,13 @@ public class ActionsBook : MissionBaseClass {
 				//p = new ProcessBook.ChangeTimeSpeed( .2f, 3f );
 				//processQueue.Add( p, true );
 
-				p = new ProcessBook.Wait( 10 );
+				p = new ProcessBook.Wait( DELAY );
 				processQueue.Add( p );
 
 				p = new ProcessBook.UnitMoveAlongPath( owner, subject as GridTile );
 				processQueue.Add( p );
 
-				p = new ProcessBook.Wait( 10 );
+				p = new ProcessBook.Wait( DELAY );
 				processQueue.Add( p );
 				p.AttachPassive( new ProcessBook.ChangeTimeSpeed( 1f, .5f ) );
 
@@ -272,7 +269,7 @@ public class ActionsBook : MissionBaseClass {
 
 			God.grid.ResetTiles();
 			GameMode.Reset();
-
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
 
 		}
 
@@ -345,15 +342,17 @@ public class ActionsBook : MissionBaseClass {
 
 	public class Defend : InstantAction {
 
-		public Defend( Unit owner, object source )
-			: base( owner, source, "Defend" ) { }
+		private readonly Buff buff;
 
-		protected override bool _possible { get { return !owner.buffs[ BuffPropFlag.Defending ]; } }
+		public Defend( Unit owner, object source ) : base( owner, source, "Defend" ) {
+			buff = BuffsBook.Alert( owner );
+		}
+
+		protected override bool _possible { get { return !owner.buffs.HasDuplicates(buff); } }
 
 		public override void _Execute( object subject ) {
 
-			Logger.Respond( owner + " defending." );
-			owner.buffs.Add( new Buff( "Evasive", BuffPropFlag.Defending ) );
+			owner.buffs.Add( buff );
 
 			Finish();
 
@@ -375,6 +374,81 @@ public class ActionsBook : MissionBaseClass {
 			Logger.Respond( owner + " reloading." );
 
 			Finish();
+
+		}
+
+	}
+
+	public class ThrowGrenade : Action {
+
+		public ThrowGrenade( Unit owner, Grenade source )
+			: base( owner, source, "ThrowGrenade", ActionSubjectType.GridTile ) { }
+
+		protected override bool _possible { get { return true; } }
+		public override bool _canDoAgain { get { return false; } }
+
+		public override bool _IsSubjectViable( object subject ) {
+			return subject is GridTile && ( subject as GridTile ).selectable;
+		}
+
+		public override void _OnSelected() {
+			GameMode.Set( GameModes.PickTile );
+			processQueue.Add( new ProcessBook.Wait( 1 ) );
+			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, 6 ) );
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.Cross;
+			owner.model.Hide( owner.currentWeapon );
+			owner.model.Show( source as Equippable );
+			owner.model.Equip( source as Equippable, owner.model.finger );
+			owner.model.Reload();
+		}
+
+		public override void _Execute( object subject ) {
+
+			if( subject is GridTile ) {
+
+				Debug.Log( owner + " moving from " + owner.currentTile + " to " + subject );
+
+				Process p;
+
+				p = new ProcessBook.Throw( owner , source as Grenade , subject as GridTile );
+				processQueue.Add( p );
+
+				p = new ProcessBook.Wait( 5 );
+				processQueue.Add( p );
+
+				//p = new ProcessBook.ChangeTimeSpeed( .2f, 3f );
+				//processQueue.Add( p, true );
+
+				p = new ProcessBook.AreaDamage( (subject as GridTile).transform.position, 4, 8, DamageType.NORMAL );
+				processQueue += p;
+				//p.AttachPassive( new ProcessBook.ChangeTimeSpeed( 1f, .5f ) );
+
+				p.eventEnded += Finish;
+
+			} else
+				Debug.LogWarning( name.ToUpper() + " ACTION SUBJECT IS INCORRECT TYPE" );
+
+		}
+
+		protected override void _Finish() {
+
+			owner.model.Equip( source as Equippable, owner.model.finger );
+
+			owner.model.Hide( source as Equippable );
+			owner.model.Show( owner.currentWeapon );
+			owner.model.Reload();
+
+			//OnDeselected();
+
+		}
+
+		public override void OnDeselected() {
+
+			God.grid.ResetTiles();
+			GameMode.Reset();
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
+			owner.model.Hide( source as Equippable );
+			owner.model.Show( owner.currentWeapon );
 
 		}
 

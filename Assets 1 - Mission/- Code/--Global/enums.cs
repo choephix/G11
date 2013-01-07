@@ -30,5 +30,12 @@ public enum ActionSubjectType { Self, GridTile, Unit }
 
 
 
-public enum BuffPropFlag { Defending }
-public enum BuffPropMult { Accuracy, RangedDamage, MeleeDamage, Evasion }
+public enum BuffPropFlag { 
+	CantMove,
+	CantShoot,
+}
+public enum BuffPropMult { 
+	RangedChance, MeleeChance,
+	RangedDamage, MeleeDamage, 
+	Defence, Evasion
+}

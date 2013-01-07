@@ -23,7 +23,7 @@ public class GodOfAI : MissionBaseClass {
 
 			readyForNextAction = false;
 
-			yield return new WaitForSeconds( .15f );
+			yield return new WaitForSeconds( .05f );
 
 			if( God.selectedUnit == markedUnit ) {
 				if( TurnManager.isCpuTurn ) {
@@ -32,9 +32,9 @@ public class GodOfAI : MissionBaseClass {
 			} else {
 
 				if( God.selectedUnit.canAttack ) {
-					yield return new WaitForSeconds( .15f );
+					yield return new WaitForSeconds( .05f );
 					GodOfInteraction.OnInput_Attack();
-					yield return new WaitForSeconds( .4f );
+					yield return new WaitForSeconds( .1f );
 					GodOfInteraction.OnInput_Confirm();
 				} else {
 					//if( IsUnit.OutOfAmmo(selectedUnit) ) {
@@ -54,7 +54,7 @@ public class GodOfAI : MissionBaseClass {
 
 			}
 
-			yield return new WaitForSeconds( .25f );
+			yield return new WaitForSeconds( .05f );
 			readyForNextAction = true;
 
 		}

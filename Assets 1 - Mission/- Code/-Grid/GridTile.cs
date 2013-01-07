@@ -45,7 +45,7 @@ public class GridTile : MissionBaseClass {
 	}
 
 	void Update() {
-		renderer.enabled = GameMode.Is( GameModes.PickTile ) && TurnManager.isUserTurn;
+	//	renderer.enabled = selectable;
 	}
 
 	public void UpdateMaterial() {
@@ -68,9 +68,10 @@ public class GridTile : MissionBaseClass {
 	}
 
 	internal void Reset() {
-		
+
 		selectable = false;
 		label.renderer.enabled = false;
+		renderer.enabled = false;
 		UpdateMaterial();
 
 		if( focused ) {
@@ -85,6 +86,7 @@ public class GridTile : MissionBaseClass {
 	internal void MakeSelectable() {
 
 		selectable = true;
+		renderer.enabled = true;
 		UpdateMaterial();
 		Blink();
 
@@ -125,7 +127,7 @@ public class GridTile : MissionBaseClass {
 				if( tile.obstructed ) {
 					tile.obstruction.holoUp();
 				}
-				GodOfPathfinding.GetPathTo( this, true );
+				//GodOfPathfinding.GetPathTo( this, true );
 			}
 			GodOfHolographics.HighlightGridTile( this );
 		}

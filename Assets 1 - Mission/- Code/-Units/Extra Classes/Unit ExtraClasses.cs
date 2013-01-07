@@ -15,7 +15,8 @@ public class Actions {
 	public Action defaultAction;
 	public Action defaultAttackAction;
 	public int count { get { return possibleActionsList.Count; } }
-	public bool shouldSelectPreviousAction { get { return previousAction != null && previousAction.canDoAgain; } }
+	public bool shouldSelectPreviousAction { get { return previousAction != null 
+		&& previousAction.canDoAgain; } }
 
 	private Unit owner;
 	private bool active { get { return selectedAction != null && owner.selected; } }
@@ -83,7 +84,6 @@ public class Actions {
 				AbortSelected();
 			}
 
-			Debug.Log( owner + " selecting action " + action.ToLongString() );
 			selectedAction = action;
 
 			action.OnSelected();
@@ -210,7 +210,9 @@ public class Actions {
 	}
 
 	private void OnOwnerSelected() {
-		SelectDefault();
+		if( owner.team.isUserControlled ) {
+			SelectDefault();
+		}
 	}
 	private void OnOwnerDeselected() {
 		Deselect();
@@ -258,115 +260,6 @@ public class Actions {
 
 
 
-public class UnitUnitRelations {
-
-	private readonly Dictionary<Unit,UnitUnitRelation> relations;
-
-	public Unit primaryEnemy;
-
-	internal UnitUnitRelations() {
-		relations = new Dictionary<Unit, UnitUnitRelation>();
-	}
-
-	internal void Update( Unit owner, List<Unit> units ) {
-		relations.Clear();
-		foreach( Unit unit in units ) {
-			relations.Add( unit, new UnitUnitRelation( owner, unit ) );
-		}
-	}
-
-	internal UnitUnitRelation GetRelation( Unit unit ) {
-		return relations[unit];
-	}
-
-	internal bool IsVisible( Unit unit ) {
-		return relations[unit].visible;
-	}
-
-	internal float GetDistance( Unit unit ) {
-		return relations[unit].distance;
-	}
-
-	internal float GetAngle( Unit unit ) {
-		return relations[unit].angle;
-	}
-
-	internal float GetHitChance( Unit unit ) {
-		return relations[unit].hitChance;
-	}
-
-	internal int CompareDistances( Unit u1, Unit u2 ) {
-		return GetDistance( u1 ).CompareTo( GetDistance( u2 ) );
-	}
-
-	internal int CompareHitChances( Unit u1, Unit u2 ) {
-		return GetHitChance( u2 ).CompareTo( GetHitChance( u1 ) );
-	}
-
-}
-
-public struct UnitUnitRelation {
-
-	internal readonly bool visible;
-	internal readonly float angle;
-	internal readonly float distance;
-	internal readonly float hitChance;
-	internal readonly float damageMax;
-	internal readonly float critChance;
-	internal readonly float critMultiplier;
-
-	public UnitUnitRelation( Unit owner, Unit unit ) {
-		this.visible = owner.CanSee( unit.currentTile );
-		this.distance = owner.GetDistance( unit.transform );
-		this.hitChance = owner.CalculateHitChance( unit );
-		this.damageMax = owner.propAttackDamage;
-		this.critChance = 50;
-		this.critMultiplier = 2;
-		this.angle = M.FixAngleDegSigned( owner.currentTile.relations.GetAngle( unit.currentTile ) + owner.rotationY - 90 );
-	}
-
-}
-
-public class UnitObjectsInRange {
-
-	internal List<Unit> units;
-	internal List<Unit> allies;
-	internal List<Unit> enemies;
-
-	internal void Update( Unit owner, List<Unit> allUnits ) {
-
-		UnitUnitRelations rel = owner.relations;
-
-		units = allUnits.FindAll( ( u ) => ( owner.CanTarget( u ) ) );
-
-		units.Sort( delegate( Unit u1, Unit u2 ) {
-			return rel.CompareHitChances( u1, u2 );
-		} );
-
-		allies = units.FindAll( ( u ) => !owner.team.IsEnemy( u ) );
-		enemies = units.FindAll( ( u ) => owner.team.IsEnemy( u ) );
-
-	}
-
-	internal bool HaveUnits() {
-		return units.Count > 0;
-	}
-
-	internal bool HaveAllies( bool inclMe = false ) {
-		return inclMe || ( allies.Count > 0 );
-	}
-
-	internal bool HaveEnemies() {
-		return enemies.Count > 0;
-	}
-
-	internal void Clear() {
-		units = new List<Unit>();
-		allies = new List<Unit>();
-		enemies = new List<Unit>();
-	}
-
-}
 
 public static class UnitMath {
 
@@ -473,18 +366,18 @@ public class UnitStatus {
 
 	private int _maxHealth;
 	private float _health;
-	internal float health {
+	public float health {
 		get { return _health; }
 		set { _health = M.ClipMaxMin( value, _maxHealth ); }
 	}
 	private float _armor;
-	internal float armor {
+	public float armor {
 		get { return _armor; }
 		set { _armor = value > 0 ? value : 0; }
 	}
 
-	internal byte _maxActions;
-	internal byte actionPoints;
+	private int _maxActions;
+	public int actionPoints;
 
 	internal void Init( UnitProperties props ) {
 		_armor = props.armor;
@@ -564,6 +457,34 @@ public class UnitProperties {
 			"\n MaxHealth=" + maxHealth +
 			"\n Armor=" + armor +
 			"\n- - -";
+	}
+
+}
+
+[System.Serializable]
+public class UnitEquipment {
+
+	public Weapon weaponPrimary;
+	public Weapon weaponSecondary;
+
+	public Equippable[] misc = { };
+
+	public UnitEquipment( Weapon weaponPrimary, Weapon weaponSecondary, Equippable[] misc ) {
+		this.weaponPrimary = weaponPrimary;
+		this.weaponSecondary = weaponSecondary;
+		this.misc = misc;
+	}
+
+	internal UnitEquipment instance {
+		get {
+			List<Equippable> newMisc = new List<Equippable>();
+			foreach( Equippable e in misc ) 
+				newMisc.Add( GameObject.Instantiate( e ) as Equippable );
+			return new UnitEquipment(
+				GameObject.Instantiate( weaponPrimary ) as Weapon,
+				GameObject.Instantiate( weaponSecondary ) as Weapon,
+				newMisc.ToArray() );
+		}
 	}
 
 }

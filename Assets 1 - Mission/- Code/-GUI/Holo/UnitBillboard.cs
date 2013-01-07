@@ -10,7 +10,7 @@ public class UnitBillboard : HoloObject {
 	private StringBuilder sb;
 
 	private bool _visible = false;
-	public bool visible {
+	public new bool visible {
 		get { return _visible; }
 		set {
 			if( _visible != value ) {
@@ -54,7 +54,7 @@ public class UnitBillboard : HoloObject {
 		if( GameMode.Is( GameModes.PickUnit ) && unit.targetable ) {
 		//	transform.localScale = Vector3.one;
 			label.fontSize = 40;
-			labelBig.text = Mathf.Round( God.selectedUnit.relations.GetHitChance( unit ) ).ToString() + '%'; ;
+			labelBig.text = Mathf.Round( God.selectedUnit.relations.GetAttackResult( unit ).hitChance ).ToString() + '%'; ;
 		} else {
 		//	transform.localScale = Vector3.one * .5f;
 			label.fontSize = 20;

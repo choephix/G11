@@ -16,7 +16,7 @@ public class GodOfDataInspector : Editor {
 		
 		m_Object = new SerializedObject( target );
 	//	m_Property = m_Object.FindProperty( "data" );
-	//	File.AppendAllText( Application.dataPath + "/loggg.txt", JsonMapper.ToJson( ( target as GodOfData ).data ) );
+	//	File.AppendAllText( Application.dataPath + "/loggg.txt", JsonMapper.ToJson( ( attackee as GodOfData ).data ) );
 
 		json = JsonMapper.ToJson( ( target as GodOfData ).data );
 		File.WriteAllText( Application.dataPath + "/data.txt", json );

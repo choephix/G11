@@ -12,13 +12,15 @@ public class MeleeWeapon : Weapon {
 	public new DamageType damageType;
 	public float speed = 100;
 
-	public override void Attack( Unit targetUnit, bool hit ) {
-        
-        if( hit ) {
+	public override void Attack( Unit targetUnit, IDamageable hittee ) {
+
+		if( hittee == targetUnit ) {
+
+			God.Spit( "SLASH!" );
             
-            if( Chance(chanceBleeding) ) {
+            if( God.Chance(chanceBleeding) ) {
                 
-                targetUnit.buffs += CommonBuffs.Bleeding(targetUnit);
+                targetUnit.buffs += BuffsBook.Bleeding(targetUnit);
                 
             }
             

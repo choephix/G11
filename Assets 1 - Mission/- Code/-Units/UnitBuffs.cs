@@ -4,26 +4,16 @@ using System.Collections.Generic;
 
 public class UnitBuffs {
 
-	private List<Buff> buffs = new List<Buff>();
-
-	public void Add( Buff buff ) {
-
-		if( !buff.stackable ) {
-
-		}
-
-		buffs.Add( buff );
-
-	}
+	private readonly List<Buff> list = new List<Buff>();
 
 	public void OnTurnStart() {
 
 		int i = 0;
 		Buff buff;
-		
-		while( i < buffs.Count ) {
 
-			buff = buffs[i];
+		while( i < list.Count ) {
+
+			buff = list[i];
 
 			if( buff.eternal ) {
 
@@ -42,13 +32,47 @@ public class UnitBuffs {
 
 	}
 
-	private void RemoveBuff( Buff buff ) {
-		buffs.Remove( buff );
+	//-- -- -- -- -- 
+
+	public void Add( Buff buff ) {
+
+		if( !buff.stackable ) {
+			RemoveDuplicates( buff );
+		}
+
+		list.Add( buff );
+
 	}
+
+	private void RemoveBuff( Buff buff ) {
+		list.Remove( buff );
+	}
+
+	private void RemoveDuplicates( Buff buff ) {
+		RemoveDuplicates( buff.name );
+	}
+	private void RemoveDuplicates( string name ) {
+
+		List<Buff> dups = list.FindAll( b => b.name.Equals( name ) );
+		dups.ForEach( b => RemoveBuff( b ) );
+
+	}
+
+	public bool HasDuplicates( Buff buff ) {
+		return HasDuplicates( buff.name );
+	}
+	public bool HasDuplicates( string name ) {
+
+		List<Buff> dups = list.FindAll( b => b.name.Equals( name ) );
+		return dups.Count > 0;
+
+	}
+
+	//-- -- -- -- -- 
 
 	public bool GetFlagProp( BuffPropFlag flag ) {
 		bool r = false;
-		foreach( Buff buff in buffs ) {
+		foreach( Buff buff in list ) {
 			r |= buff[ flag ];
 		}
 		return r;
@@ -56,15 +80,17 @@ public class UnitBuffs {
 
 	public float GetFlagMult( BuffPropMult mul ) {
 		float r = 1f;
-		foreach( Buff buff in buffs ) {
+		foreach( Buff buff in list ) {
 			r *= buff[ mul ];
 		}
 		return r;
 	}
 
+	//-- -- -- -- -- 
+
 	public override string ToString() {
 		string s = "";
-		foreach( Buff buff in buffs ) {
+		foreach( Buff buff in list ) {
 			s += "{" + buff + "}";
 		}
 		return s;
@@ -78,16 +104,24 @@ public class UnitBuffs {
 		get { return GetFlagMult( mul ); }
 	}
 
+	public static UnitBuffs operator +( UnitBuffs bm, Buff b ) { bm.Add( b ); return bm; }
+
+	public BuffsBook factory;
+
 }
 
+[System.Serializable]
 public class Buff : object {
 
-	public readonly string name;
+	public string name;
 
 	public int duration = 1; //TODO is this implemented?
 
 	public bool stackable = true; //TODO test
 	public bool eternal = true;
+
+	public BuffPropFlag[] flags;
+	public Mult[] mults;
 
 	public readonly List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
 	public readonly List<Mult> multProps = new List<Mult>();
@@ -96,14 +130,18 @@ public class Buff : object {
     public event EventHandler<int> TurnsPassedEvent;
     
     private int turnsPassed = 0;
-    
+
 	//CONSTRUCTORS
+
+	public Buff( string name, Mult multiplier )	: this( name ) {
+		this.multProps.Add( multiplier );
+	}
 
 	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null ) : this( name ) {
 
 		this.flagProps.Add( flagProp );
 
-		if( multiplier!=null ) {
+		if( multiplier != null ) {
 			this.multProps.Add( multiplier );
 		}
 
@@ -177,8 +215,9 @@ public class Buff : object {
 
 	//CLASSES
 
-	public class Mult {
-		
+	[System.Serializable]
+	public class Mult : object {
+
 		public BuffPropMult prop;
 		public float value;
 
@@ -187,27 +226,39 @@ public class Buff : object {
 			this.value = value;
 		}
 
+		public override string ToString() {
+			return prop.ToString();
+		}
+
 	}
 
 }
 
-public static class CommonBuffs {
-    
-    public static Buff Bleeding( Damageable buffee ) {
-        
-    	Buff b = new Buff( "Bleeding" );
+public class BuffsBook {
+
+	public static Buff Alert( Unit buffee, float amount = .5f ) {
+
+		Buff b = new Buff( "Alert", new Buff.Mult( BuffPropMult.Evasion, amount ) );
+		b.duration = 1;
+		return b;
+
+	}
+
+	public static Buff Bleeding( Unit buffee, int amount = 2 ) {
+
+		Buff b = new Buff( "Bleeding" );
 		b.eternal = true;
-		b.TurnStartEvent += delegate { buffee.Damage( 2, DamageType.INTERNAL, buffee ); };
-		owner.buffs.Add( b );
-        
-    }
-    
-    public static Buff Poisoned( Damageable buffee ) {
+		b.TurnStartEvent += delegate { buffee.Damage( amount, DamageType.INTERNAL, buffee ); };
+		return b;
+
+	}
+
+	public static Buff Poisoned( Unit buffee, int duration = 5 ) {
         
     	Buff b = new Buff( "Poisoned" );
-		b.duration = 10;
+		b.duration = duration;
 		b.TurnStartEvent += delegate { buffee.Damage( 1, DamageType.INTERNAL, buffee ); };
-		owner.buffs.Add( b );
+		return b;
         
     }
     

@@ -9,6 +9,7 @@ public class Firearm : Weapon {
 
 	public AmmoType ammoType = AmmoType.bulletSmall;
 	public int baseAmmoClipSize = 8;
+	public float accuracy = 100f; //TODO not implemented
 
 	// CHANGABLES
 
@@ -50,14 +51,21 @@ public class Firearm : Weapon {
 
 	}
 
-	public override void Attack( Unit targetUnit, bool hit ) {
+	public override void Attack( Unit targetUnit, IDamageable hittee ) {
 
 		ammoLeft--;
 
 		shotLine.enabled = true;
 		shotLine.SetPosition( 0, barrel.position );
-		shotLine.SetPosition( 1, targetUnit.spots.torso.position +
-			( hit ? Vector3.zero : ( BaseClass.Randomize( Vector3.one ) ) ) );
+
+		if( hittee is Unit ) {
+			shotLine.SetPosition( 1, targetUnit.spots.torso.position );
+		} else if( hittee is Obstruction ) {
+			shotLine.SetPosition( 1, ( hittee as Obstruction ).transform.position );
+		} else {
+			shotLine.SetPosition( 1, targetUnit.spots.torso.position + BaseClass.Randomize( Vector3.one ) );
+		}
+
 		StartCoroutine( AttackCoroutine() );
 
 		animation.Play( "fire" );

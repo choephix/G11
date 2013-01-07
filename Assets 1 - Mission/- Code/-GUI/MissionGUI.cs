@@ -22,9 +22,16 @@ public class MissionGUI : MissionBaseClass {
 
 		GUI.skin = skin;
 
-		if( GameMode.interactive ) {
+		if( GameMode.Is( GameModes.GameOver ) ) {
+			ShowGameOver( allTeams.FindAll( t => t.inPlay && t.isUserControlled ).Count > 0 );
+			return;
+		}
+		
+		if( true ) {
+		//if( GameMode.interactive ) {
 
-			if( TurnManager.currentTeam.isUserControlled ) {
+			if( true ) {
+			//if( TurnManager.currentTeam.isUserControlled ) {
 
 				StringBuilder sb = new StringBuilder();
 
@@ -57,8 +64,9 @@ public class MissionGUI : MissionBaseClass {
 				if( targetedUnit ) {
 					sb.AppendLine( 
 						"\n\nTarget Unit:\n" + UnitInfo( targetedUnit ) +
-						"\nHit Chance:" + selectedUnit.relations.GetHitChance( targetedUnit ) + "%\n" +
-						"Maximum Damage:" + selectedUnit.propAttackDamage
+						"\nHit Chance:" + selectedUnit.relations.GetAttackResult( targetedUnit ).hitChance + "%\n" +
+						"Maximum Damage:" + selectedUnit.propAttackDamage +
+						"\n\n" + selectedUnit.relations.GetAttackResult( targetedUnit ).longDescription
 						);
 				}
 
@@ -85,10 +93,6 @@ public class MissionGUI : MissionBaseClass {
 			}
 
 		} else {
-
-			if( GameMode.Is( GameModes.GameOver ) ) {
-				ShowGameOver( allTeams.FindAll( t => t.inPlay && t.isUserControlled ).Count > 0 );
-			}
 
 			if( God.gameStarted && TurnManager.currentTeam.isCpuControlled ) {
 

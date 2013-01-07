@@ -12,6 +12,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	public UnitProperties props;
 	public UnitStatus status;
+	public UnitEquipment equipment;
 	
 	private GridTile _currentTile;
 	public GridTile currentTile {
@@ -31,8 +32,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal Weapon currentWeapon;
-	internal Weapon weaponPrimary;
-	internal Weapon weaponSecondary;
 	
 	internal Team team;
 	internal int squad = 0;
@@ -62,7 +61,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	internal bool canAct { get { return inPlay && hasActions; } }
 	//internal bool canAct { get { return inPlay && hasActions && actions.count > 0; } }
 	internal bool canMove { get { return canAct; } }
-	internal bool canAttack { get { return canAct && objectsInRange.HaveEnemies() && currentWeapon.canAttack; } }
+	//internal bool canAttack { get { return canAct && objectsInRange.HaveEnemies() && currentWeapon.canAttack; } }
+	internal bool canAttack { get { return objectsInRange.HaveEnemies() && currentWeapon.canAttack && !buffs[BuffPropFlag.CantShoot]; } }
 	internal bool hasActions { get { return ( status.actionPoints > 0 ); } }
 
 	// PROPERTY GETTERS
@@ -74,7 +74,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	public int propMovementRange { get { return Config.DEV_UNIT_MOVE_RANGE; } }
 	public int propSightRange { get { return Config.DEV_UNIT_SIGHT_RANGE; } }
 
-	public float chanceToBeHit { get { return buffs[ BuffPropFlag.Defending ] ? .5f : 1f; } }
+	public float propEvasion { get { return 0*buffs[BuffPropMult.Evasion]; } }
 
 	public float propHealth { get { return status.health; } }
 	public float coverValue { get { return 0.5f * props.size; } }
@@ -132,18 +132,26 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		name = props.unitName;
 		status.Init( props );
 
-		weaponPrimary = model.InstantiateWeapon( weaponPrimary );
-		weaponPrimary.Init( this );
-		model.HideWeapon( weaponPrimary );
-		weaponSecondary = model.InstantiateWeapon( weaponSecondary );
-		weaponSecondary.Init( this );
-		model.HideWeapon( weaponSecondary );
+		//equipment.weaponPrimary = model.Equip( equipment.weaponPrimary );
+		equipment.weaponPrimary.Init( this );
+		model.Equip( equipment.weaponPrimary );
+		model.Hide( equipment.weaponPrimary );
+		//equipment.weaponSecondary = model.Equip( equipment.weaponSecondary );
+		equipment.weaponSecondary.Init( this );
+		model.Equip( equipment.weaponSecondary );
+		model.Hide( equipment.weaponSecondary );
 
-		EquipWeapon( weaponPrimary );
+		EquipWeapon( equipment.weaponPrimary );
+
+		foreach( Equippable tool in equipment.misc ) {
+			tool.Init( this );
+			model.Equip( tool );
+			model.Hide( tool );
+		}
 
 		if( !team.isUserControlled ) { //TODO this should so not be here
 			model.meshRenderer.renderer.enabled = false;
-			model.HideWeapon( currentWeapon );
+			model.Hide( currentWeapon );
 		}
 
 		__SetFlag( false );
@@ -230,9 +238,9 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		status.actionPoints -= action.cost;
 
-		if( ready ) {
-			GameMode.Disable();
-		}
+		//if( ready ) {
+		//    GameMode.Disable();
+		//}
 
 	}
 
@@ -279,7 +287,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 				ready = true;
 				God.OnReady_Unit( this ); //TODO delegate
 				if( activated ) {
-					model.ShowWeapon( currentWeapon );
+					model.Show( currentWeapon );
 				}
 			}
 
@@ -296,33 +304,46 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	public void Damage( float amount, DamageType type, Unit attacker = null ) {
 
-		status.ReceiveDamage( amount, type );
+		if( alive ) {
 
-		if( status.health <= 0 ) {
-			Die( attacker );
-		} else {
-			model.Damage();
+			status.ReceiveDamage( amount, type );
+
+			if( attacker ) {
+				transform.LookAt( attacker.transform );
+			}
+
+			if( status.health <= 0 ) {
+				Die( attacker );
+			} else {
+				model.Damage();
+			}
+
 		}
 
 	}
 
 	public void Die( Unit killer ) {
 
-		alive = false;
-		currentTile.currentUnit = null;
-		collider.enabled = false;
-		model.Die();
-		eventDeath.Invoke( this, killer );
+		if( alive ) {
 
-		if( killer ) {
-			transform.LookAt( killer.transform );
+			alive = false;
+			currentTile.currentUnit = null;
+			collider.enabled = false;
+			model.Die();
+			eventDeath.Invoke( this, killer );
+
+			Object splatter = Instantiate(
+					BookOfEverything.me.gfx[2],
+					transform.position,
+					transform.rotation ); 
+
 		}
 
 	}
 
 	public void SwitchWeapon() {
 
-		EquipWeapon( currentWeapon == weaponPrimary ? weaponSecondary : weaponPrimary );
+		EquipWeapon( currentWeapon == equipment.weaponPrimary ? equipment.weaponSecondary : equipment.weaponPrimary );
 		if( targeting ) {
 			model.Aim();
 		}
@@ -338,7 +359,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		Debug.Log( this + " equipping new weapon " + weapon + ", instead of " + F.ToStringOrNull( currentWeapon ) );
 
 		if( currentWeapon ) {
-			model.HideWeapon( currentWeapon );
+			model.Hide( currentWeapon );
 			eventWeaponUnequipped.Invoke( this, currentWeapon );
 		}
 
@@ -350,7 +371,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		//}
 
 		eventWeaponEquipped.Invoke( this, currentWeapon );
-		model.ShowWeapon( currentWeapon );
+		model.Show( currentWeapon );
 
 		model.Reload();
 
@@ -361,49 +382,24 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	internal float GetDistance( Transform o ) {
 		return Vector3.Distance( transform.position, o.position );
 	}
-	internal bool IsObjectInRange( GameObject o ) {
+	internal bool IsInVisualRange( GameObject o ) {
 		return GetDistance( o.transform ) <= ( propSightRange );
 	}
 	internal bool CanSee( GridTile tile ) {
+		return IsInLineOfSight( tile ) && IsInVisualRange( tile.gameObject );
+	}
+
+	private bool IsInLineOfSight( GridTile tile ) {
 		return GodOfPathfinding.GetLine( currentTile, tile ).FindAll( t => t.coverValue >= 1f ).Count == 0;
 	}
 
-	internal float CalculateHitChance( Unit target ) {
-
-		//start with "perfect conditions" chance which is based solely on skill
-		float chance = Config.OVERRIDE_HIT_CHANCE_ACCURACY ? 100 : propAccuracy;
-
-		if( currentWeapon.ranged ) {
-
-			//apply distance a distance penalty
-			chance *= UnitMath.GetHitChancePenalty_Distance( GetDistance( target.transform ), propAttackRange );
-
-			//apply protection from cover
-			chance *= UnitMath.GetHitChancePenalty_Cover( currentTile, target.currentTile );
-
-			//apply unit size multilpier so larger units are easier to hit even from distance or behind small cover.
-			chance *= UnitMath.GetHitChancePenalty_UnitSize( target );
-
-			chance *= target.chanceToBeHit;
-
-			chance *= Config.DEV_HIT_CHANCE_MULTIPLIER;
-
-		} else {
-
-			chance *= UnitMath.GetHitChancePenalty_MeleeWeapon( currentWeapon as MeleeWeapon, GetDistance( target.transform ) ); //TODO add here units'sb chance to dodge
-
-		}
-
-		return M.ClipMaxMin( chance, 100.0f );
-
-	}
 	internal bool CanTarget(Unit unit) {
 		return
 			unit != this &&
 		//	!unit.selected &&
 			unit.targetable &&
 			relations.IsVisible( unit ) &&
-			relations.GetHitChance( unit ) > 0 &&
+			relations.CanAttack( unit ) &&
 			CanWeaponTarget(unit)
 			;
 	}
@@ -436,16 +432,11 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			if( selected && targetedUnit ) {
 				model.actionSide =
 				actionSide = ( relations.GetAngle( targetedUnit ) ) <= 0;
-			//	Debug.Log( this + "'sb actionSide has been set to " + ( actionSide ? "RIGHT" : "LEFT" ) + " because targetedUnit is at " + relations.GetAngle( targetedUnit ) );
-				if( !CanTarget( targetedUnit ) ) {
-					GameMode.Reset();
-				}
 			} else
 				if( relations.primaryEnemy ) {
 					model.actionSide =
 					actionSide = ( relations.GetAngle( relations.primaryEnemy ) ) <= 0;
 					if( selected ) {
-					//	Debug.Log( this + "'sb actionSide has been set to " + ( actionSide ? "RIGHT" : "LEFT" ) + " because primaryEnemy is at " + relations.GetAngle( relations.primaryEnemy ) );
 					}
 				}
 
@@ -463,9 +454,10 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		activated = true;
 		model.meshRenderer.renderer.enabled = true;
 		if( currentWeapon ) {
-			model.ShowWeapon( currentWeapon );
+			model.Show( currentWeapon );
 		}
 		model.Reload();
+		status.ResetActions();
 		Debug.Log( this + " activated!" );
 	}
 
@@ -473,7 +465,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		if( team.isUserControlled && Config.USE_FOG ) {
 			foreach( GridTile tile in grid.GetAllTiles() ) {
-				if( ( centerTile.relations.GetDistance( tile ) < propAttackRange || GetDistance(tile.transform) < propSightRange ) && CanSee(tile) ) {
+				if( CanSee(tile) ) {
 					tile.UnFog();
 				}
 			}

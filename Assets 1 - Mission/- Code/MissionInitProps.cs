@@ -7,6 +7,7 @@ public class MissionInitProps : BaseClass {
 
 	public UnitModel defaultUnitModel;
 	public Material defaultUnitMaterial;
+	public UnitEquipment defaultEquipment;
 
 	public LevelInitProps level;
 
@@ -46,21 +47,11 @@ public class UnitInitProps {
 	public int health = 8;
 	public int armor = 1;
 
-	public Weapon primaryWeapon;
-	public Weapon secondaryWeapon;
+	public UnitEquipment equipment;
 
 	public UnitModel model;
 	public Material skin;
 
 	public Teams team;
 	
-}
-
-public enum Teams { 
-	H12 = 0, 
-	Di = 1, 
-	Street = 2, 
-	DirtyCorp = 3, 
-	ParaMili = 4, 
-	Monsters = 5 
 }

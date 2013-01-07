@@ -29,7 +29,8 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 		if( gameStarted ) {
 
-			if( GameMode.Is( GameModes.PickUnit ) && targetedUnit == null ) { //TODO TESTER FIX - remove this and find the cause of the NULL target bug
+			if( GameMode.Is( GameModes.PickUnit ) && 
+				( targetedUnit == null || !CanTarget( targetedUnit ) ) ) { //TODO TESTER FIX - remove this and find the cause of the NULL attackee bug
 				GameMode.Reset();
 			}
 

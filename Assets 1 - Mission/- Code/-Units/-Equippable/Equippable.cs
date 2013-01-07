@@ -6,7 +6,7 @@ using System.Collections.Generic;
 	//TODO WorldObject public new Renderer renderer;
 
 
-public class Equippable : MonoBehaviour {
+public class Equippable : MissionBaseClass{
 
 	public new string name = "Unnamed";
 
@@ -53,9 +53,7 @@ public abstract class Weapon : Equippable {
 		actions.Add( new ActionsBook.Attack(owner, this) );
 	}
 
-    public abstract void OnHit( Unit targetUnit );
-
-    public abstract void Attack( Unit targetUnit, bool hit );
+    public abstract void Attack( Unit targetUnit, IDamageable hittee );
 
 	public abstract bool CanTarget( Unit targetUnit );
 

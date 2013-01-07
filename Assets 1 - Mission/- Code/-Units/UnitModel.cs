@@ -9,6 +9,7 @@ public class UnitModel : WorldObject {
 	public Transform offHand;
 	public Transform head;
 	public Transform torso;
+	public Transform finger;
 
 	internal Weapon currentWeapon;
 
@@ -32,6 +33,10 @@ public class UnitModel : WorldObject {
 	}
 
 	internal void SetMaterial( Material material ) {
+		meshRenderer.material = material;
+	}
+
+	internal void SetTempMaterial( Material material ) {
 		meshRenderer.material = material;
 	}
 
@@ -88,13 +93,13 @@ public class UnitModel : WorldObject {
 		}
 	}
 
-	internal Weapon InstantiateWeapon( Weapon weapon ) {
-		Transform hand = mainHand;
-		weapon = Instantiate( weapon, hand.transform.position, hand.transform.rotation ) as Weapon;
-		weapon.transform.parent = hand;
-		return weapon;
+	internal void Equip( Equippable item, Transform hand = null ) {
+		hand = hand ?? mainHand;
+		item.transform.position = hand.transform.position;
+		item.transform.rotation = hand.transform.rotation;
+		item.transform.parent = hand;
 	}
-	internal Weapon EquipWeapon( Weapon weapon ) {
+	internal Weapon SelectWeapon( Weapon weapon ) {
 		if( currentWeapon != null ) {
 			Destroy( currentWeapon.gameObject );
 			currentWeapon = null;
@@ -104,11 +109,11 @@ public class UnitModel : WorldObject {
 		currentWeapon.transform.parent = hand;
 		return currentWeapon;
 	}
-	internal void HideWeapon( Weapon weapon ) {
+	internal void Hide( Equippable weapon ) {
 	//	weapon.model.enabled = false;
 		weapon.gameObject.SetActiveRecursively( false );
 	}
-	internal void ShowWeapon( Weapon weapon ) {
+	internal void Show( Equippable weapon ) {
 	//	weapon.model.enabled = true;
 		weapon.gameObject.SetActiveRecursively( true );
 	}

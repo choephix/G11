@@ -56,8 +56,8 @@ public class SuperInspector : EditorWindow {
 		Config.DEV_UNIT_MOVE_RANGE =
 			EditorGUILayout.IntSlider( "DEV_UNIT_MOVE_RANGE", Config.DEV_UNIT_MOVE_RANGE, 0, 16 );
 
-		Config.BASE_UNIT_ACTIONS = (byte)
-			EditorGUILayout.IntSlider( "BASE_UNIT_ACTIONS", Config.BASE_UNIT_ACTIONS, 1, 16 );
+		//Config.BASE_UNIT_ACTIONS = (byte)
+		//    EditorGUILayout.IntSlider( "BASE_UNIT_ACTIONS", Config.BASE_UNIT_ACTIONS, 1, 16 );
 
 		Config.OVERRIDE_HIT_CHANCE_ACCURACY =
 			GUILayout.Toggle( Config.OVERRIDE_HIT_CHANCE_ACCURACY, "OVERRIDE_HIT_CHANCE_ACCURACY" );

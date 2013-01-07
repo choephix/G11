@@ -108,9 +108,12 @@ public class GodOfTheStage : MissionBaseClass {
 		Team team;
 		Unit unit;
 		foreach( TeamInitProps teamProps in god.initProps.teams ) {
+
 			team = AddTeam();
 			team.SetProps( teamProps.name, teamProps.color, teamProps.isUserControlled );
+
 			foreach( UnitInitProps unitProps in teamProps.units ) {
+
 				unit = SpawnUnit( god.initProps.unitSample, team, grid.GetTile( teamProps.spawnTileCoordinates ) );
 				//unit.SetModel( unitProps.model );
 				unit.SetModel( god.initProps.defaultUnitModel );
@@ -122,15 +125,21 @@ public class GodOfTheStage : MissionBaseClass {
 				unit.props.armor = unitProps.armor;
 				unit.props.size = unitProps.size;
 				unit.transform.localScale = new Vector3( 1, unitProps.size * 2, 1 );
-				unit.weaponPrimary = unitProps.primaryWeapon ?? god.initProps.randomWeapon;
-				unit.weaponSecondary = unitProps.secondaryWeapon ?? god.initProps.randomWeapon;
+				
+				if( unitProps.equipment.weaponPrimary == null )
+					unit.equipment = god.initProps.defaultEquipment.instance;
+				else
+					unit.equipment = unitProps.equipment.instance;
+
 				i++;
 
 			}
+
 			team.eventSquadActivated += God.OnSquadActivated;
 			if( team.isUserControlled ) {
 				team.ActivateSquad(0);
 			}
+
 		}
 	}
 

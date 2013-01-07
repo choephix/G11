@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public delegate bool QuestionHandler();
-public delegate bool QuestionHandler<T>( T param  );
+public delegate bool QuestionHandler<T>( T param );
 
 public delegate void EventHandler();
 public delegate void EventHandler<T>( T param );
@@ -30,6 +30,13 @@ public class MissionBaseClass : BaseClass {
 	public static Unit targetedUnit;
 	public static Action selectedAction;
 
+	public static implicit operator Transform( MissionBaseClass instance ) {
+		return instance.transform;
+	}
+	public static implicit operator GameObject( MissionBaseClass instance ) {
+		return instance.gameObject;
+	}
+
 }
 
 public class SelectionManager : MissionBaseClass {
@@ -41,7 +48,7 @@ public class SelectionManager : MissionBaseClass {
 	internal static event UnitEventHandler UnitTargetedEvent = delegate { };
 	internal static event UnitEventHandler UnitUnselectedEvent = delegate { };
 	internal static event UnitEventHandler UnitUntargetedEvent = delegate { };
-	
+
 	internal static void RefreshList() {
 		selectableUnits.Clear();
 		selectableUnits.AddRange( allUnits.FindAll( u => u.selectable ) );
@@ -56,7 +63,7 @@ public class SelectionManager : MissionBaseClass {
 		targetableUnits.Sort( ( Unit u1, Unit u2 ) =>
 			selectedUnit == null ? u2.transform.position.x.CompareTo( u1.transform.position.x ) :
 			selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) )
-		 );
+			);
 	}
 
 	internal static bool SelectAnotherUnit( bool backwards = false ) {
@@ -163,7 +170,7 @@ public class SelectionManager : MissionBaseClass {
 			UnitTargetedEvent( unit );
 
 			if( prevTargetedUnit ) {
-			//	prevTargetedUnit.OnUntargeted();
+				//	prevTargetedUnit.OnUntargeted();
 				UnitUntargetedEvent( prevTargetedUnit );
 			}
 
@@ -178,7 +185,7 @@ public class SelectionManager : MissionBaseClass {
 		}
 
 	}
-	
+
 }
 
 public class TurnManager : MissionBaseClass {
@@ -242,8 +249,10 @@ public class GameMode {
 	internal static bool cinematic = false;
 	internal static bool selecting { get { return !targeting; } }
 	internal static bool targeting { get { return Is( GameModes.PickUnit ); } }
-	internal static bool interactive { get { return
-		( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && GodOfPathfinding.ready && !God.selectedUnit.acting && God.processQueue.empty );
+	internal static bool interactive {
+		get {
+			return
+				( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && GodOfPathfinding.ready && !God.selectedUnit.acting && God.processQueue.empty );
 		}
 	}
 
@@ -262,7 +271,7 @@ public class GameMode {
 	internal static bool Set( GameModes value ) {
 
 		if( !Is( GameModes.GameOver ) ) {
-			
+
 			if( value == GameModes.Default ) {
 				value = @default;
 			}
