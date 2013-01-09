@@ -37,11 +37,14 @@ public class GodOfAI : MissionBaseClass {
 					yield return new WaitForSeconds( .1f );
 					GodOfInteraction.OnInput_Confirm();
 				} else {
-					//if( IsUnit.OutOfAmmo(selectedUnit) ) {
-					//    yield return new WaitForSeconds( .5f );
-					//    God.selectedUnit.Reload();
-					//    yield return new WaitForSeconds( .5f );
-					//} else 
+					if( IsUnit.OutOfAmmo( selectedUnit ) && 
+						selectedUnit.actions.FindAction( "Reload" ) != null ) {
+
+						yield return new WaitForSeconds( .25f );
+						selectedUnit.actions.Select( selectedUnit.actions.FindAction( "Reload" ) );
+						yield return new WaitForSeconds( .25f );
+
+					} else 
 					{
 						if( markedUnit == null ) {
 							markedUnit = God.selectedUnit;

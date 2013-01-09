@@ -16,7 +16,8 @@ public class GodOfInputKeys : MonoBehaviour {
 	//internal static string B_SWITCH	 = "SwitchUnit";
 	internal static string B_CONFIRM	 = "Confirm";
 	internal static string B_BACK		 = "Back";
-	//internal static string B_CANCEL	 = "Back";
+	
+	internal static string B_PAUSE	 = "Pause";
 	//internal static string B_MENU		 = "Back";
 
 	internal static string ACTION_1 = "Action1";
@@ -30,9 +31,17 @@ public class GodOfInputKeys : MonoBehaviour {
 	internal static string ACTION_9 = "Action9";
 	internal static string ACTION_0 = "Action0";
 
+
+
 	void Update() {
 
 		if( GodOfInteraction.handleUserInputForCamera ) {
+
+
+			if( Input.GetButtonDown( B_PAUSE ) ) {
+				GodOfTime.speed = GodOfTime.speed == 1f ? .001f : 1f;
+				Debug.Log( "TIME SPEED SET TO " + GodOfTime.speed );
+			}
 
 			if( Input.GetAxis( B_AXIS_H ) != 0 ) {
 				GodOfInteraction.OnInput_Horizontal( -Input.GetAxis( B_AXIS_H ) * Time.deltaTime * 6 );
@@ -81,6 +90,12 @@ public class GodOfInputKeys : MonoBehaviour {
 				}
 			}
 
+		}
+
+
+		if( Input.GetButtonDown( "Blood&Gore" ) ) {
+			Config.GORE = !Config.GORE;
+			Logger.Respond( "Blood&Gore turned " + ( Config.GORE ? "ON" : "OFF" ) );
 		}
 
 	}

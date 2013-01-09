@@ -4,7 +4,7 @@ using System.Collections;
 public class WorldObject : BaseClass {
 	
 //	public const float GRAVITY = 10;
-//	public float mass = 1.0f;
+	//	public float mass = 1.0f;
 
 	public Renderer model;
 	

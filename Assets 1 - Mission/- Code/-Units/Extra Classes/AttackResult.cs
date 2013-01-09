@@ -11,7 +11,7 @@ using UnityEngine;
 
 		public Message msg;
 		public bool evaded;
-		public IDamageable hittee;
+		public IDamageable hittee = null;
 
 		public string longDescription = "";
 		
@@ -74,7 +74,6 @@ using UnityEngine;
 			if( !God.Chance1( mul_DistanceAndAccuracy ) ) {
 
 				this.msg = Message.MISSED;
-				this.hittee = null;
 				return;
 
 			} else {
@@ -82,7 +81,11 @@ using UnityEngine;
 				if( !God.Chance1( mul_CoversAndTargetSize ) ) {
 
 					this.msg = Message.HIT_COVER;
-					this.hittee = null; //TODO HIT COVER
+
+					ICover[] covers = attackee.currentTile.relations.GetCoversAgainst( attacker.currentTile );
+					if( covers.Length > 0 ) {
+						this.hittee = covers[0] as IDamageable;
+					}
 					return;
 
 				} else {
@@ -90,7 +93,6 @@ using UnityEngine;
 					if( !God.Chance1( mul_TargetEvasion ) ) {
 
 						this.msg = Message.EVADED;
-						this.hittee = null;
 						this.evaded = true;
 						return;
 

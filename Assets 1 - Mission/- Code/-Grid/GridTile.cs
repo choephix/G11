@@ -23,10 +23,16 @@ public class GridTile : MissionBaseClass {
 	internal bool obstructed { get { return obstruction!=null; } }
 	internal bool occupied { get { return currentUnit && currentUnit.alive; } }
 	internal bool walkable { get { return !occupied && !obstructed; } }
-	internal bool traversable { get { return walkable || (obstructed&&obstruction.coverValue<=.5f); } }
+	internal bool traversable { get { return walkable || (obstructed&&obstruction.height<=.5f); } }
 
-	private float obstructionCoverValue = 0; //TODO is this ever even used?
-	internal float coverValue { get { return occupied ? currentUnit.coverValue : obstructionCoverValue; } }
+	internal float coverValue { get { return cover==null?0:cover.coverValue; } }
+	internal ICover cover {
+		get {
+			if( occupied ) return currentUnit;
+			if( obstructed ) return obstruction;
+			return null;
+		}
+	}
 
 	internal bool fogged = true;
 	internal int x { get { return location.x; } }
@@ -98,12 +104,10 @@ public class GridTile : MissionBaseClass {
 
 	internal void setObstruction( Obstruction obstruction ) {
 		this.obstruction = obstruction;
-		obstructionCoverValue = obstruction.coverValue;
 	}
 
 	internal void clearObstruction() {
 		this.obstruction = null;
-		obstructionCoverValue = 0;
 	}
 
 	/// <summary>
@@ -255,6 +259,24 @@ internal class GridTileTileRelations {
 			}
 		}
 		this.neighbours = covers.ToArray();
+	}
+
+	internal ICover[] GetCoversAgainst( GridTile attackerTile ) {
+
+		List<ICover> covers = new List<ICover>();
+
+		foreach( GridTile coverTile in neighbours ) {
+			if( coverTile != attackerTile ) {
+				if( GetSingleCoverValueAgainst( coverTile, attackerTile ) > 0 ) {
+					covers.Add( coverTile.cover );
+				}
+			}
+		}
+
+		covers.Sort( ( ICover t1, ICover t2 ) => t2.coverValue.CompareTo( t1.coverValue ) );
+
+		return covers.ToArray();
+
 	}
 
 	internal float GetTotalCoverValueAgainst( GridTile attackerTile ) {

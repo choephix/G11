@@ -132,22 +132,37 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		name = props.unitName;
 		status.Init( props );
 
-		//equipment.weaponPrimary = model.Equip( equipment.weaponPrimary );
 		equipment.weaponPrimary.Init( this );
 		model.Equip( equipment.weaponPrimary );
 		model.Hide( equipment.weaponPrimary );
-		//equipment.weaponSecondary = model.Equip( equipment.weaponSecondary );
 		equipment.weaponSecondary.Init( this );
 		model.Equip( equipment.weaponSecondary );
 		model.Hide( equipment.weaponSecondary );
 
-		EquipWeapon( equipment.weaponPrimary );
+		if( equipment.biomod != null ) {
+			equipment.biomod.Init( this );
+			model.Equip( equipment.biomod );
+			model.Hide( equipment.biomod );
+		}
 
 		foreach( Equippable tool in equipment.misc ) {
-			tool.Init( this );
-			model.Equip( tool );
-			model.Hide( tool );
+			if( tool != null ) {
+				tool.Init( this );
+				model.Equip( tool );
+				model.Hide( tool );
+			}
 		}
+
+		//foreach( Equippable tool in equipment.Everything() ) {
+		//    if( tool != null ) {
+		//        tool.Init( this );
+		//        model.Equip( tool );
+		//        model.Hide( tool );
+		//    }
+		//}
+
+		EquipWeapon( equipment.weaponPrimary );
+		
 
 		if( !team.isUserControlled ) { //TODO this should so not be here
 			model.meshRenderer.renderer.enabled = false;
@@ -312,8 +327,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 				transform.LookAt( attacker.transform );
 			}
 
-			model.BloodyUp();
-
 			if( status.health <= 0 ) {
 				Die( attacker );
 			} else {
@@ -336,14 +349,20 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 			processQueue.Add( new ProcessBook.BulletTime( .05f, .85f, .2f ), true );
 
-			TempObject bloodspatter = Instantiate(
-					BookOfEverything.me.gfx[2],
-					transform.position,
-					transform.rotation ) as TempObject;
+			if( Config.GORE ) {
+				TempObject bloodspatter = Instantiate(
+						BookOfEverything.me.gfx[2],
+						transform.position,
+						transform.rotation ) as TempObject;
 
-			if( killer ) {
-				bloodspatter.transform.LookAt( killer.transform );
+				if( killer ) {
+					bloodspatter.transform.LookAt( killer.transform );
+				}
 			}
+
+			model.BloodyUp();
+
+			model.BloodyUp();
 
 		}
 

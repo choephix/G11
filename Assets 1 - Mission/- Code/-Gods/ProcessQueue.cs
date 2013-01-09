@@ -745,9 +745,9 @@ using System.Collections.Generic;
 					p = new ProcessBook.WaitSeconds( weapon.ranged ? UnitAnimation.RANGE_HIT_DELAY : UnitAnimation.MELEE_HIT_DELAY );
 					processQueue.Add( p, true );
 
-					if( successful ) {
+					if( result.hittee != null ) {
 						p.eventEnded += delegate {
-							attackee.Damage( attacker.propAttackDamage, attacker.currentWeapon.damageType, attacker );
+							result.hittee.Damage( attacker.propAttackDamage, attacker.currentWeapon.damageType, attacker );
 						};
 					}
 
@@ -821,6 +821,10 @@ using System.Collections.Generic;
 				this.thrower = thrower;
 				this.throwee = throwee;
 				this.positionEnd = destination.transform.position;
+
+				if( destination.obstructed ) {
+					this.positionEnd += Vector3.up * destination.obstruction.height * 2;
+				}
 
 			}
 

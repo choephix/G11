@@ -46,6 +46,10 @@ public class GodOfHolographics : MissionBaseClass {
 			if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
 				GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = true;
 				GameObject.Find( "MissionSet/Holo/Cross" ).transform.position = gridTile.transform.position;
+				if( gridTile.obstructed ) {
+					GameObject.Find( "MissionSet/Holo/Cross" ).transform.position += 
+						Vector3.up * gridTile.obstruction.height * 2;
+				}
 			}
 
 		} else if( mode == HoloMode.HoloUnit ) {

@@ -237,6 +237,15 @@ public class Actions {
 		RemoveAll( weapon.actions );
 	}
 
+	public Action FindAction( string name ) {
+		foreach( Action a in actionsList ) {
+			if( a.name.Equals( name ) && a.possible ) {
+				return a;
+			}
+		}
+		return null;
+	}
+
 	//----
 
 	internal string ToStringRibbon() {
@@ -480,12 +489,24 @@ public class UnitEquipment {
 	public Weapon weaponPrimary;
 	public Weapon weaponSecondary;
 
+	public Biomod biomod;
+
 	public Equippable[] misc = { };
 
-	public UnitEquipment( Weapon weaponPrimary, Weapon weaponSecondary, Equippable[] misc ) {
+	public UnitEquipment( Weapon weaponPrimary, Weapon weaponSecondary, Equippable[] misc, Biomod biomod = null ) {
 		this.weaponPrimary = weaponPrimary;
 		this.weaponSecondary = weaponSecondary;
 		this.misc = misc;
+		this.biomod = biomod;
+	}
+
+	public List<Equippable> Everything() {
+		List<Equippable> list = new List<Equippable>();
+		list.Add( weaponPrimary );
+		list.Add( weaponSecondary );
+		list.Add( biomod );
+		list.AddRange( misc );
+		return list;
 	}
 
 	internal UnitEquipment instance {
@@ -496,7 +517,9 @@ public class UnitEquipment {
 			return new UnitEquipment(
 				GameObject.Instantiate( weaponPrimary ) as Weapon,
 				GameObject.Instantiate( weaponSecondary ) as Weapon,
-				newMisc.ToArray() );
+				newMisc.ToArray() , 
+				biomod == null ? null : GameObject.Instantiate( biomod ) as Biomod
+			);
 		}
 	}
 

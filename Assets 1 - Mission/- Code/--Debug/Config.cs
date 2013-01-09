@@ -6,6 +6,8 @@ public static class Config {
 
 	public static bool USE_FOG = false;
 
+	public static bool GORE = true;
+
 	public static int DEV_UNIT_SIGHT_RANGE = 24;
 	public static int DEV_UNIT_MOVE_RANGE = 8;
 

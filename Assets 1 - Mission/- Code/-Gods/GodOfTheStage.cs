@@ -154,18 +154,19 @@ public class GodOfTheStage : MissionBaseClass {
 	internal Obstruction AddObstruction( Obstruction prefab, GridTile tile, float coverValue, Transform model = null ) {
 		Obstruction o = Instantiate( prefab, tile.transform.position, prefab.transform.rotation ) as Obstruction;
 		o.transform.parent = worldContainer.obstructionsHolder;
-		o.coverValue = coverValue;
+		o.height = coverValue;
+		o.currentTile = tile;
 		tile.setObstruction( o );
 		if( model ) {
-			AddDecor( model, tile );
-		//	objects.Add( model as WorldObject );
+			o.decor = AddDecor( model, tile );
 		}
 		return o;
 	}
 
-	internal void AddDecor( Transform model, GridTile tile ) {
+	internal Transform AddDecor( Transform model, GridTile tile ) {
 		Transform o = Instantiate( model, tile.transform.position, tile.transform.rotation ) as Transform;
 		o.parent = worldContainer.decorationHolder;
+		return o;
 	}
 
 	internal Unit SpawnUnit( Unit prefab, Team team, GridTile spawnTile, GridTile firstTile = null ) {

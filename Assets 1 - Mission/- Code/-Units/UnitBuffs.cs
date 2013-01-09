@@ -201,6 +201,10 @@ public class Buff : object {
 
 	//VIRTUAL
 
+	public Buff Clone() {
+		return new Buff( name, flagProps.ToArray(), multProps.ToArray() );
+	}
+
 	public string ToLongString() {
 		string s = "";
 		foreach( BuffPropFlag flag in flagProps ) {

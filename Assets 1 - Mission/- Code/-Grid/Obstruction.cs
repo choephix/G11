@@ -1,28 +1,59 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class Obstruction : HoloObject, IDamageable {
+public class Obstruction : HoloObject, IDamageable, ICover {
 
-	public float coverValue = .5f;
+	public float height = .5f; //TODO make x2 and covervalue /2
 	public TextMesh label;
+	public Material scratchesMaterial;
 
 	public bool holoFlag;
 
-	void Awake() {
-	//	coverValue = (Random.Range( 1, 4 ) * .25f);
-	}
+	public GridTile currentTile;
+	public float coverValue { get { return height; } }
+
+	public Transform decor;
 
 	void Start () {
 		holoOut();
 	}
 
 	void Update() {
-		transform.localScale = new Vector3( 1, coverValue*2, 1 );
+		transform.localScale = new Vector3( 1, height * 2, 1 );
 		label.text = (int)( coverValue * 100 ) + "%";
 	}
 
 	public void Damage( float amount, DamageType type, Unit attacker = null ) {
-		GameObject.Destroy( this );
+
+		//if( currentTile ) {
+		//    currentTile.obstruction = null;
+		//}
+
+		//decor.gameObject.SetActiveRecursively( false );
+		//GameObject.Destroy( decor.gameObject );
+
+		//GodOfTheStage.me.AddDecor( GodOfTheStage.me.genericFloorTile, currentTile );
+
+		//GameObject.Destroy( this );
+
+		ScratchUp();
+
+	}
+
+	public void ScratchUp() {
+
+		List<Material> list = new List<Material>();
+
+		list.AddRange( decor.Find("model").renderer.materials );
+
+		Material m = new Material( scratchesMaterial );
+		m.mainTextureOffset = new Vector2( God.rand, God.rand );
+
+		list.Add( m );
+
+		decor.Find( "model" ).renderer.materials = list.ToArray();
+
 	}
 
 	internal void holoUp() {
