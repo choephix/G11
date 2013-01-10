@@ -6,14 +6,6 @@ public static class M {
 
 	internal const float PI2 = Mathf.PI * 2.0f;
 
-	internal static float ClipMaxMin( float theValue, float max = 1.0f, float min = 0.0f ) {
-		if( theValue < min )
-			return min;
-		if( theValue > max )
-			return max;
-		return theValue;
-	}
-
 	internal static int ClipMaxMinInt( int theValue, int max, int min = 0 ) {
 		if( theValue < min )
 			return min;

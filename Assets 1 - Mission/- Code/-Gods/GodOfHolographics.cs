@@ -10,7 +10,7 @@ public class GodOfHolographics : MissionBaseClass {
 
 	public static HoloMode mode = HoloMode.None;
 
-	public Transform gridTileHighlighter;
+	public TileSelector gridTileHighlighter;
 	public HoloObject unitHoloRunning;
 	public HoloObject unitHoloInCover;
 	public HoloObject unitHoloInCoverDucked;
@@ -34,10 +34,10 @@ public class GodOfHolographics : MissionBaseClass {
 		}
 	}
 
-	internal static void HighlightGridTile( GridTile gridTile ) {
+	internal static void HighlightGridTile( GridTile tile ) {
 
 		me.gridTileHighlighter.renderer.enabled = true;
-		me.gridTileHighlighter.transform.position = gridTile.transform.position;
+		me.gridTileHighlighter.transform.position = tile.transform.position + Vector3.up * .066f;
 
 		me.hideAllHolos();
 
@@ -45,21 +45,21 @@ public class GodOfHolographics : MissionBaseClass {
 
 			if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
 				GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = true;
-				GameObject.Find( "MissionSet/Holo/Cross" ).transform.position = gridTile.transform.position;
-				if( gridTile.obstructed ) {
+				GameObject.Find( "MissionSet/Holo/Cross" ).transform.position = tile.transform.position;
+				if( tile.obstructed ) {
 					GameObject.Find( "MissionSet/Holo/Cross" ).transform.position += 
-						Vector3.up * gridTile.obstruction.height * 2;
+						Vector3.up * tile.obstruction.height * 2;
 				}
 			}
 
 		} else if( mode == HoloMode.HoloUnit ) {
 
-			if( gridTile.walkable ) {
+			if( tile.walkable ) {
 
 				GridTile smallestCover = null;
 
-				foreach( GridTile cover in gridTile.relations.neighbours ) {
-					if( cover.obstructed && !gridTile.relations.relations[cover].diagonal ) {
+				foreach( GridTile cover in tile.relations.neighbours ) {
+					if( cover.obstructed && !tile.relations.relations[cover].diagonal ) {
 						if( smallestCover == null || smallestCover.coverValue > cover.coverValue ) {
 							smallestCover = cover;
 						}
@@ -71,7 +71,7 @@ public class GodOfHolographics : MissionBaseClass {
 				if( smallestCover == null ) {
 					unitHolo = me.unitHoloRunning;
 					unitHolo.model.renderer.enabled = true;
-					unitHolo.transform.position = gridTile.transform.position;
+					unitHolo.transform.position = tile.transform.position;
 					unitHolo.transform.LookAt( God.selectedUnit.transform );
 					unitHolo.transform.Rotate( Vector3.up * 180 );
 				} else {
@@ -81,7 +81,7 @@ public class GodOfHolographics : MissionBaseClass {
 						unitHolo = me.unitHoloInCover;
 					}
 					unitHolo.model.renderer.enabled = true;
-					unitHolo.transform.position = gridTile.transform.position;
+					unitHolo.transform.position = tile.transform.position;
 					unitHolo.transform.LookAt( smallestCover.transform );
 				}
 
@@ -90,18 +90,31 @@ public class GodOfHolographics : MissionBaseClass {
 
 				unitHolo.transform.localScale = new Vector3( 1, God.selectedUnit.props.size, 1 );
 
-				//gridTile.DebugOut( Mathf.Floor( M.FixAngleDegSigned( God.selectedUnit.currentTile.relations.GetRelation( gridTile ).angle + God.selectedUnit.transform.eulerAngles.y - 90 ) ).ToString() );
+				//tile.DebugOut( Mathf.Floor( M.FixAngleDegSigned( God.selectedUnit.currentTile.relations.GetRelation( tile ).angle + God.selectedUnit.transform.eulerAngles.y - 90 ) ).ToString() );
 
 
-				//List<GridTile> list = GodOfPathfinding.GetLine( selectedUnit.currentTile, gridTile );
+				//List<GridTile> list = GodOfPathfinding.GetLine( selectedUnit.currentTile, tile );
 				//foreach( GridTile t in grid.GetAllTiles() ) {
 				//    bool flag = list.Contains( t );
 				//    t.transform.Find( "flag" ).renderer.enabled = flag;
 				//}
-
+				
 			}
 
 		}
+
+		//float danger = 0;
+		//RangedAttackResult r;
+		//foreach( Unit u in allUnits ) {
+		//    if( selectedUnit.team.IsEnemy( u ) ) {
+		//        if( u.inPlay && u.CanSee( tile ) ) {
+		//            u.__SetFlag( true );
+		//            r = new RangedAttackResult( u, selectedUnit, tile );
+		//            danger += r.hitChance * (1-danger/100) ;
+		//        }
+		//    }
+		//}
+		//me.gridTileHighlighter.ShowDanger( danger );
 
 	}
 
@@ -110,12 +123,23 @@ public class GodOfHolographics : MissionBaseClass {
 		me.gridTileHighlighter.renderer.enabled = false;
 		me.hideAllHolos();
 
+		me.gridTileHighlighter.HideDanger();
+
 		if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
 			GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = false;
 		}
 
+		foreach( Unit u in allUnits ) {
+			u.__SetFlag( false );
+		}
+
 		gridTile.Blink();
 
+	}
+
+	internal static void setRange( float p ) {
+		//GameObject.Find( "MissionSet/Holo/Cross/range" ).transform.localScale = p * 2 * Vector3.one;
+		GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().renderers[2].transform.localScale = p * 2 * Vector3.one;
 	}
 
 }

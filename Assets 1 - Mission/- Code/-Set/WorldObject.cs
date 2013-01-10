@@ -6,6 +6,7 @@ public class WorldObject : BaseClass {
 //	public const float GRAVITY = 10;
 	//	public float mass = 1.0f;
 
+	public Renderer[] renderers;
 	public Renderer model;
 	
     internal float x {
@@ -34,13 +35,29 @@ public class WorldObject : BaseClass {
           set{ transform.localEulerAngles = new Vector3(transform.localEulerAngles.x,transform.localEulerAngles.y,z);  }
     }
 
-	private Color materialColor;
-	internal float alpha {
-		get { return model.material.color.a; }
+
+	private bool _visible = true;
+	public bool visible {
+		get { return _visible; }
 		set {
-			materialColor = model.material.GetColor( "_Color" );
-			materialColor.a = value;
-			model.material.SetColor( "_Color", materialColor );
+			_visible = value;
+			foreach( Renderer r in renderers ) {
+				r.enabled = value;
+			}
+		}
+	}
+
+	private Color tempMaterialColor;
+	internal float alpha {
+		get { return renderers[0].material.color.a; }
+		set {
+			foreach( Renderer r in renderers ) {
+				foreach( Material m in r.materials ) {
+					tempMaterialColor = m.GetColor( "_Color" );
+					tempMaterialColor.a = value;
+					m.SetColor( "_Color", tempMaterialColor );
+				}
+			}
 		}
 	}
 	

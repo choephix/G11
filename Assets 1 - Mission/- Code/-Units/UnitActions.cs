@@ -414,6 +414,7 @@ public class ActionsBook : MissionBaseClass {
 			processQueue.Add( new ProcessBook.Wait( 1 ) );
 			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, 6 ) );
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.Cross;
+			GodOfHolographics.setRange( (source as Grenade).range );
 			owner.model.Hide( owner.currentWeapon );
 			owner.model.Show( source as Equippable );
 			owner.model.Equip( source as Equippable, owner.model.finger );
@@ -437,10 +438,7 @@ public class ActionsBook : MissionBaseClass {
 				p = new ProcessBook.Wait( 5 );
 				processQueue.Add( p );
 
-				//p = new ProcessBook.ChangeTimeSpeed( .2f, 3f );
-				//processQueue.Add( p, true );
-
-				p = new ProcessBook.AreaDamage( ( subject as GridTile ).transform.position, 4, 8, DamageType.NORMAL );
+				p = new ProcessBook.AreaDamage( ( subject as GridTile ).transform.position, ( source as Grenade ).range, ( source as Grenade ).damage, DamageType.NORMAL );
 				processQueue += p;
 
 				p.eventEnded += Finish;

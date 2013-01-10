@@ -282,49 +282,7 @@ public class Actions {
 
 
 public static class UnitMath {
-
-	internal static float GetHitChancePenalty_Cover( GridTile attackerTile, GridTile attackeeTile ) {
-		if( Config.OVERRIDE_HIT_CHANCE_COVER ) {
-			return 1.0f;
-		}
-		float r = ( 1.0f - attackeeTile.relations.GetTotalCoverValueAgainst( attackerTile ) );
-		return M.ClipMaxMin( r );
-	}
-
-	private const float POINT_BLANK_RADIUS = 3f; // 1.5f
-	internal static float GetHitChancePenalty_Distance( float distance, float range ) {
-		if( Config.OVERRIDE_HIT_CHANCE_DISTANCE ) {
-			return 1.0f;
-		}
-		if( distance > range ) {
-			return 0.0f;
-		}
-		if( distance < POINT_BLANK_RADIUS ) {
-			return 1.0f;
-		}
-		//Decrement with POINT_BLANK_RADIUS so that we calculate from there outwards
-		distance -= POINT_BLANK_RADIUS;
-		range -= POINT_BLANK_RADIUS;
-		float r = ( 2.0f - ( distance / range ) ) / 2.0f;
-		return M.ClipMaxMin( r );
-	}
-
-	internal static float GetHitChancePenalty_UnitSize( Unit attackee ) {
-		return Config.OVERRIDE_HIT_CHANCE_UNIT_SIZE ? 1f : (0.5f+attackee.props.size/2);
-	}
-
-	//-----
-
-	//internal static float GetHitChance_Melee( Unit attacker, Unit attackee ) {
-	internal static float GetHitChancePenalty_MeleeWeapon( MeleeWeapon weapon, float distance ) {
-
-		if( distance > 1.5f ) {
-			return 0f;
-		}
-		return M.ClipMaxMin( weapon.speed / 100 ); //TODO add here units'sb chance to dodge
-
-	}
-
+	
 }
 
 public static class UnitAnimation {
@@ -388,7 +346,7 @@ public class UnitStatus {
 	private float _health;
 	public float health {
 		get { return _health; }
-		set { _health = M.ClipMaxMin( value, _maxHealth ); }
+		set { _health = value.ClipMaxMin( _maxHealth ); }
 	}
 	private float _armor;
 	public float armor {

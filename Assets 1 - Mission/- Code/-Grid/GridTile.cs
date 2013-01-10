@@ -9,6 +9,10 @@ public class GridTile : MissionBaseClass {
 	public Transform cameraSpot;
 	public GridTileAssets assets;
 
+	public Color colorOk;
+	public Color colorDanger;
+	public Color colorCurrent;
+
 	public TextMesh label;
 
 	internal Unit currentUnit;
@@ -71,6 +75,7 @@ public class GridTile : MissionBaseClass {
 			}
 		}
 		renderer.material = materialRegular;
+		renderer.material.color = colorCurrent;
 	}
 
 	internal void Reset() {
@@ -93,8 +98,22 @@ public class GridTile : MissionBaseClass {
 
 		selectable = true;
 		renderer.enabled = true;
+
+		float danger = 0;
+		RangedAttackResult r;
+		foreach( Unit u in allUnits ) {
+			if( selectedUnit.team.IsEnemy( u ) ) {
+				if( u.inPlay && u.CanSee( this ) ) {
+					u.__SetFlag( true );
+					r = new RangedAttackResult( u, selectedUnit, this );
+					danger += r.hitChance / 100 * ( 1 - danger );
+				}
+			}
+		}
+		colorCurrent = Color.Lerp( colorOk, colorDanger, danger );
+
 		UpdateMaterial();
-		Blink();
+		FadeIn();
 
 	}
 
@@ -175,10 +194,16 @@ public class GridTile : MissionBaseClass {
 
 	/// ViSUAL CRAP
 
+	internal void FadeIn() {
+		animation.Rewind();
+		animation.Play( "show" );
+		//	animation.PlayQueued( "IDLE" );
+	}
+
 	internal void Blink() {
 		animation.Rewind();
 		animation.Play( "blink" );
-	//	animation.PlayQueued( "IDLE" );
+		//	animation.PlayQueued( "IDLE" );
 	}
 
 	internal void UnFog() {
@@ -290,10 +315,8 @@ internal class GridTileTileRelations {
 	}
 
 	internal float GetSingleCoverValueAgainst( GridTile coverTile, GridTile attackerTile ) {
-		return 
-	//	return true ?
-			( COVER_MAX_ANGLE -M.ClipMaxMin( Mathf.Abs(	Mathf.DeltaAngle( 
-			relations[coverTile].angle, relations[attackerTile].angle ) ), COVER_MAX_ANGLE ) )
+		return
+			( COVER_MAX_ANGLE - Mathf.Abs( Mathf.DeltaAngle(relations[coverTile].angle, relations[attackerTile].angle ) ).ClipMaxMin( COVER_MAX_ANGLE ) )
 			/ COVER_MAX_ANGLE * coverTile.coverValue;
 	}
 
