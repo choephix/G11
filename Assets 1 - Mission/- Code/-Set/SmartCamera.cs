@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
 public class SmartCamera : MissionBaseClass {
 
 	public static SmartCamera me;
-	public static float defaultDamping = .5f;
+	private const float defaultDamping = .5f;
 
 	public Camera theCamera;
 	public Light torch;
@@ -30,13 +31,13 @@ public class SmartCamera : MissionBaseClass {
 			lookTarget.position = Vector3.Lerp( lookTarget.position, lookTargetDestination.position, 1 - damping );
 			theCamera.transform.localPosition = Vector3.Lerp( theCamera.transform.localPosition, localDestination, 1 - damping );
 		} else {
-			instantMoveToDestination();
-			instantMoveTargetToDestination();
+			InstantMoveToDestination();
+			InstantMoveTargetToDestination();
 		}
 
 		transform.LookAt(lookTarget, Vector3.up);
-		//if( God.selectedUnit ) {
-		//    torch.transform.LookAt( God.selectedUnit.spots.torso );
+		//if( selectedUnit ) {
+		//    torch.transform.LookAt( selectedUnit.spots.torso );
 		//}
 		torch.transform.LookAt( lookTarget );
 
@@ -44,14 +45,15 @@ public class SmartCamera : MissionBaseClass {
 
 	}
 
+	private static float EPSILON = Mathf.Epsilon;
 	private static Vector3 tempV;
 	internal void traverse( float x, float y, float zoom = 0.0f ) {
-		if( x != 0.0f || y != 0.0f ) {
+		if( Math.Abs(x - 0.0f) > EPSILON || Math.Abs(y - 0.0f) > EPSILON ) {
 			tempV = new Vector3( x, 0.0f, y );
 			smartCamera.defaultDestination.position += tempV;
 			smartCamera.defaultLookTargetDestination.position += tempV;
 		}
-		if( zoom != 0.0f ) {
+		if( Math.Abs(zoom - 0.0f) > EPSILON ) {
 			tempV = new Vector3( 0.0f, zoom, 0.0f );
 			if( zoom < 0.0f && smartCamera.defaultDestination.position.y < -zoom ) {
 				return;
@@ -63,12 +65,12 @@ public class SmartCamera : MissionBaseClass {
 		}
 	}
 
-	private void instantMoveToDestination() {
+	private void InstantMoveToDestination() {
 		transform.position = destination.position;
 		theCamera.transform.localPosition = localDestination;
 	}
 
-	private void instantMoveTargetToDestination() {
+	private void InstantMoveTargetToDestination() {
 		lookTarget.position = lookTargetDestination.position;
 	}
 
@@ -79,33 +81,27 @@ public class SmartCamera : MissionBaseClass {
 			);
 	}
 
-	internal void updateObjectVisibilities() {
+	internal void UpdateObjectVisibilities() {
 		foreach( WorldObject o in GodOfTheStage.objects ) {
 			if( o != null ) {
-				if( Vector3.Distance( theCamera.transform.position, o.transform.position ) < .59 ) {
-					o.model.enabled = false;
-				} else {
-					o.model.enabled = true;
-				}
-			} else {
-				print( o );
+				o.model.enabled = !(theCamera.transform.position.DistanceTo(o.transform.position) < .59);
 			}
 		}
 	}
 
-	public void setDestinations( Transform destination, Transform lookTargetDestination, float destinationZDistance = 0, float damping = -1 ) {
+	public void SetDestinations( Transform destination, Transform lookTargetDestination, float destinationZDistance = 0, float damping = -1 ) {
 		if( damping < 0 ) {
 			damping = defaultDamping;
 		}
 		this.damping = damping;
 		this.destination = destination;
 		this.lookTargetDestination = lookTargetDestination;
-		this.localDestination = new Vector3( theCamera.transform.localPosition.x, theCamera.transform.localPosition.y, -destinationZDistance );
+		localDestination = new Vector3( theCamera.transform.localPosition.x, theCamera.transform.localPosition.y, -destinationZDistance );
 	}
 
 	public void ResetTargetHolder( bool instant = false ) {
 		damping = defaultDamping;
-		setDestinations( defaultDestination, defaultLookTargetDestination, 0, instant ? 0 : .5f );
+		SetDestinations( defaultDestination, defaultLookTargetDestination, 0, instant ? 0 : .5f );
 	}
 
 	internal void OnModeChange( byte newMode, byte oldMode ) {
@@ -114,22 +110,20 @@ public class SmartCamera : MissionBaseClass {
 			case CameraMode.TARGET:
 				break;
 			case CameraMode.RUN:
-				setDestinations( God.selectedUnit.currentTile.cameraSpot, God.selectedUnit.spots.torso, 3, .9f );
-				instantMoveToDestination();
+				SetDestinations( selectedUnit.currentTile.cameraSpot, selectedUnit.spots.torso, 3, .9f );
+				InstantMoveToDestination();
 				//if( Chance( 100 ) ) {
 				//    if( Chance( 50 ) ) {
-				//        setDestinations( God.selectedUnit.spots.back, God.selectedUnit.spots.forth, 1.5f, 0 );
+				//        setDestinations( selectedUnit.spots.back, selectedUnit.spots.forth, 1.5f, 0 );
 				//    } else {
-				//        setDestinations( God.selectedUnit.currentTile.cameraSpot, God.selectedUnit.spots.wayBack, 3, 0 );
+				//        setDestinations( selectedUnit.currentTile.cameraSpot, selectedUnit.spots.wayBack, 3, 0 );
 				//    }
 				//}
 				GameMode.cinematic = true;
 				break;
 			case CameraMode.FREE:
-				God.smartCamera.ResetTargetHolder();
+				smartCamera.ResetTargetHolder();
 				GameMode.cinematic = false;
-				break;
-			default:
 				break;
 		}
 
@@ -137,11 +131,11 @@ public class SmartCamera : MissionBaseClass {
 
 	internal void OverTheShoulderAndLookTarget( bool rightSide, float damping = -1 ) {
 		if( rightSide ) {
-			setDestinations( God.selectedUnit.spots.right, God.targetedUnit.model.torso, 1f, damping );
+			SetDestinations( selectedUnit.spots.right, targetedUnit.model.torso, 1f, damping );
 		} else {
-			setDestinations( God.selectedUnit.spots.left, God.targetedUnit.model.torso, 1f, damping );
+			SetDestinations( selectedUnit.spots.left, targetedUnit.model.torso, 1f, damping );
 		}
-		//	setDestinations( God.selectedUnit.spots.overHead, God.targetedUnit.model.torso, 1f, .5f );
+		//	setDestinations( selectedUnit.spots.overHead, targetedUnit.model.torso, 1f, .5f );
 	}
 
 	// EVENT HANDLERS
@@ -156,7 +150,7 @@ public class SmartCamera : MissionBaseClass {
 
 }
 
-public static class CameraMode : object {
+public static class CameraMode {
 
 	internal const byte FREE		= 0;
 	internal const byte TARGET		= 1;
@@ -185,11 +179,11 @@ public static class CameraMode : object {
 
 		if( value == current ) {
 			return false;
-		} else {
-			SmartCamera.me.OnModeChange( value, current );
-			current = value;
-			return true;
 		}
+
+		SmartCamera.me.OnModeChange( value, current );
+		current = value;
+		return true;
 
 	}
 
@@ -197,10 +191,11 @@ public static class CameraMode : object {
 		if( value == current ) {
 			Set( DEFAULT );
 			return false;
-		} else {
-			Set( value );
-			return true;
 		}
+
+		Set( value );
+		return true;
+
 	}
 
 	internal static void SetDefault( byte value ) {

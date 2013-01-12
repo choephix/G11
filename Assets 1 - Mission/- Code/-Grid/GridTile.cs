@@ -1,3 +1,6 @@
+using System;
+using System.Globalization;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,13 +26,13 @@ public class GridTile : MissionBaseClass {
 
 	internal GridTileTileRelations relations;
 
-	internal bool selectable = false;
-	internal bool obstructed { get { return obstruction!=null; } }
+	internal bool selectable;
+	internal bool obstructed { get { return obstruction != null; } }
 	internal bool occupied { get { return currentUnit && currentUnit.alive; } }
 	internal bool walkable { get { return !occupied && !obstructed; } }
-	internal bool traversable { get { return walkable || (obstructed&&obstruction.height<=.5f); } }
+	internal bool traversable { get { return walkable || ( obstructed && obstruction.height <= .5f ); } }
 
-	internal float coverValue { get { return cover==null?0:cover.coverValue; } }
+	internal float coverValue { get { return cover == null ? 0 : cover.coverValue; } }
 	internal ICover cover {
 		get {
 			if( occupied ) return currentUnit;
@@ -46,7 +49,7 @@ public class GridTile : MissionBaseClass {
 
 		UpdateMaterial();
 		label.renderer.enabled = false;
-		relations = new GridTileTileRelations(this, grid.GetAllTiles());
+		relations = new GridTileTileRelations( this, grid.GetAllTiles() );
 
 		if( !Config.USE_FOG ) {
 			UnFog();
@@ -55,7 +58,7 @@ public class GridTile : MissionBaseClass {
 	}
 
 	void Update() {
-	//	renderer.enabled = selectable;
+		//	renderer.enabled = selectable;
 	}
 
 	public void UpdateMaterial() {
@@ -99,21 +102,22 @@ public class GridTile : MissionBaseClass {
 		selectable = true;
 		renderer.enabled = true;
 
-		float danger = 0;
-		RangedAttackResult r;
-		foreach( Unit u in allUnits ) {
-			if( selectedUnit.team.IsEnemy( u ) ) {
-				if( u.inPlay && u.CanSee( this ) ) {
-					u.__SetFlag( true );
-					r = new RangedAttackResult( u, selectedUnit, this );
-					danger += r.hitChance / 100 * ( 1 - danger );
-				}
-			}
-		}
-		colorCurrent = Color.Lerp( colorOk, colorDanger, danger );
+		colorCurrent = Color.Lerp( colorOk, colorDanger, CalculateDanger( selectedUnit ) );
 
 		UpdateMaterial();
 		FadeIn();
+
+	}
+
+	internal float CalculateDanger( Unit unit ) {
+
+		float danger = 0;
+		RangedAttackResult r;
+		foreach( Unit u in allUnits.Where( u => unit.team.IsEnemy( u ) ).Where( u => u.inPlay && u.CanSee( this ) ) ) {
+			r = new RangedAttackResult( u, unit, this );
+			danger += r.hitChance / 100 * ( 1 - danger );
+		}
+		return danger;
 
 	}
 
@@ -121,24 +125,24 @@ public class GridTile : MissionBaseClass {
 	/// MODIFICATIONS
 	/// </summary>
 
-	internal void setObstruction( Obstruction obstruction ) {
+	internal void SetObstruction( Obstruction obstruction ) {
 		this.obstruction = obstruction;
 	}
 
-	internal void clearObstruction() {
-		this.obstruction = null;
+	internal void ClearObstruction() {
+		obstruction = null;
 	}
 
 	/// <summary>
 	/// MATH 'N STUFF
 	/// </summary>
-	
+
 
 
 	/// <summary>
 	/// EVENTS
 	/// </summary>
-	
+
 	public bool focused;
 
 	private void OnFocus() {
@@ -155,7 +159,7 @@ public class GridTile : MissionBaseClass {
 			GodOfHolographics.HighlightGridTile( this );
 		}
 
-	//	OnFocusDebug();
+		//	OnFocusDebug();
 
 	}
 
@@ -169,23 +173,23 @@ public class GridTile : MissionBaseClass {
 			}
 		}
 
-	//	Blink();
+		//	Blink();
 		GodOfHolographics.UnhighlightGridTile( this );
 
-	//	OnBlurDebug();
+		//	OnBlurDebug();
 
 	}
 
-	internal void OnMouseExit(){
+	internal void OnMouseExit() {
 		OnBlur();
 	}
 
 	internal void OnMouseEnter() {
 		OnFocus();
-    }
-	
+	}
+
 	internal void OnMouseUp() {
-		ClickHandler.Up(this);
+		ClickHandler.Up( this );
 	}
 
 	override public string ToString() {
@@ -220,13 +224,14 @@ public class GridTile : MissionBaseClass {
 	/// DEVELOPMENT SHIT
 
 	private void OnUnitSelectedDebug( Unit unit ) {
+		if( unit == null ) throw new ArgumentNullException( "unit" );
 	}
 
 	private void OnFocusDebug() {
 		foreach( GridTile tile in relations.neighbours ) {
 
 			float c = relations.GetRelation( tile ).diagonal ? .25f : .75f;
-			float a = 1;
+			float a;
 			a = 1 - ( Vector3.Distance( tile.transform.position, transform.position ) / 4 ) + .25f;
 
 			tile.label.renderer.material.color = new Color( c, 1, c, a );
@@ -236,7 +241,7 @@ public class GridTile : MissionBaseClass {
 		}
 		label.renderer.enabled = true;
 		label.renderer.material.color = Color.white;
-		label.text = M.Round( relations.GetTotalCoverValueAgainst( God.selectedUnit.currentTile ) * 100, 2 ).ToString() + "%";
+		label.text = relations.GetTotalCoverValueAgainst( selectedUnit.currentTile ).ToPercent( 2 );
 	}
 
 	private void OnBlurDebug() {
@@ -255,7 +260,7 @@ public class GridTile : MissionBaseClass {
 
 }
 
-[System.Serializable]
+[Serializable]
 public class GridTileAssets {
 	public Material materialHidden;
 	public Material materialWalkable;
@@ -283,22 +288,14 @@ internal class GridTileTileRelations {
 				covers.Add( @that );
 			}
 		}
-		this.neighbours = covers.ToArray();
+		neighbours = covers.ToArray();
 	}
 
 	internal ICover[] GetCoversAgainst( GridTile attackerTile ) {
 
-		List<ICover> covers = new List<ICover>();
+		List<ICover> covers = ( from coverTile in neighbours where coverTile != attackerTile where GetSingleCoverValueAgainst( coverTile , attackerTile ) > 0 select coverTile.cover ).ToList( );
 
-		foreach( GridTile coverTile in neighbours ) {
-			if( coverTile != attackerTile ) {
-				if( GetSingleCoverValueAgainst( coverTile, attackerTile ) > 0 ) {
-					covers.Add( coverTile.cover );
-				}
-			}
-		}
-
-		covers.Sort( ( ICover t1, ICover t2 ) => t2.coverValue.CompareTo( t1.coverValue ) );
+		covers.Sort( ( t1 , t2 ) => t2.coverValue.CompareTo( t1.coverValue ) );
 
 		return covers.ToArray();
 
@@ -316,7 +313,7 @@ internal class GridTileTileRelations {
 
 	internal float GetSingleCoverValueAgainst( GridTile coverTile, GridTile attackerTile ) {
 		return
-			( COVER_MAX_ANGLE - Mathf.Abs( Mathf.DeltaAngle(relations[coverTile].angle, relations[attackerTile].angle ) ).ClipMaxMin( COVER_MAX_ANGLE ) )
+			( COVER_MAX_ANGLE - Mathf.Abs( Mathf.DeltaAngle( relations[coverTile].angle, relations[attackerTile].angle ) ).ClipMaxMin( COVER_MAX_ANGLE ) )
 			/ COVER_MAX_ANGLE * coverTile.coverValue;
 	}
 
@@ -333,7 +330,7 @@ internal class GridTileTileRelations {
 }
 
 internal class GridTileTileRelation {
-	 
+
 
 	public readonly float angle;
 	public readonly float distance;
@@ -346,7 +343,7 @@ internal class GridTileTileRelation {
 	public GridTileTileRelation( GridTile @this, GridTile @that ) {
 		Vector2 thisXY = new Vector2( @this.transform.position.x, @this.transform.position.z );
 		Vector2 thatXY = new Vector2( @that.transform.position.x, @that.transform.position.z );
-		
+
 		angle = M.FixAngleRad( Mathf.Atan2( @that.location.y - @this.location.y, @that.location.x - @this.location.x ) ) * Mathf.Rad2Deg;
 		distance = Vector2.Distance( thisXY, thatXY );
 		distanceSqr = GetDistanceSqr( @this.location, @that.location );

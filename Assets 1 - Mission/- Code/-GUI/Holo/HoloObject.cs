@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class HoloObject : MonoBehaviour {
+public class HoloObject : MissionBaseClass {
 
 	public Renderer model;
 
@@ -10,6 +10,7 @@ public class HoloObject : MonoBehaviour {
 	public bool visible { set { 
 		foreach( Renderer renderer in renderers ) renderer.enabled = value; } }
 	public new bool active { set { 
-		foreach( Renderer renderer in renderers ) renderer.gameObject.active = value; } }
+			//foreach( Renderer renderer in renderers ) renderer.gameObject.active = value; 
+			gameObject.SetActive( value ); } }
 
 }

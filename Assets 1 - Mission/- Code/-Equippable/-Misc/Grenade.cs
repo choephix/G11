@@ -9,6 +9,9 @@ public class Grenade : Throwable {
 	public float range = 6; //TODO privatize
 	public float damage = 8; //TODO privatize
 
+	[SerializeField]
+	protected Damage ddamage;
+
 	public override void Init( Unit owner ) {
 
 		base.Init( owner );
@@ -16,5 +19,29 @@ public class Grenade : Throwable {
 		owner.actions.Add( new ActionsBook.ThrowGrenade( owner, this ) );
 
 	}
+
+}
+
+[System.Serializable]
+public class Damage {
+
+	[SerializeField]
+	protected float _damage;
+	public float damage { get { return _damage; } }
+
+	[SerializeField]
+	protected DamageType _damageType;
+	public DamageType damageType { get { return _damageType; } }
+
+
+}
+
+public class AreaDamage : Damage {
+
+
+	[SerializeField]
+	protected float _range;
+	public float range { get { return _range; } }
+
 
 }

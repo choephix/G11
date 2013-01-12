@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile {
-	
+
 	internal UnitModel model;
 
 	public UnitTransformSpots spots;
@@ -13,11 +13,11 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	public UnitProperties props;
 	public UnitStatus status;
 	public UnitEquipment equipment;
-	
+
 	private GridTile _currentTile;
 	public GridTile currentTile {
-      	get{ return _currentTile; }
-      	set{
+		get { return _currentTile; }
+		set {
 
 			if( _currentTile ) {
 				_currentTile.currentUnit = null;
@@ -32,7 +32,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal Weapon currentWeapon;
-	
+
 	internal Team team;
 	internal int squad = 0;
 
@@ -50,7 +50,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	public bool selected { get { return ( selectedUnit == this ); } }
 	public bool targeted { get { return ( targetedUnit == this ); } }
-	public bool targeting { get { return selected && GameMode.Is(GameModes.PickUnit); } }
+	public bool targeting { get { return selected && GameMode.Is( GameModes.PickUnit ); } }
 
 	internal bool alive = true;
 	internal bool activated = false;
@@ -74,10 +74,11 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	public int propMovementRange { get { return Config.DEV_UNIT_MOVE_RANGE; } }
 	public int propSightRange { get { return Config.DEV_UNIT_SIGHT_RANGE; } }
 
-	public float propEvasion { get { return 0*buffs[BuffPropMult.Evasion]; } }
+	public float propHeight { get { return props.size*buffs[ BuffPropMult.Height ]; } }
+	public float propEvasion { get { return 0 * buffs[BuffPropMult.Evasion]; } }
 
 	public float propHealth { get { return status.health; } }
-	public float coverValue { get { return 0.5f * props.size; } }
+	public float coverValue { get { return 0.5f * propHeight; } }
 
 	// VISUAL BS
 
@@ -107,7 +108,10 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	// DEVELOPMENT
 
 	public bool focused;
-	
+
+	[Multiline]
+	public string buginfo = "";
+
 	/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 	void Awake() {
@@ -119,15 +123,18 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		actions += action;
 		actions.defaultAction = action;
 
+		action = new ActionsBook.Crouch( this );
+		actions += action;
+
 		action = new ActionsBook.Defend( this, this );
 		actions += action;
 
-		action = new ActionsBook.Test( this );
-		actions += action;
+		//action = new ActionsBook.Test( this );
+		//actions += action;
 
 	}
 
-	void Start () {
+	void Start() {
 
 		name = props.unitName;
 		status.Init( props );
@@ -162,7 +169,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		//}
 
 		EquipWeapon( equipment.weaponPrimary );
-		
+
 
 		if( !team.isUserControlled ) { //TODO this should so not be here
 			model.meshRenderer.renderer.enabled = false;
@@ -173,7 +180,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	}
 
-	void Update () {
+	void Update() {
 
 		if( model && alive ) {
 
@@ -193,7 +200,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		}
 
-		tempUpdate();
+		TempUpdate();
 
 	}
 
@@ -220,8 +227,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	}
 
-	private void tempUpdate() { //TODO always check this for something to remove
-		
+	private void TempUpdate() { //TODO always check this for something to remove
+
 		bool showBillboard = false;
 
 		if( inPlay ) {
@@ -240,6 +247,24 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		}
 
 		billboard.visible = showBillboard;
+		if( showBillboard ) {
+			if( !targeted && targetable ) {
+				model.materialManager.SetMode( UnitMaterialMode.HoverTargetable );
+			}
+			if( !selected && selectable ) {
+				model.materialManager.SetMode( UnitMaterialMode.HoverSelectable );
+			}
+		} else {
+
+			if( targeted ) {
+				model.materialManager.SetMode( UnitMaterialMode.Targeted );
+			} else if( selected ) {
+				model.materialManager.SetMode( UnitMaterialMode.Selected );
+			} else {
+				model.materialManager.SetMode( UnitMaterialMode.Normal );
+			}
+
+		}
 
 
 	}
@@ -253,6 +278,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		status.actionPoints -= action.cost;
 
+		eventActionStarted.Invoke( action );
 		//if( ready ) {
 		//    GameMode.Disable();
 		//}
@@ -306,7 +332,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 				}
 			}
 
-			eventCurrentTileReached.Invoke(this);
+			eventCurrentTileReached.Invoke( this );
 
 		}
 	}
@@ -356,7 +382,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 						transform.rotation ) as TempObject;
 
 				if( killer ) {
-					bloodspatter.transform.LookAt( killer.transform );
+					if( bloodspatter != null ) 
+						bloodspatter.transform.LookAt( killer.transform );
 				}
 			}
 
@@ -420,19 +447,19 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		return GodOfPathfinding.GetLine( currentTile, tile ).FindAll( t => t.coverValue >= 1f ).Count == 0;
 	}
 
-	internal bool CanTarget(Unit unit) {
+	internal bool CanTarget( Unit unit ) {
 		return
 			unit != this &&
-		//	!unit.selected &&
+			//	!unit.selected &&
 			unit.targetable &&
 			relations.IsVisible( unit ) &&
 			relations.CanAttack( unit ) &&
-			CanWeaponTarget(unit)
+			CanWeaponTarget( unit )
 			;
 	}
 	internal bool CanWeaponTarget( Unit unit ) {
 
-	//	return true;
+		//	return true;
 
 		if( currentWeapon.targetType == TargetType.Enemy && !team.IsEnemy( unit ) ) return false;
 		if( currentWeapon.targetType == TargetType.Ally && !team.IsAlly( unit ) ) return false;
@@ -478,6 +505,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal void Activate() {
+
 		activated = true;
 		model.meshRenderer.renderer.enabled = true;
 		if( currentWeapon ) {
@@ -485,34 +513,42 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		}
 		model.Reload();
 		status.ResetActions();
+
+		model.materialManager.SetMode( UnitMaterialMode.Normal );
+
 		Debug.Log( this + " activated!" );
+
 	}
 
 	public void ClearFog( GridTile centerTile ) {
 
 		if( team.isUserControlled && Config.USE_FOG ) {
 			foreach( GridTile tile in grid.GetAllTiles() ) {
-				if( CanSee(tile) ) {
+				if( CanSee( tile ) ) {
 					tile.UnFog();
 				}
 			}
 		}
 
 	}
-	
+
 	public override string ToString() {
-		return "<"+this.props.unitName+">";
+		return "<" + props.unitName + ">";
 	}
 
 
 
 	internal void OnOurTurnStart() {
+
 		if( inPlay ) {
 			UpdateEverything();
 			buffs.OnTurnStart();
 			status.ResetActions();
 			actions.OnTurnStart();
 		}
+
+		model.materialManager.SetMode( UnitMaterialMode.Normal );
+
 	}
 
 	internal void OnSelected() {
@@ -521,6 +557,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		UpdateEverything();
 
+		model.materialManager.SetMode( UnitMaterialMode.Selected );
+
 	}
 
 	internal void OnDeselected() {
@@ -528,6 +566,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		eventDeselected.Invoke();
 
 		model.RefreshPosture();
+
+		model.materialManager.SetMode( UnitMaterialMode.Normal );
 
 	}
 
@@ -545,13 +585,25 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal void OnTargetedBy( Unit targetingUnit ) {
+
 		if( model.posture == UnitModelPosture.Normal ) {
 			transform.LookAt( targetingUnit.transform );
 		}
+
+		model.materialManager.SetMode( UnitMaterialMode.Targeted );
+
+	}
+
+	internal void OnUntargetedBy( Unit targetingUnit ) {
+
+		model.materialManager.SetMode( UnitMaterialMode.Normal );
+
 	}
 
 	void OnMouseExit() {
+
 		currentTile.OnMouseExit(); //TODO refactor out Hover() OUt() functions called by OnMouse...()
+
 	}
 
 	void OnMouseEnter() {
@@ -563,11 +615,14 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal void __SetFlag( bool up ) {
-		transform.Find( "flag" ).gameObject.SetActiveRecursively( up );
+		transform.Find( "flag" ).gameObject.SetActive( up );
 	}
 
 	internal void SetModel( UnitModel unitModel ) {
 		model = Instantiate( unitModel, transform.position, transform.rotation ) as UnitModel;
+		if( model == null ) {
+			throw new UnityException( "model is NULL, yo" );
+		}
 		model.transform.parent = transform;
 		model.Init( this );
 	}

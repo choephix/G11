@@ -12,7 +12,7 @@ public abstract class Action {
 	public readonly string name;
 	public readonly ActionSubjectType subjectType;
 	public readonly byte cost;
-	public bool oneUse = false;
+	public bool oneUse;
 
 	public readonly bool instant;
 	public readonly byte cooldown;
@@ -213,6 +213,26 @@ public class ActionsBook : MissionBaseClass {
 			p = new ProcessBook.Wait( 10 );
 			processQueue += p;
 
+			p.eventEnded += Finish;
+
+		}
+
+	}
+
+	public class Crouch : InstantAction {
+
+		public Crouch( Unit owner )
+			: base( owner, owner, "Crouch" ) { }
+
+		protected override bool _possible { get { return !owner.buffs.HasBuff( BuffsBook.Ducked( owner ).name ); } }
+
+		public override void _Execute( object subject ) {
+
+			owner.buffs.Add( BuffsBook.Ducked( owner ) );
+
+			Process p;
+			p = new ProcessBook.WaitSeconds( .75f );
+			processQueue += p;
 			p.eventEnded += Finish;
 
 		}

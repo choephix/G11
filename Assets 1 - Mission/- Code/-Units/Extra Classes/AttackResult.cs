@@ -23,7 +23,7 @@ public abstract class AttackResult {
 	}
 
 	protected static float ChanceFromUnitSize( float attackeeSize ) {
-		return Config.OVERRIDE_HIT_CHANCE_UNIT_SIZE ? 1f : ( 0.5f + attackeeSize / 2 );
+		return Config.OVERRIDE_HIT_CHANCE_UNIT_SIZE ? 1f : ( 0.2f + attackeeSize * .8f );
 	}
 
 	protected static float ChanceFromUnitEvasion( Unit attackee ) {
@@ -55,7 +55,7 @@ public class RangedAttackResult : AttackResult {
 
 		//apply protection from cover
 		//apply unit size multilpier so larger units are easier to hit even from distance or behind small cover.
-		mul_CoversAndTargetSize *= ChanceFromCoverAndSize( attacker.currentTile, attackeeTile, attackee.props.size );
+		mul_CoversAndTargetSize *= ChanceFromCoverAndSize( attacker.currentTile, attackeeTile, attackee.propHeight );
 
 		//apply evasion chance
 		mul_TargetEvasion *= ChanceFromUnitEvasion( attackee );
@@ -68,7 +68,7 @@ public class RangedAttackResult : AttackResult {
 			"\n ChanceFromAccuracy~" + ChanceFromAccuracy( attacker ) +
 			"\n ChanceFromDistance!~" + ChanceFromDistance( attacker.GetDistance( attackeeTile.transform ), attacker.propAttackRange ) +
 			"\nmul_CoversAndTargetSize =" +
-			"\n ChanceFromUnitSize~" + ChanceFromUnitSize( attackee.props.size ) +
+			"\n ChanceFromUnitSize~" + ChanceFromUnitSize( attackee.propHeight ) +
 			"\n ChanceFromCoverAndSize~" + ChanceFromCoverAndSize( attacker.currentTile, attackeeTile, attackee.props.size ) +
 			"\nmul_TargetEvasion =" +
 			"\n ChanceFromUnitEvasion~" + ChanceFromUnitEvasion( attackee );
@@ -151,7 +151,7 @@ public class MeleeAttackResult : AttackResult {
 		//apply distance penalty
 		mul_DistanceAndEfficiency *= ChanceFromDistance( attacker.GetDistance( attackee.transform ) );
 		//apply unit size multilpier so larger units are easier to hit
-		mul_DistanceAndEfficiency *= ChanceFromUnitSize( attackee.props.size );
+		mul_DistanceAndEfficiency *= ChanceFromUnitSize( attackee.propHeight );
 
 		//apply evasion chance
 		mul_TargetEvasion *= ChanceFromUnitEvasion( attackee );

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-	//TODO WorldObject public new Renderer renderer;
+//TODO WorldObject public new Renderer renderer;
 
 
 public class Equippable : MissionBaseClass{

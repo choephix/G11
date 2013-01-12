@@ -53,7 +53,7 @@ public class SelectionManager : MissionBaseClass {
 		selectableUnits.Clear();
 		selectableUnits.AddRange( allUnits.FindAll( u => u.selectable ) );
 		targetableUnits.Clear();
-		targetableUnits.AddRange( allUnits.FindAll( u => God.CanTarget( u ) ) );
+		targetableUnits.AddRange( allUnits.FindAll( God.CanTarget ) );
 		ReorderLists();
 	}
 
@@ -171,7 +171,7 @@ public class SelectionManager : MissionBaseClass {
 			UnitTargetedEvent( unit );
 
 			if( prevTargetedUnit ) {
-				//	prevTargetedUnit.OnUntargeted();
+				prevTargetedUnit.OnUntargetedBy( selectedUnit );
 				UnitUntargetedEvent( prevTargetedUnit );
 			}
 

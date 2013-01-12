@@ -37,5 +37,6 @@ public enum BuffPropFlag {
 public enum BuffPropMult { 
 	RangedChance, MeleeChance,
 	RangedDamage, MeleeDamage, 
-	Defence, Evasion
+	Defence, Evasion,
+	Height
 }

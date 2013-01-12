@@ -17,8 +17,13 @@ public class GodOfHolographics : MissionBaseClass {
 
 	private static HoloObject unitHolo;
 
+	[SerializeField]
+	private HoloObject _crossHolo;
+	private static HoloObject crossHolo;
+
 	public void Start() {
 		me = this;
+		crossHolo = _crossHolo;
 		hideAllHolos();
 	}
 
@@ -29,8 +34,8 @@ public class GodOfHolographics : MissionBaseClass {
 		unitHoloRunning.model.renderer.enabled = false;
 		unitHoloInCover.model.renderer.enabled = false;
 		unitHoloInCoverDucked.model.renderer.enabled = false;
-		if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
-			GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = false;
+		if( crossHolo != null ) {
+			crossHolo.active = false;
 		}
 	}
 
@@ -43,11 +48,11 @@ public class GodOfHolographics : MissionBaseClass {
 
 		if( mode == HoloMode.Cross ) {
 
-			if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
-				GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = true;
-				GameObject.Find( "MissionSet/Holo/Cross" ).transform.position = tile.transform.position;
+			if( crossHolo != null ) {
+				crossHolo.active = true;
+				crossHolo.transform.position = tile.transform.position;
 				if( tile.obstructed ) {
-					GameObject.Find( "MissionSet/Holo/Cross" ).transform.position += 
+					crossHolo.transform.position += 
 						Vector3.up * tile.obstruction.height * 2;
 				}
 			}
@@ -75,7 +80,7 @@ public class GodOfHolographics : MissionBaseClass {
 					unitHolo.transform.LookAt( God.selectedUnit.transform );
 					unitHolo.transform.Rotate( Vector3.up * 180 );
 				} else {
-					if( smallestCover.coverValue < God.selectedUnit.props.size ) {
+					if( smallestCover.coverValue < God.selectedUnit.propHeight ) {
 						unitHolo = me.unitHoloInCoverDucked;
 					} else {
 						unitHolo = me.unitHoloInCover;
@@ -125,12 +130,8 @@ public class GodOfHolographics : MissionBaseClass {
 
 		me.gridTileHighlighter.HideDanger();
 
-		if( GameObject.Find( "MissionSet/Holo/Cross" ) != null ) {
-			GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().active = false;
-		}
-
-		foreach( Unit u in allUnits ) {
-			u.__SetFlag( false );
+		if( crossHolo != null ) {
+			crossHolo.active = false;
 		}
 
 		gridTile.Blink();
@@ -139,7 +140,7 @@ public class GodOfHolographics : MissionBaseClass {
 
 	internal static void setRange( float p ) {
 		//GameObject.Find( "MissionSet/Holo/Cross/range" ).transform.localScale = p * 2 * Vector3.one;
-		GameObject.Find( "MissionSet/Holo/Cross" ).GetComponent<HoloObject>().renderers[2].transform.localScale = p * 2 * Vector3.one;
+		crossHolo.renderers[2].transform.localScale = p * 2 * Vector3.one;
 	}
 
 }

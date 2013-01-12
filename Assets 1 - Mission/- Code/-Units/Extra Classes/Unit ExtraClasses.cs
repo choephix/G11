@@ -424,7 +424,7 @@ public class UnitProperties {
 	public float skillMelee	 = 100f;
 	public int maxHealth = 8;
 	public int armor = 0;
-
+	
 	public float size = 1.0f;
 
 	internal Weapon weaponPrimary;

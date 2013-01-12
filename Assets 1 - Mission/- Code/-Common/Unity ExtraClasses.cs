@@ -22,18 +22,6 @@ public static class M {
 		return theValue;
 	}
 
-	internal static float Round( float value, int decimals ) {
-		decimals *= 10;
-		value *= decimals;
-		value = Mathf.Round( value );
-		value /= decimals;
-		return value;
-	}
-
-	internal static int Round( float value ) {
-		return (int)( value );
-	}
-
 	internal static float FixAngleDeg( float fi ) {
 		while( fi >= 360f ) fi -= 360f;
 		while( fi < 0.0f ) fi += 360f;
@@ -59,17 +47,6 @@ public static class M {
 	}
 	internal static bool IsInRange( float n, float max = 1f, float min = 0 ) {
 		return ( n >= min && n <= max );
-	}
-
-}
-
-
-public static class T {
-
-	internal static float GetAngleTo( Transform from, Transform to ) {
-
-		return ( from.eulerAngles.y - Vector3.Angle( from.position, to.position ) );
-
 	}
 
 }

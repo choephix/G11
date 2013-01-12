@@ -104,7 +104,7 @@ public class GodOfTheStage : MissionBaseClass {
 	}
 
 	internal void InitTeams() {
-		byte i = 1;
+
 		Team team;
 		Unit unit;
 		foreach( TeamInitProps teamProps in god.initProps.teams ) {
@@ -131,8 +131,6 @@ public class GodOfTheStage : MissionBaseClass {
 				else
 					unit.equipment = unitProps.equipment.instance;
 
-				i++;
-
 			}
 
 			team.eventSquadActivated += God.OnSquadActivated;
@@ -153,31 +151,40 @@ public class GodOfTheStage : MissionBaseClass {
 
 	internal Obstruction AddObstruction( Obstruction prefab, GridTile tile, float coverValue, Transform model = null ) {
 		Obstruction o = Instantiate( prefab, tile.transform.position, prefab.transform.rotation ) as Obstruction;
-		o.transform.parent = worldContainer.obstructionsHolder;
-		o.height = coverValue;
-		o.currentTile = tile;
-		tile.setObstruction( o );
-		if( model ) {
-			o.decor = AddDecor( model, tile );
+		if( o != null ) {
+			o.transform.parent = worldContainer.obstructionsHolder;
+			o.height = coverValue;
+			o.currentTile = tile;
+			tile.SetObstruction( o );
+			if( model ) {
+				o.decor = AddDecor( model, tile );
+			}
+			return o;
 		}
-		return o;
+		return null;
 	}
 
 	internal Transform AddDecor( Transform model, GridTile tile ) {
 		Transform o = Instantiate( model, tile.transform.position, tile.transform.rotation ) as Transform;
-		o.parent = worldContainer.decorationHolder;
-		return o;
+		if( o != null ) {
+			o.parent = worldContainer.decorationHolder;
+			return o;
+		}
+		return null;
 	}
 
 	internal Unit SpawnUnit( Unit prefab, Team team, GridTile spawnTile, GridTile firstTile = null ) {
 		Unit unit = Instantiate( prefab, spawnTile.transform.position, prefab.transform.rotation ) as Unit;
-		unit.currentTile = firstTile ?? spawnTile;
-		unit.team = team;
-		allUnits.Add( unit );
-		team.units.Add( unit );
-		objects.Add( unit.model );
-		unit.transform.parent = worldContainer.unitsHolder;
-		return unit;
+		if( unit != null ) {
+			unit.currentTile = firstTile ?? spawnTile;
+			unit.team = team;
+			allUnits.Add( unit );
+			team.units.Add( unit );
+			objects.Add( unit.model );
+			unit.transform.parent = worldContainer.unitsHolder;
+			return unit;
+		}
+		return null;
 	}
 
 }

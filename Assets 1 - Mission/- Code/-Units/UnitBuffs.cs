@@ -41,11 +41,14 @@ public class UnitBuffs {
 		}
 
 		list.Add( buff );
+		buff.OnApplied( );
+		buff.TerminatedEvent += delegate { RemoveBuff( buff ); };
 
 	}
 
 	private void RemoveBuff( Buff buff ) {
 		list.Remove( buff );
+		buff.OnRemoved();
 	}
 
 	private void RemoveDuplicates( Buff buff ) {
@@ -54,14 +57,14 @@ public class UnitBuffs {
 	private void RemoveDuplicates( string name ) {
 
 		List<Buff> dups = list.FindAll( b => b.name.Equals( name ) );
-		dups.ForEach( b => RemoveBuff( b ) );
+		dups.ForEach( RemoveBuff );
 
 	}
 
 	public bool HasDuplicates( Buff buff ) {
-		return HasDuplicates( buff.name );
+		return HasBuff( buff.name );
 	}
-	public bool HasDuplicates( string name ) {
+	public bool HasBuff( string name ) {
 
 		List<Buff> dups = list.FindAll( b => b.name.Equals( name ) );
 		return dups.Count > 0;
@@ -73,7 +76,7 @@ public class UnitBuffs {
 	public bool GetFlagProp( BuffPropFlag flag ) {
 		bool r = false;
 		foreach( Buff buff in list ) {
-			r |= buff[ flag ];
+			r |= buff[flag];
 		}
 		return r;
 	}
@@ -81,7 +84,7 @@ public class UnitBuffs {
 	public float GetFlagMult( BuffPropMult mul ) {
 		float r = 1f;
 		foreach( Buff buff in list ) {
-			r *= buff[ mul ];
+			r *= buff[mul];
 		}
 		return r;
 	}
@@ -115,7 +118,7 @@ public class Buff : object {
 
 	public string name;
 
-	public int duration = 1; //TODO is this implemented?
+	public int duration = 1;
 
 	public bool stackable = true; //TODO test
 	public bool eternal = true;
@@ -126,18 +129,23 @@ public class Buff : object {
 	public readonly List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
 	public readonly List<Mult> multProps = new List<Mult>();
 
-    public event EventHandler TurnStartEvent;
+	public event EventHandler AppliedEvent;
+	public event EventHandler RemovedEvent;
+	public event EventHandler TerminatedEvent;
+	public event EventHandler TurnStartEvent;
 	public event EventHandler<int> TurnsPassedEvent = delegate { };
-    
-    private int turnsPassed = 0;
+
+	private int turnsPassed = 0;
 
 	//CONSTRUCTORS
 
-	public Buff( string name, Mult multiplier )	: this( name ) {
+	public Buff( string name, Mult multiplier )
+		: this( name ) {
 		this.multProps.Add( multiplier );
 	}
 
-	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null ) : this( name ) {
+	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null )
+		: this( name ) {
 
 		this.flagProps.Add( flagProp );
 
@@ -147,7 +155,8 @@ public class Buff : object {
 
 	}
 
-	public Buff( string name, BuffPropFlag[] flagProps, Mult[] multipliers = null ) : this( name ) {
+	public Buff( string name, BuffPropFlag[] flagProps, Mult[] multipliers = null )
+		: this( name ) {
 
 		this.flagProps.AddRange( flagProps );
 
@@ -180,13 +189,27 @@ public class Buff : object {
 		return r;
 	}
 
+	public void Terminate() {
+		if( TerminatedEvent != null ) TerminatedEvent.Invoke();
+	}
+
+	//HANDLERS
+
 	public void OnTurnStart() {
-        
+
 		TurnStartEvent.Invoke();
-        
-        turnsPassed++;
-        TurnsPassedEvent.Invoke(turnsPassed);
-        
+
+		turnsPassed++;
+		TurnsPassedEvent.Invoke( turnsPassed );
+
+	}
+
+	public void OnApplied() {
+		if( AppliedEvent != null ) AppliedEvent.Invoke();
+	}
+
+	public void OnRemoved() {
+		if( RemovedEvent != null ) RemovedEvent.Invoke();
 	}
 
 	//OPERATORS
@@ -240,32 +263,42 @@ public class Buff : object {
 
 public class BuffsBook {
 
+	public static Buff Ducked( Unit buffee ) {
+
+
+		Buff b = new Buff( "Ducked", new Buff.Mult( BuffPropMult.Height, .5f ) ) { eternal = true };
+
+		b.AppliedEvent += delegate( ) { buffee.model.SetPosture( UnitModelPosture.CoverDucked ); };
+		b.RemovedEvent += delegate() { buffee.model.SetPosture( UnitModelPosture.Normal ); };
+
+		buffee.eventActionStarted += delegate( Action a ) { b.Terminate(); };
+
+		return b;
+
+	}
+
 	public static Buff Alert( Unit buffee, float amount = .5f ) {
 
-		Buff b = new Buff( "Alert", new Buff.Mult( BuffPropMult.Evasion, amount ) );
-		b.duration = 1;
-		return b;
+		return new Buff( "Alert", new Buff.Mult( BuffPropMult.Evasion, amount ) ) { duration = 1 };
 
 	}
 
 	public static Buff Bleeding( Unit buffee, int amount = 2 ) {
 
-		Buff b = new Buff( "Bleeding" );
-		b.eternal = true;
-		b.TurnStartEvent += delegate { buffee.Damage( amount, DamageType.INTERNAL, buffee ); };
+		Buff b = new Buff( "Bleeding" ) { eternal = true, };
+		b.TurnStartEvent += () => buffee.Damage( amount, DamageType.INTERNAL, buffee );
 		return b;
 
 	}
 
 	public static Buff Poisoned( Unit buffee, int duration = 5 ) {
-        
-    	Buff b = new Buff( "Poisoned" );
-		b.duration = duration;
-		b.TurnStartEvent += delegate { buffee.Damage( 1, DamageType.INTERNAL, buffee ); };
+
+		Buff b = new Buff( "Poisoned" ) { duration = duration };
+		b.TurnStartEvent += () => buffee.Damage( 1, DamageType.INTERNAL, buffee );
 		return b;
-        
-    }
-    
+
+	}
+
 }
 
 

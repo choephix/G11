@@ -10,7 +10,7 @@ public class ClickHandler {
 		GodOfInteraction.OnPick_Tile( tile );
 #if UNITY_EDITOR
 		if( tile.currentUnit!=null ) {
-			Selection.objects = new GameObject[] { tile.currentUnit.gameObject };
+			Selection.objects = new Object[] { tile.currentUnit.gameObject };
 		}
 #endif
 	}
@@ -20,7 +20,7 @@ public class ClickHandler {
 			GodOfInteraction.OnPick_Unit( unit );
 		}
 #if UNITY_EDITOR
-		Selection.objects = new GameObject[] { unit.gameObject };
+		Selection.objects = new Object[] { unit.gameObject };
 #endif
 	}
 

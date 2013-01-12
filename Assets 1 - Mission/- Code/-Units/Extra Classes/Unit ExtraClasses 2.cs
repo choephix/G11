@@ -5,40 +5,41 @@ using System.Collections.Generic;
 
 
 
-public class Damage {
+//[System.Serializable]
+//public class Damage {
 
-	public readonly float amount;
-	public readonly DamageType type;
+//    public readonly float amount;
+//    public readonly DamageType type;
 
-	public readonly Buff[] buffs;
+//    public readonly Buff[] buffs;
 
-	public Damage( float amount, DamageType type, Buff[] buffs ) {
-		this.amount = amount;
-		this.type = type;
-		this.buffs = buffs;
-	}
+//    public Damage( float amount, DamageType type, Buff[] buffs ) {
+//        this.amount = amount;
+//        this.type = type;
+//        this.buffs = buffs;
+//    }
 
-}
+//}
 
-[System.Serializable]
-public class DamageData {
-
-
-	public float amount;
-	public DamageType type;
-
-	public float chanceBleeding;
-	public float chanceEnflamed;
-	public float chanceStunned;
+//[System.Serializable]
+//public class DamageData {
 
 
+//    public float amount;
+//    public DamageType type;
 
-	public Damage FabricateDamage() {
+//    public float chanceBleeding;
+//    public float chanceEnflamed;
+//    public float chanceStunned;
 
-		List<Buff> buffs = new List<Buff>();
 
-		return new Damage( amount, type, buffs.ToArray() );
 
-	}
+//    public Damage FabricateDamage() {
 
-}
+//        List<Buff> buffs = new List<Buff>();
+
+//        return new Damage( amount, type, buffs.ToArray() );
+
+//    }
+
+//}

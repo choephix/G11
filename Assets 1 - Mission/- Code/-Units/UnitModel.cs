@@ -28,10 +28,12 @@ public class UnitModel : WorldObject {
 	public Unit primaryEnemy = null;
 
 	private Unit owner;
-	
+	public UnitMaterialManager materialManager;
+
 	public void Init(Unit unit) {
 		this.owner = unit;
 		this.meshRenderer = model as SkinnedMeshRenderer;
+		this.materialManager = new UnitMaterialManager( this );
 	}
 
 	internal void SetMaterial( Material material ) {
@@ -72,18 +74,23 @@ public class UnitModel : WorldObject {
 
 	internal void UpdatePosture() {
 
-		if( currentSmallestCover == null ) {
-			SetPosture( UnitModelPosture.Normal );
-			if( owner.relations.primaryEnemy ) {
-				owner.transform.LookAt( owner.relations.primaryEnemy.transform );
-			}
-		} else {
-			if( currentSmallestCover.coverValue < owner.props.size ) {
-				SetPosture( UnitModelPosture.CoverDucked );
-			} else {
-				SetPosture( UnitModelPosture.CoverWall );
-			}
-			owner.transform.LookAt( currentSmallestCover.transform );
+		//if( currentSmallestCover == null ) {
+		//	SetPosture( UnitModelPosture.Normal );
+		//	if( owner.relations.primaryEnemy ) {
+		//		owner.transform.LookAt( owner.relations.primaryEnemy.transform );
+		//	}
+		//} else {
+		//	if( currentSmallestCover.coverValue < owner.props.size ) {
+		//		SetPosture( UnitModelPosture.CoverDucked );
+		//	} else {
+		//		SetPosture( UnitModelPosture.CoverWall );
+		//	}
+		//	owner.transform.LookAt( currentSmallestCover.transform );
+		//}
+
+		SetPosture( UnitModelPosture.Normal );
+		if( owner.relations.primaryEnemy ) {
+			owner.transform.LookAt( owner.relations.primaryEnemy.transform );
 		}
 
 	}
@@ -113,11 +120,11 @@ public class UnitModel : WorldObject {
 	}
 	internal void Hide( Equippable weapon ) {
 	//	weapon.model.enabled = false;
-		weapon.gameObject.SetActiveRecursively( false );
+		weapon.gameObject.SetActive( false );
 	}
 	internal void Show( Equippable weapon ) {
 	//	weapon.model.enabled = true;
-		weapon.gameObject.SetActiveRecursively( true );
+		weapon.gameObject.SetActive( true );
 	}
 
 	private string loopingClip = UnitAnimation.IDLE;
