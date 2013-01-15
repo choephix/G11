@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public abstract class Action {
 
-	protected readonly Unit owner;
+	protected Unit owner;
 	protected readonly object source;
 
 	public readonly string name;
@@ -16,7 +16,7 @@ public abstract class Action {
 
 	public readonly bool instant;
 	public readonly byte cooldown;
-	public int cooldownLeft = 0;
+	public int cooldownLeft;
 
 	public bool visible { get { return owner.canAct && _visible; } }
 	protected virtual bool _visible { get { return _possible; } } //TODO implemento
@@ -42,6 +42,10 @@ public abstract class Action {
 		this.cost = cost;
 		this.instant = instant;
 
+	}
+
+	public void SetOwner( Unit unit ) {
+		owner = unit;
 	}
 
 	public bool IsSubjectViable( object subject ) { return _IsSubjectViable( subject ); }
@@ -161,7 +165,7 @@ public class ActionsBook : MissionBaseClass {
 
 	public abstract class InstantAction : Action {
 
-		public InstantAction( Unit owner, object source, string name, byte cooldown = 0, byte cost = 1 )
+		protected InstantAction( Unit owner, object source, string name, byte cooldown = 0, byte cost = 1 )
 			: base( owner, source, name, ActionSubjectType.Self, cooldown, cost, true ) { }
 
 		public override void _Execute( object subject ) {
@@ -183,13 +187,10 @@ public class ActionsBook : MissionBaseClass {
 			p = new ProcessBook.Wait( 3 );
 			processQueue += p;
 
-			p = new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 8, DamageType.NORMAL );
+			p = new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 4 );
 			processQueue += p;
 
-			Buff b = new Buff( "Bleeding" );
-			b.duration = 100;
-			b.TurnStartEvent += delegate { owner.Damage( 2, DamageType.INTERNAL, owner ); };
-			owner.buffs.Add( b );
+			owner.buffs += BuffsBook.Bleeding( owner );
 
 			p = new ProcessBook.Wait( 10 );
 			processQueue += p;
@@ -290,7 +291,7 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void OnDeselected() {
 
-			God.grid.ResetTiles();
+			grid.ResetTiles();
 			GameMode.Reset();
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
 
@@ -306,7 +307,7 @@ public class ActionsBook : MissionBaseClass {
 		protected override bool _possible { get { return owner.canAttack; } }
 
 		public override bool _IsSubjectViable( object subject ) {
-			return subject is Unit && owner.CanTarget( subject as Unit ); ;
+			return subject is Unit && owner.CanTarget( subject as Unit );
 		}
 
 		public override void _OnSelected() {
@@ -362,8 +363,8 @@ public class ActionsBook : MissionBaseClass {
 		private readonly Buff buff;
 
 		public Defend( Unit owner, object source )
-			: base( owner, source, "Defend" ) {
-			buff = BuffsBook.Alert( owner );
+			: base( owner, source, "Alert" ) {
+			buff = BuffsBook.Alert();
 		}
 
 		protected override bool _possible { get { return !owner.buffs.HasDuplicates( buff ); } }
@@ -378,17 +379,36 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
+	public class StitchUp : InstantAction {
+
+		public StitchUp( Unit owner )
+			: base( owner, owner, "Stitch Up" ) { }
+
+		protected override bool _possible { get { return owner.buffs.HasBuff( "Bleeding" ); } } //TODO this should not be string
+
+		public override void _Execute( object subject ) {
+
+			owner.buffs.Remove( "Bleeding" );
+
+			Finish();
+
+		}
+
+	}
+
+	//----------------------------------------------------
+
 	public class Reload : InstantAction {
 
 		public Reload( Unit owner, Firearm source )
 			: base( owner, source, "Reload" ) { }
 
-		protected override bool _possible { get { return ( source as Firearm ).ammoLeft < ( source as Firearm ).ammoClipSize; } }
+		protected override bool _possible { get { return ( ( Firearm ) source ).ammoLeft < ( ( Firearm ) source ).ammoClipSize; } }
 
 		public override void _Execute( object subject ) {
 
 			owner.model.Reload();
-			( source as Firearm ).Reload();
+			( ( Firearm ) source ).Reload();
 			Logger.Respond( owner + " reloading." );
 
 			Finish();
@@ -399,10 +419,10 @@ public class ActionsBook : MissionBaseClass {
 
 	public class Heal : InstantAction {
 
-		protected int healAmount;
+		protected readonly int healAmount;
 
 		public Heal( Unit owner, Equippable source, int amount )
-			: base( owner, source, "Heal "+amount ) { oneUse = true; healAmount = amount; }
+			: base( owner, source, "Heal " + amount ) { oneUse = true; healAmount = amount; }
 
 		protected override bool _possible { get { return !owner.status.fullHealth; } }
 
@@ -416,50 +436,78 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class ThrowGrenade : Action {
+	public abstract class ThrowAction : Action {
 
-		public ThrowGrenade( Unit owner, Grenade source )
-			: base( owner, source, "ThrowGrenade", ActionSubjectType.GridTile ) { oneUse = true; }
-
-		protected override bool _possible { get { return true; } }
-		protected override bool _canDoAgain { get { return false; } }
+		protected ThrowAction( Unit owner, Throwable source, string name )
+			: base( owner, source, name, ActionSubjectType.GridTile ) {
+			oneUse = true;
+		}
 
 		public override bool _IsSubjectViable( object subject ) {
 			return subject is GridTile && ( subject as GridTile ).selectable;
 		}
 
-		public override void _OnSelected() {
+		protected override bool _possible { get { return true; } }
+		protected override bool _canDoAgain { get { return false; } }
+
+		public override sealed void _OnSelected() {
 
 			GameMode.Set( GameModes.PickTile );
 			processQueue.Add( new ProcessBook.Wait( 1 ) );
-			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, 6 ) );
+			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, ( source as Throwable ).throwRange ) );
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.Cross;
-			GodOfHolographics.setRange( (source as Grenade).range );
+			GodOfHolographics.setRange( ( (Throwable)source ).effectRange );
 			owner.model.Hide( owner.currentWeapon );
 			owner.model.Show( source as Equippable );
 			owner.model.Equip( source as Equippable, owner.model.finger );
 			owner.model.Reload();
 
-
-
 		}
 
-		public override void _Execute( object subject ) {
+		public override sealed void _Execute( object subject ) {
 
 			if( subject is GridTile ) {
 
-				Debug.Log( owner + " moving from " + owner.currentTile + " to " + subject );
+				Debug.Log( owner + " throwing " + source + " to " + subject );
+
+				GridTile destinationTile = subject as GridTile;
+
+				Vector3 destination = destinationTile.transform.position;
 
 				Process p;
 
-				p = new ProcessBook.Throw( owner, source as Grenade, subject as GridTile );
+				p = new ProcessBook.Wait( 30 );
 				processQueue.Add( p );
 
-				p = new ProcessBook.Wait( 5 );
-				processQueue.Add( p );
+				if( destinationTile.occupied && owner.team.IsAlly( destinationTile.currentUnit ) ) {
 
-				p = new ProcessBook.AreaDamage( ( subject as GridTile ).transform.position, ( source as Grenade ).range, ( source as Grenade ).damage, DamageType.NORMAL );
-				processQueue += p;
+					destination += Vector3.up * destinationTile.currentUnit.propHeight;
+
+					p = new ProcessBook.Throw( owner, source as Grenade, destination );
+					processQueue.Add( p );
+
+					p = new ProcessBook.Wait( 10 );
+					processQueue.Add( p );
+
+					//p = new ProcessBook.InstantProcess( () => PassEquipment( destinationTile.currentUnit ) );
+					//processQueue.Add( p );
+
+				} else {
+
+					if( destinationTile.obstructed ) {
+						destination += Vector3.up * destinationTile.obstruction.height * 2;
+					}
+
+					p = new ProcessBook.Throw( owner, source as Grenade, destination, .5f );
+					processQueue.Add( p );
+
+					p = new ProcessBook.Wait( 10 );
+					processQueue.Add( p );
+
+					p = OnFallen( destinationTile );
+					processQueue.Add( p );
+
+				}
 
 				p.eventEnded += Finish;
 
@@ -468,7 +516,11 @@ public class ActionsBook : MissionBaseClass {
 
 		}
 
-		protected override void _Finish() {
+		protected void PassEquipment( Unit passee ) {
+			God.PassEquipment( owner, passee, (Equippable)source );
+		}
+
+		protected override sealed void _Finish() {
 
 			owner.model.Equip( source as Equippable, owner.model.finger );
 
@@ -480,13 +532,35 @@ public class ActionsBook : MissionBaseClass {
 
 		}
 
-		public override void OnDeselected() {
+		public override sealed void OnDeselected() {
 
-			God.grid.ResetTiles();
+			grid.ResetTiles();
 			GameMode.Reset();
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
 			owner.model.Hide( source as Equippable );
 			owner.model.Show( owner.currentWeapon );
+
+		}
+
+		protected abstract Process OnFallen( GridTile destinationTile );
+
+	}
+
+	public class ThrowGrenade : ThrowAction {
+
+		public ThrowGrenade( Unit owner, Grenade source )
+			: base( owner, source, "ThrowGrenade" ) { oneUse = true; }
+
+		protected override Process OnFallen( GridTile destinationTile ) {
+
+			Grenade source = this.source as Grenade;
+
+			if( source == null ) throw new UnityException("source=null?!");
+
+			return new ProcessBook.AreaDamage(
+				destinationTile.transform.position,
+				source.effectRange,
+				source.damage );
 
 		}
 

@@ -45,15 +45,14 @@ public class SmartCamera : MissionBaseClass {
 
 	}
 
-	private static float EPSILON = Mathf.Epsilon;
 	private static Vector3 tempV;
 	internal void traverse( float x, float y, float zoom = 0.0f ) {
-		if( Math.Abs(x - 0.0f) > EPSILON || Math.Abs(y - 0.0f) > EPSILON ) {
+		if( x.NotZero() || y.NotZero() ) {
 			tempV = new Vector3( x, 0.0f, y );
 			smartCamera.defaultDestination.position += tempV;
 			smartCamera.defaultLookTargetDestination.position += tempV;
 		}
-		if( Math.Abs(zoom - 0.0f) > EPSILON ) {
+		if( zoom.NotZero() ) {
 			tempV = new Vector3( 0.0f, zoom, 0.0f );
 			if( zoom < 0.0f && smartCamera.defaultDestination.position.y < -zoom ) {
 				return;

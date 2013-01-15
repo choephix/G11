@@ -127,10 +127,34 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 		SelectionManager.RefreshList();
 
-		Debug.Log( "Enemies in " + selectedUnit + "'s range: " + selectedUnit.objectsInRange.enemies.Count );
+		Debug.Log( "Enemies in " + selectedUnit + "'s effectRange: " + selectedUnit.objectsInRange.enemies.Count );
 
 	}
 
+	internal static void PassEquipment( Unit passer , Unit passee , Equippable item ) {
+
+		List<Equippable> eList = new List<Equippable>( passer.equipment.misc );
+
+		if( !eList.Contains( item ) ) {
+			throw new UnityException(
+				passer + " tried to pass item " + item + " to " + passee + " but it was not found in his equipment." );
+		}
+
+		eList.Remove( item );
+		passer.equipment.misc = eList.ToArray( );
+		passer.actions.RemoveAll( item.actions );
+
+		eList = new List<Equippable>( passee.equipment.misc ) {item};
+		passee.equipment.misc = eList.ToArray();
+		passee.actions.AddRange( item.actions );
+
+		foreach( Action a in item.actions ) {
+			a.SetOwner( passee );
+		}
+
+		passee.model.Reload();
+
+	}
 
 	//EVENT HANDLERS
 

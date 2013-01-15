@@ -95,7 +95,7 @@ public class GodOfHolographics : MissionBaseClass {
 
 				unitHolo.transform.localScale = new Vector3( 1, God.selectedUnit.props.size, 1 );
 
-				//tile.DebugOut( Mathf.Floor( M.FixAngleDegSigned( God.selectedUnit.currentTile.relations.GetRelation( tile ).angle + God.selectedUnit.transform.eulerAngles.y - 90 ) ).ToString() );
+				//tile.DebugOut( Mathf.Floor( Angles.FixAngleDegSigned( God.selectedUnit.currentTile.relations.GetRelation( tile ).angle + God.selectedUnit.transform.eulerAngles.y - 90 ) ).ToString() );
 
 
 				//List<GridTile> list = GodOfPathfinding.GetLine( selectedUnit.currentTile, tile );
@@ -139,7 +139,7 @@ public class GodOfHolographics : MissionBaseClass {
 	}
 
 	internal static void setRange( float p ) {
-		//GameObject.Find( "MissionSet/Holo/Cross/range" ).transform.localScale = p * 2 * Vector3.one;
+		//GameObject.Find( "MissionSet/Holo/Cross/effectRange" ).transform.localScale = p * 2 * Vector3.one;
 		crossHolo.renderers[2].transform.localScale = p * 2 * Vector3.one;
 	}
 

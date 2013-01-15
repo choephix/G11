@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 
@@ -28,12 +30,14 @@ public class UnitModel : WorldObject {
 	public Unit primaryEnemy = null;
 
 	private Unit owner;
+	public Holders equiomentHolders;
 	public UnitMaterialManager materialManager;
 
 	public void Init(Unit unit) {
 		this.owner = unit;
 		this.meshRenderer = model as SkinnedMeshRenderer;
 		this.materialManager = new UnitMaterialManager( this );
+		//this.equiomentHolders = new Holders();
 	}
 
 	internal void SetMaterial( Material material ) {
@@ -104,27 +108,33 @@ public class UnitModel : WorldObject {
 
 	internal void Equip( Equippable item, Transform hand = null ) {
 		hand = hand ?? mainHand;
-		item.transform.position = hand.transform.position;
-		item.transform.rotation = hand.transform.rotation;
-		item.transform.parent = hand;
+		item.transform.AttachTo( hand );
+		//item.transform.position = hand.transform.position;
+		//item.transform.rotation = hand.transform.rotation;
+		//item.transform.parent = hand;
 	}
-	internal Weapon SelectWeapon( Weapon weapon ) {
-		if( currentWeapon != null ) {
-			Destroy( currentWeapon.gameObject );
-			currentWeapon = null;
+	internal void Hide( Equippable item ) {
+
+		//	weapon.model.enabled = false;
+
+		if( item.equipmentType == EquipmentType.Hidden ) {
+			item.gameObject.SetActive( false );
+		} else {
+			item.transform.AttachTo( equiomentHolders.NextAvailable( item.equipmentType ) );
 		}
-		Transform hand = mainHand;
-		currentWeapon = Instantiate( weapon, hand.transform.position, hand.transform.rotation ) as Weapon;
-		currentWeapon.transform.parent = hand;
-		return currentWeapon;
+
 	}
-	internal void Hide( Equippable weapon ) {
-	//	weapon.model.enabled = false;
-		weapon.gameObject.SetActive( false );
-	}
-	internal void Show( Equippable weapon ) {
-	//	weapon.model.enabled = true;
-		weapon.gameObject.SetActive( true );
+	internal void Show( Equippable item ) {
+
+		item.transform.AttachTo( mainHand );
+		item.gameObject.SetActive( true );
+
+		if( item.animation != null && item.animation.GetClip( "load" ) != null ) {
+			item.animation.Play( "load" );
+		} else {
+			Spit( 321 );
+		}
+
 	}
 
 	private string loopingClip = UnitAnimation.IDLE;
@@ -151,16 +161,24 @@ public class UnitModel : WorldObject {
 
 	public void Attack( Unit unit, bool hit ) {
 
-		switch( currentWeapon.type ) {
-			case ItemType.meleeWielded:
-				PlayClip( UnitAnimation.ATTACK_WIELD );
-				break;
-			case ItemType.meleeFist:
-				PlayClip( UnitAnimation.ATTACK_FIST );
-				break;
-			default:
+		switch( currentWeapon.equipmentType ) {
+			case EquipmentType.SideArm:
 				PlayClip( UnitAnimation.ATTACK_RANGED );
 				break;
+			case EquipmentType.Rifle:
+				PlayClip( UnitAnimation.ATTACK_RANGED );
+				break;
+			case EquipmentType.Sword:
+				PlayClip( UnitAnimation.ATTACK_WIELD );
+				break;
+			case EquipmentType.Claws:
+				PlayClip( UnitAnimation.ATTACK_FIST );
+				break;
+			case EquipmentType.Misc:
+				PlayClip( UnitAnimation.ATTACK_RANGED );
+				break;
+			default:
+				throw new ArgumentOutOfRangeException( );
 		}
 
 	}
@@ -202,6 +220,47 @@ public class UnitModel : WorldObject {
 		list.Add( m );
 
 		meshRenderer.materials = list.ToArray();
+
+	}
+
+	[System.Serializable]
+	public class Holders {
+
+		public Transform[] holsters;
+		public Transform[] backFirearm;
+		public Transform[] backMelee;
+		public Transform[] misc;
+
+		public Transform NextAvailable( EquipmentType type ) {
+
+			Transform[] holders = GetGroupFor( type );
+
+			foreach( Transform t in holders.Where( t => t.childCount == 0 ) ) {
+				return t;
+			}
+
+			return holders[0];
+
+			//return holsters[0];
+
+		}
+
+		private Transform[] GetGroupFor( EquipmentType type ) {
+
+			switch( type ) {
+				case EquipmentType.SideArm:
+				case EquipmentType.Claws:
+					return holsters;
+				case EquipmentType.Sword:
+					return backMelee;
+				case EquipmentType.Rifle:
+					return backFirearm;
+				case EquipmentType.Misc:
+					return misc;
+				default:
+					throw new ArgumentOutOfRangeException( "type" );
+			}
+		}
 
 	}
 

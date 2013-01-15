@@ -38,15 +38,15 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	internal Actions actions = new Actions();
 	internal UnitBuffs buffs = new UnitBuffs();
-	internal UnitObjectsInRange objectsInRange = new UnitObjectsInRange();
-	internal UnitUnitRelations relations = new UnitUnitRelations();
+	internal readonly UnitObjectsInRange objectsInRange = new UnitObjectsInRange();
+	internal readonly UnitUnitRelations relations = new UnitUnitRelations();
 
 	//
 
-	private bool ready = false;
-	internal bool atCurrentTile = false;
-	internal bool acting = false;
-	internal float rotationY = 0;
+	private bool ready;
+	internal bool atCurrentTile;
+	internal bool acting;
+	internal float rotationY;
 
 	public bool selected { get { return ( selectedUnit == this ); } }
 	public bool targeted { get { return ( targetedUnit == this ); } }
@@ -55,7 +55,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	internal bool alive = true;
 	internal bool activated = false;
 	internal bool concious { get { return ( alive ); } }
-	internal bool inPlay { get { return ready && alive && activated && !currentTile.fogged; } }
+	internal bool inPlay { get { return ready && concious && activated; } }
 	internal bool selectable { get { return ( canAct && atCurrentTile && team.isTheirTurn ); } }
 	internal bool targetable { get { return ( inPlay ); } }
 	internal bool canAct { get { return inPlay && hasActions; } }
@@ -74,10 +74,10 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	public int propMovementRange { get { return Config.DEV_UNIT_MOVE_RANGE; } }
 	public int propSightRange { get { return Config.DEV_UNIT_SIGHT_RANGE; } }
 
-	public float propHeight { get { return props.size*buffs[ BuffPropMult.Height ]; } }
+	public float propHeight { get { return props.size * buffs[BuffPropMult.Height]; } }
 	public float propEvasion { get { return 0 * buffs[BuffPropMult.Evasion]; } }
 
-	public float propHealth { get { return status.health; } }
+	public float propHealth { get { return status.health; } set { status.health = value; } }
 	public float coverValue { get { return 0.5f * propHeight; } }
 
 	// VISUAL BS
@@ -129,8 +129,11 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		action = new ActionsBook.Defend( this, this );
 		actions += action;
 
-		//action = new ActionsBook.Test( this );
-		//actions += action;
+		action = new ActionsBook.StitchUp( this );
+		actions += action;
+
+		action = new ActionsBook.Test( this );
+		actions += action;
 
 	}
 
@@ -139,24 +142,16 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		name = props.unitName;
 		status.Init( props );
 
-		equipment.weaponPrimary.Init( this );
-		model.Equip( equipment.weaponPrimary );
-		model.Hide( equipment.weaponPrimary );
-		equipment.weaponSecondary.Init( this );
-		model.Equip( equipment.weaponSecondary );
-		model.Hide( equipment.weaponSecondary );
+		Equip( equipment.weaponPrimary );
+		Equip( equipment.weaponSecondary );
 
 		if( equipment.biomod != null ) {
-			equipment.biomod.Init( this );
-			model.Equip( equipment.biomod );
-			model.Hide( equipment.biomod );
+			Equip( equipment.biomod );
 		}
 
 		foreach( Equippable tool in equipment.misc ) {
 			if( tool != null ) {
-				tool.Init( this );
-				model.Equip( tool );
-				model.Hide( tool );
+				Equip( tool );
 			}
 		}
 
@@ -204,27 +199,16 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	}
 
+	public void Equip( Equippable item ) {
+		item.Init( this );
+		model.Equip( item );
+		model.Hide( item );
+	}
 
-	private float currentTileDistance;
-	private float stepLength;
-	private void UpdateMovement() {
-
-		currentTileDistance = Vector3.Distance( transform.position, currentTile.transform.position );
-		stepLength = GodOfTime.deltaTime * movementSpeed;
-
-		model.LoopClip( currentTile.obstructed ? UnitAnimation.JUMP : UnitAnimation.MOVE, .2f );
-
-		if( currentTileDistance < stepLength ) {
-
-			OnCurrentTileReached();
-
-		} else {
-
-			transform.LookAt( currentTile.transform.position );
-			transform.position = Vector3.MoveTowards( transform.position, currentTile.transform.position, stepLength );
-
-		}
-
+	public void Unequip( Equippable item ) {
+		//item.Init( this );
+		//model.Equip( item );
+		//model.Hide( item );
 	}
 
 	private void TempUpdate() { //TODO always check this for something to remove
@@ -236,24 +220,41 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			billboard.UpdateLabels( this );
 
 			if( GameMode.interactive && TurnManager.isUserTurn ) {
+
 				if( GameMode.selecting ) {
 					showBillboard = TurnManager.isUserTurn && ( selected || currentTile.focused );
 				}
+
 				if( GameMode.targeting ) {
 					showBillboard = targeted;
 				}
+
 			}
 
 		}
 
 		billboard.visible = showBillboard;
+
 		if( showBillboard ) {
-			if( !targeted && targetable ) {
-				model.materialManager.SetMode( UnitMaterialMode.HoverTargetable );
-			}
-			if( !selected && selectable ) {
+
+			if( selected ) {
+
+				model.materialManager.SetMode( UnitMaterialMode.Selected );
+
+			} else if( !selected && selectable ) {
+
 				model.materialManager.SetMode( UnitMaterialMode.HoverSelectable );
+
+			} else if( !targeted && targetable ) {
+
+				model.materialManager.SetMode( UnitMaterialMode.HoverTargetable );
+
+			} else {
+
+				model.materialManager.SetMode( UnitMaterialMode.Normal );
+
 			}
+
 		} else {
 
 			if( targeted ) {
@@ -353,7 +354,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 				transform.LookAt( attacker.transform );
 			}
 
-			if( status.health <= 0 ) {
+			if( propHealth <= 0 ) {
 				Die( attacker );
 			} else {
 				model.Damage();
@@ -382,7 +383,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 						transform.rotation ) as TempObject;
 
 				if( killer ) {
-					if( bloodspatter != null ) 
+					if( bloodspatter != null )
 						bloodspatter.transform.LookAt( killer.transform );
 				}
 			}

@@ -4,9 +4,7 @@ using System.Collections.Generic;
 
 public class BaseClass : MonoBehaviour {
 
-	internal delegate void Delegate<T>(T o);
-
-	internal static void trace( string message, bool condition ) {
+	internal static void trace( string message, bool condition = true ) {
 		if( condition ) {
 			print( message );
 		}
@@ -16,7 +14,6 @@ public class BaseClass : MonoBehaviour {
 
     internal static float rand { get{ return Random.value;  } }
 	
-	internal static int Rand(int i)  { return (int)(rand*i); }
 	internal static float Randomize(float f)  { return (rand*f-f/2); }
 	internal static Vector2 Randomize(Vector2 v) { return new Vector2( rand*v.x, rand*v.y)-v/2; }
 	internal static Vector3 Randomize(Vector3 v) { return new Vector3( rand*v.x, rand*v.y, rand*v.z)-v/2; }
@@ -28,10 +25,6 @@ public class BaseClass : MonoBehaviour {
 		while(v.y<min) v.y+=delta;
 		return v;
 	}
-
-	internal static bool Chance( float v ) { return rand * 100 < v; }
-	internal static bool Chance( int v ) { return rand * 100 < v; }
-	internal static bool Chance1( float v ) { return rand < v; }
 
 	//internal static void OffsetVector( ref Vector3 v, float x, float y = 0, float z = 0 ) {
 	//    v = v + new Vector3( x, y, z );

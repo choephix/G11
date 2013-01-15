@@ -42,7 +42,7 @@ public class UnitBillboard : HoloObject {
 		//    sb.Append( "{}" );
 		//}
 		for( byte i=0 ; i < unit.props.maxHealth ; i++ ) {
-			sb.Append( i < unit.status.health ? 'O' : '-' );
+			sb.Append( i < unit.propHealth ? 'O' : '-' );
 		}
 		for( byte i=0 ; i < unit.status.armor ; i++ ) {
 			sb.Append( '0' );

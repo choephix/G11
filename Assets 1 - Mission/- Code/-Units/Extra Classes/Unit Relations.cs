@@ -71,7 +71,7 @@ using UnityEngine;
 			this.damageMax = owner.propAttackDamage;
 			this.critChance = 50;
 			this.critMultiplier = 2;
-			this.angle = M.FixAngleDegSigned( owner.currentTile.relations.GetAngle( unit.currentTile ) + owner.rotationY - 90 );
+			this.angle = Angles.FixAngleDegSigned( owner.currentTile.relations.GetAngle( unit.currentTile ) + owner.rotationY - 90 );
 			this.attackResult = GetAttackResult( owner, unit );
 		}
 

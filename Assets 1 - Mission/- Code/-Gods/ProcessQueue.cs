@@ -274,15 +274,17 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
-	public class GenericProcess : SimpleProcess {
+	public class InstantProcess : SimpleProcess {
 
-		public event EventHandler OnStart;
+		public event EventHandler eventOnStart;
 
-		public GenericProcess( EventHandler OnStart ) : base( "GenericProcess" ) { this.OnStart = OnStart; }
+		public InstantProcess( EventHandler eventOnStart ) : base( "InstantProcess" ) { this.eventOnStart = eventOnStart; }
 
 		protected override void _Start() {
 
-			OnStart.Invoke();
+			eventOnStart.Invoke();
+
+			End();
 
 		}
 
@@ -787,7 +789,7 @@ public class ProcessBook : MissionBaseClass {
 			if( healingProgress < healingAmount ) {
 
 				healingProgress += healingSpeed;
-				u.status.health += healingSpeed;
+				u.propHealth += healingSpeed;
 
 			} else {
 
@@ -801,7 +803,8 @@ public class ProcessBook : MissionBaseClass {
 
 	public class Throw : UnitProcess {
 
-		protected const float speed		= .04f;
+		protected const float speed		= .02f;
+		//protected const float speed		= .04f;
 		protected const float height	= 1.5f;
 
 		protected readonly Unit thrower;
@@ -815,16 +818,18 @@ public class ProcessBook : MissionBaseClass {
 
 		protected float progress = 0;
 
-		public Throw( Unit thrower, Transform throwee, GridTile destination )
+		public Throw( Unit thrower, Transform throwee, Vector3 destination, float inaccuracy = 0f )
 			: base( "Throw", thrower ) {
 
 			this.thrower = thrower;
 			this.throwee = throwee;
-			this.positionEnd = destination.transform.position;
 
-			if( destination.obstructed ) {
-				this.positionEnd += Vector3.up * destination.obstruction.height * 2;
-			}
+			positionEnd = destination;
+
+			if( !inaccuracy.NotZero( ) ) return;
+
+			positionEnd += Vector3.forward * Random.Range( -inaccuracy, inaccuracy );
+			positionEnd += Vector3.left * Random.Range( -inaccuracy, inaccuracy );
 
 		}
 
@@ -833,6 +838,7 @@ public class ProcessBook : MissionBaseClass {
 			this.positionStart = throwee.transform.position;
 			this.distance = Vector3.Distance( positionStart, positionEnd );
 			throwee.transform.parent = null;
+			throwee.transform.localPosition = Vector3.zero;
 		}
 
 		protected override void _Update() {

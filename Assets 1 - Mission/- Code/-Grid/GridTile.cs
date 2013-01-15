@@ -235,7 +235,7 @@ public class GridTile : MissionBaseClass {
 			a = 1 - ( Vector3.Distance( tile.transform.position, transform.position ) / 4 ) + .25f;
 
 			tile.label.renderer.material.color = new Color( c, 1, c, a );
-			tile.label.text = M.FixAngleDeg( relations.GetRelation( tile ).angle + 90 ).ToString();
+			tile.label.text = Angles.FixAngleDeg( relations.GetRelation( tile ).angle + 90 ).ToString();
 			tile.label.renderer.enabled = true;
 
 		}
@@ -344,7 +344,7 @@ internal class GridTileTileRelation {
 		Vector2 thisXY = new Vector2( @this.transform.position.x, @this.transform.position.z );
 		Vector2 thatXY = new Vector2( @that.transform.position.x, @that.transform.position.z );
 
-		angle = M.FixAngleRad( Mathf.Atan2( @that.location.y - @this.location.y, @that.location.x - @this.location.x ) ) * Mathf.Rad2Deg;
+		angle = Angles.FixAngleRad( Mathf.Atan2( @that.location.y - @this.location.y, @that.location.x - @this.location.x ) ) * Mathf.Rad2Deg;
 		distance = Vector2.Distance( thisXY, thatXY );
 		distanceSqr = GetDistanceSqr( @this.location, @that.location );
 		diagonal = ( @that.location.y != @this.location.y ) && ( @that.location.x != @this.location.x );

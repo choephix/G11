@@ -73,14 +73,14 @@ public class RangedAttackResult : AttackResult {
 			"\nmul_TargetEvasion =" +
 			"\n ChanceFromUnitEvasion~" + ChanceFromUnitEvasion( attackee );
 
-		if( !God.Chance1( mul_DistanceAndAccuracy ) ) {
+		if( !this.Chance1( mul_DistanceAndAccuracy ) ) {
 
 			this.msg = Message.MISSED;
 			return;
 
 		} else {
 
-			if( !God.Chance1( mul_CoversAndTargetSize ) ) {
+			if( !this.Chance1( mul_CoversAndTargetSize ) ) {
 
 				this.msg = Message.HIT_COVER;
 
@@ -92,7 +92,7 @@ public class RangedAttackResult : AttackResult {
 
 			} else {
 
-				if( !God.Chance1( mul_TargetEvasion ) ) {
+				if( !this.Chance1( mul_TargetEvasion ) ) {
 
 					this.msg = Message.EVADED;
 					this.evaded = true;
@@ -161,7 +161,7 @@ public class MeleeAttackResult : AttackResult {
 		//calculate total chance, which will be shown before attack for user consideration
 		this.hitChance = 100f * mul_DistanceAndEfficiency * mul_TargetEvasion;
 
-		if( !God.Chance1( mul_DistanceAndEfficiency ) ) {
+		if( !this.Chance1( mul_DistanceAndEfficiency ) ) {
 
 			this.msg = Message.MISSED;
 			this.hittee = null;
@@ -169,7 +169,7 @@ public class MeleeAttackResult : AttackResult {
 
 		} else {
 
-			if( !God.Chance1( mul_TargetEvasion ) ) {
+			if( !this.Chance1( mul_TargetEvasion ) ) {
 
 				this.msg = Message.EVADED;
 				this.hittee = null;

@@ -6,10 +6,12 @@ using System.Collections;
 
 public class ClickHandler {
 
+	private const bool EDITOR_SHIT = false;
+
 	internal static void Up( GridTile tile ) {
 		GodOfInteraction.OnPick_Tile( tile );
 #if UNITY_EDITOR
-		if( tile.currentUnit!=null ) {
+		if( EDITOR_SHIT && tile.currentUnit != null ) {
 			Selection.objects = new Object[] { tile.currentUnit.gameObject };
 		}
 #endif
@@ -20,7 +22,9 @@ public class ClickHandler {
 			GodOfInteraction.OnPick_Unit( unit );
 		}
 #if UNITY_EDITOR
-		Selection.objects = new Object[] { unit.gameObject };
+		if( EDITOR_SHIT ) {
+			Selection.objects = new Object[] {unit.gameObject};
+		}
 #endif
 	}
 

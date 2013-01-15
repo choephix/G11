@@ -7,9 +7,9 @@ public class TestBehaviour : BaseClass {
 
 	void Start() {
 
-		renderer.material.mainTexture = tex = new Texture2D( 32, 32 );
+		//renderer.material.mainTexture = tex = new Texture2D( 32, 32 );
 
-		GUI_TextureFactory.PaintPercentBar( tex, 0 );
+		//GUI_TextureFactory.PaintPercentBar( tex, 0 );
 
 	}
 
@@ -17,7 +17,7 @@ public class TestBehaviour : BaseClass {
 
 
 	public void OnMouseUp() {
-		GUI_TextureFactory.PaintPercentBar( tex, rand * 100 );
+		//GUI_TextureFactory.PaintPercentBar( tex, rand * 100 );
 	}
 
 }

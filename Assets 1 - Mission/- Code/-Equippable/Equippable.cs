@@ -10,6 +10,8 @@ public class Equippable : MissionBaseClass{
 
 	public new string name = "Unnamed";
 
+	public EquipmentType equipmentType = EquipmentType.Misc;
+
 	public MeshRenderer model;
 	public TargetType targetType = TargetType.Enemy;
 	private bool passive { get { return actions.Count == 0; } }
@@ -29,8 +31,6 @@ public class Equippable : MissionBaseClass{
 public abstract class Weapon : Equippable {
 
 	// PROPERTIES
-
-	public ItemType type = ItemType.undefined;
 
 	public float baseDamage = 10;
 	public float baseRange = 1.5f;

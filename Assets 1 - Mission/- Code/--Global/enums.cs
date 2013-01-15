@@ -18,17 +18,18 @@ internal enum Clip : byte { Idle, Run, Shoot, Die }
 
 public enum UnitModelPosture { Normal, CoverWall, CoverDucked }
 
-public enum equipmentSpot : byte { none, beltRight, beltLeft, backRight, backLeft, head }
+public enum EquipmentType : byte { SideArm, Rifle, Sword, Claws, Misc, Hidden }
 
 public enum TargetType : byte { Any, Enemy, Ally }
 
-public enum AmmoType : byte { bulletSmall, bulletLarge, rocket }
+public enum AmmoType : byte { BulletSmall, BulletLarge, Rocket }
 
-public enum ItemType : byte { undefined, rangedOneHanded, rangedTwoHanded, rangedHeavy, meleeFist, meleeWielded, throwable }
+//public enum ItemType : byte { undefined, rangedOneHanded, rangedTwoHanded, rangedHeavy, meleeFist, meleeWielded, throwable }
 
 public enum ActionSubjectType { Self, GridTile, Unit }
 
 
+public enum BuffTerminationCondition { Eternal, Timeout, NextAction }
 
 public enum BuffPropFlag { 
 	CantMove,

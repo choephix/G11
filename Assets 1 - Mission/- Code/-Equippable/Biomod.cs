@@ -13,7 +13,7 @@ public class Biomod : Equippable {
 		base.Init( owner );
 		//actions.Add( new ActionsBook.Attack( owner, this ) );
 		if( buff != null ) {
-			buff.eternal = true;
+			buff.terminationCondition = BuffTerminationCondition.Eternal;
 		}
 	//	owner.buffs.Add( buff.Clone() );
 		//owner.buffs.Add( buff );

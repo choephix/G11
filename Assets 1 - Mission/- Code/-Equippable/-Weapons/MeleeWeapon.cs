@@ -5,7 +5,7 @@ public class MeleeWeapon : Weapon {
 
 	// CHANGABLES
     
-    public float chanceBleeding = 0;
+    public float chanceBleeding = 100;
 
 	// PROPERTY GETTERS
 
@@ -16,7 +16,7 @@ public class MeleeWeapon : Weapon {
 
 		if( hittee == targetUnit ) {
             
-            if( God.Chance(chanceBleeding) ) {
+            if( this.Chance(chanceBleeding) ) {
                 
                 targetUnit.buffs += BuffsBook.Bleeding(targetUnit);
                 

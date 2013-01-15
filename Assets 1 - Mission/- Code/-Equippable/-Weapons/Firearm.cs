@@ -7,7 +7,7 @@ public class Firearm : Weapon {
 	public Transform barrel;
 	public LineRenderer shotLine;
 
-	public AmmoType ammoType = AmmoType.bulletSmall;
+	public AmmoType ammoType = AmmoType.BulletSmall;
 	public int baseAmmoClipSize = 8;
 	public float accuracy = 100f; //TODO not implemented
 

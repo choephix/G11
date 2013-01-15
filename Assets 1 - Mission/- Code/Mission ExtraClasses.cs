@@ -84,7 +84,7 @@ public class SelectionManager : MissionBaseClass {
 
 		int n = selectableUnits.IndexOf( selectedUnit );
 		n += ( backwards ? -1 : 1 );
-		n = M.LoopMaxMin( n, selectableUnits.Count - 1 );
+		n = n.LoopMaxMin( selectableUnits.Count - 1 );
 
 		Debug.Log( "Will select unit " + ( n + 1 ) + " of " + selectableUnits.Count + " (" + selectableUnits[n] + ")" );
 
@@ -101,7 +101,7 @@ public class SelectionManager : MissionBaseClass {
 			int n = targetableUnits.IndexOf( targetedUnit );
 			Debug.Log( selectedUnit + " targeting another unit. (Previous targeted unit was " + F.ToStringOrNull( targetedUnit ) + ", [" + n + "] in the targetableUnits list" );
 			n += ( backwards ? -1 : 1 );
-			n = M.LoopMaxMin( n, targetableUnits.Count - 1 );
+			n = n.LoopMaxMin( targetableUnits.Count - 1 );
 			Debug.Log( "Will target unit " + ( n + 1 ) + " of " + targetableUnits.Count + " (" + targetableUnits[n] + ")" );
 			TargetUnit( targetableUnits[n] );
 			return true;

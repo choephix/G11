@@ -115,7 +115,7 @@ public class GodOfInteraction : MissionBaseClass {
 						return;
 					}
 					if( !selectedUnit.objectsInRange.HaveEnemies() ) {
-						Logger.Respond( "No enemies in range" );
+						Logger.Respond( "No enemies in effectRange" );
 						return;
 					}
 				}

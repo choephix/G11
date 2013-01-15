@@ -58,8 +58,8 @@ public class Grid : MonoBehaviour {
 
 
 	public GridTile GetTileSafely( int x, int y ) {
-		x = M.ClipMaxMinInt( x, size.x - 1 );
-		y = M.ClipMaxMinInt( y, size.y - 1 );
+		x = x.ClipMaxMinInt( size.x - 1 );
+		y = y.ClipMaxMinInt( size.y - 1 );
 		return GetTile( x, y );
 	}
 	public GridTile GetTile( int x, int y ) {

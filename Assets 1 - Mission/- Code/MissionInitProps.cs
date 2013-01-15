@@ -15,7 +15,7 @@ public class MissionInitProps : BaseClass {
 
 	public TeamInitProps[] teams;
 
-	public Weapon randomWeapon { get { return weapons[Rand( weapons.Length )]; } }
+	public Weapon randomWeapon { get { return weapons.GetRandom(); } }
 
 }
 

@@ -44,7 +44,7 @@ public class MissionGUI : MissionBaseClass {
 				sb.AppendLine( "Selected Unit: " + UnitInfo( selectedUnit ) );
 
 				sb.Append( "Health:" );
-				for( byte i=0 ; i < selectedUnit.props.maxHealth ; i++ ) { sb.Append( i < selectedUnit.status.health ? 'H' : '-' );	}
+				for( byte i=0 ; i < selectedUnit.props.maxHealth ; i++ ) { sb.Append( i < selectedUnit.propHealth ? 'H' : '-' ); }
 				for( byte i=0 ; i < selectedUnit.props.armor ; i++ ) { sb.Append( 'A' ); }
 				sb.AppendLine();
 

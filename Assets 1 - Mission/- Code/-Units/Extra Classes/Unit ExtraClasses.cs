@@ -21,7 +21,7 @@ public class Actions {
 	private Unit owner;
 	private bool active { get { return selectedAction != null && owner.selected; } }
 
-	private List<Action> actionsList = new List<Action>();
+	private readonly List<Action> actionsList = new List<Action>();
 	private List<Action> possibleActionsList = new List<Action>();
 
 	public event EventHandler eventListChanged;
@@ -62,18 +62,14 @@ public class Actions {
 		eventListChanged.Invoke();
 	}
 	internal void RemoveAll( List<Action> list ) {
-		actionsList.RemoveAll( a => list.Contains( a ) );
-		eventListChanged.Invoke();
-	}
-	internal void RemoveAll( Action[] list ) {
-		actionsList.RemoveAll( a => new List<Action>( list ).Contains( a ) );
+		actionsList.RemoveAll( list.Contains );
 		eventListChanged.Invoke();
 	}
 
 
 	internal void Select( int i = 0 ) {
 
-		if( M.IsIntInRange( i, possibleActionsList.Count - 1 ) ) {
+		if( i.IsIntInRange( possibleActionsList.Count - 1 ) ) {
 			Select( possibleActionsList[i] );
 		} else {
 			Debug.Log( "No action at index " + i );
