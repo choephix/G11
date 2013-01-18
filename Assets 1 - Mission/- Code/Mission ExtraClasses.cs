@@ -2,9 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public delegate bool QuestionHandler();
-public delegate bool QuestionHandler<T>( T param );
-
 public delegate void EventHandler();
 public delegate void EventHandler<T>( T param );
 public delegate void EventHandler<T1, T2>( T1 param1, T2 param2 );
@@ -58,9 +55,9 @@ public class SelectionManager : MissionBaseClass {
 	}
 
 	internal static void ReorderLists() {
-		selectableUnits.Sort( ( Unit u1, Unit u2 ) =>
+		selectableUnits.Sort( ( u1 , u2 ) =>
 			u2.transform.position.x.CompareTo( u1.transform.position.x ) );
-		targetableUnits.Sort( ( Unit u1, Unit u2 ) =>
+		targetableUnits.Sort( ( u1 , u2 ) =>
 			selectedUnit == null ? u2.transform.position.x.CompareTo( u1.transform.position.x ) :
 			selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) )
 			);
@@ -72,7 +69,7 @@ public class SelectionManager : MissionBaseClass {
 
 		RefreshList();
 
-		if( SelectionManager.selectableUnits.Count == 0 ) {
+		if( selectableUnits.Count == 0 ) {
 			Debug.LogError( "Failed to SelectAnotherUnit. Selectable units list is empty" );
 			return false;
 		}
@@ -105,10 +102,10 @@ public class SelectionManager : MissionBaseClass {
 			Debug.Log( "Will target unit " + ( n + 1 ) + " of " + targetableUnits.Count + " (" + targetableUnits[n] + ")" );
 			TargetUnit( targetableUnits[n] );
 			return true;
-		} else {
-			Debug.Log( "Failed to TargetAnotherUnit. Targetable units list is empty." );
-			return false;
 		}
+
+		Debug.Log( "Failed to TargetAnotherUnit. Targetable units list is empty." );
+		return false;
 
 		//selectedUnit.UpdateEverything();
 
@@ -191,7 +188,7 @@ public class SelectionManager : MissionBaseClass {
 
 public class TurnManager : MissionBaseClass {
 
-	private static byte _roundN = 0;
+	private static byte _roundN;
 	internal static byte roundN { get { return _roundN; } }
 
 	internal static List<Team> activeTeams;
@@ -247,13 +244,13 @@ public class GameMode {
 
 	internal static EventHandler<GameModes, GameModes> eventChanged;
 
-	internal static bool cinematic = false;
+	internal static bool cinematic;
 	internal static bool selecting { get { return !targeting; } }
 	internal static bool targeting { get { return Is( GameModes.PickUnit ); } }
 	internal static bool interactive {
 		get {
 			return
-				( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && GodOfPathfinding.ready && !God.selectedUnit.acting && God.processQueue.empty );
+				( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && God.processQueue.empty );
 		}
 	}
 
@@ -283,11 +280,11 @@ public class GameMode {
 
 			if( value == current ) {
 				return false;
-			} else {
-				eventChanged( value, current );
-				current = value;
-				return true;
 			}
+
+			eventChanged( value, current );
+			current = value;
+			return true;
 
 		}
 
@@ -296,13 +293,15 @@ public class GameMode {
 	}
 
 	internal static bool Toggle( GameModes value ) {
+
 		if( value == current ) {
 			Set( GameModes.Default );
 			return false;
-		} else {
-			Set( value );
-			return true;
 		}
+
+		Set( value );
+		return true;
+
 	}
 
 	internal static void Disable() {

@@ -189,7 +189,8 @@ public class Buff : object {
 		return multProps.Where( mul => mul.prop == prop ).Aggregate( 1f, ( current, mul ) => current * mul.value );
 	}
 
-	public void Terminate() {
+	public void Terminate( object o = null ) {
+		Debug.Log( "Buff " + this + " expired" );
 		if( TerminatedEvent != null ) TerminatedEvent.Invoke();
 	}
 
@@ -274,12 +275,14 @@ public class BuffsBook {
 			terminationCondition = BuffTerminationCondition.NextAction
 		};
 
-		b.AppliedEvent += delegate { buffee.model.SetPosture( UnitModelPosture.CoverDucked ); };
-		b.RemovedEvent += delegate { buffee.model.SetPosture( UnitModelPosture.Normal ); };
+		b.AppliedEvent += delegate {
+			buffee.eventActionStarted += b.Terminate;
+			buffee.model.SetPosture( UnitModelPosture.CoverDucked );
+		};
 
-		buffee.eventActionStarted += delegate( Action a ) {
-			Debug.LogWarning( buffee + " terminated their DUCKED buff by starting a new action - " + a );
-			b.Terminate();
+		b.RemovedEvent += delegate {
+			buffee.eventActionStarted -= b.Terminate;
+			buffee.model.SetPosture( UnitModelPosture.Normal );
 		};
 
 		return b;

@@ -1,266 +1,7 @@
+﻿using System;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-
-public class ProcessQueue : MissionBaseClass {
-
-	protected readonly List<Process> background = new List<Process>();
-	protected readonly List<Process> queue = new List<Process>();
-
-	public bool runningQueue = false;
-	public bool runningBackground = false;
-	public bool running { get { return runningQueue && runningBackground; } }
-
-	public bool empty { get { return emptyQueue && emptyBackground; } }
-	public bool emptyQueue { get { return queue.Count.Equals( 0 ); } }
-	public bool emptyBackground { get { return background.Count.Equals( 0 ); } }
-	public Process currentProcess { get { return emptyQueue ? null : queue[0]; } }
-
-	void Awake() {
-		processQueue = this;
-	}
-
-	void Update() {
-
-		if( !emptyQueue ) {
-			UpdateProcess( currentProcess );
-		} else {
-			runningQueue = false;
-		}
-
-		if( !emptyBackground ) {
-			for( int i = 0 ; i < background.Count ; i++ ) {
-				UpdateProcess( background[i] );
-			}
-		} else {
-			runningBackground = false;
-		}
-
-	}
-
-	void UpdateProcess( Process process ) {
-
-		runningQueue = true;
-
-		if( !process.started ) {
-			OnProcessWillStart( process );
-		}
-
-		process.Update();
-
-		if( process.ended ) {
-			OnProcessEnded( process );
-		}
-
-	}
-
-	private void OnProcessWillStart( Process process ) {
-
-		if( process.hasAttached ) {
-			background.AddRange( process.attachedPassiveProcesses );
-		}
-
-		if( !process.stackable ) {
-			int i = 0;
-			while( i < background.Count ) {
-				if( background[i] != process && background[i].name.Equals( process.name ) ) {
-					Remove( background[i] );
-				} else {
-					i++;
-				}
-			}
-		}
-
-	}
-
-	public void Add( Process process, bool inBackground = false ) {
-
-		Debug.Log( "Adding new process " + process + " to the " + ( inBackground ? "background." : "queue" ) );
-
-		if( inBackground ) {
-
-			this.background.Add( process );
-
-		} else {
-
-			queue.Add( process );
-
-		}
-
-	}
-
-	public void JumpAdd( Process process ) {
-		queue.Insert( runningQueue ? 1 : 0, process );
-	}
-
-	public void Remove( Process process ) {
-		background.Remove( process );
-		queue.Remove( process );
-	}
-
-	public void OnProcessEnded( Process process ) {
-		Remove( process );
-	}
-
-	public void OnCurrentProcessEnded() {
-		queue.RemoveAt( 0 );
-	}
-
-
-
-	public void AddDelay( int frames ) { Add( new ProcessBook.Wait( frames ) ); }
-
-	public void AddDelay( float seconds ) { Add( new ProcessBook.WaitSeconds( seconds ) ); }
-
-
-
-	public string ToGuiStringBackground() {
-
-		string pre = "Background Processes: ";
-
-		if( emptyBackground ) {
-			return pre + "[empty]";
-		} else {
-			string s = "\n";
-			foreach( Process p in background ) {
-				s = "\n" + p.ToString() + s;
-			}
-			return pre + s;
-		}
-
-	}
-
-	public string ToGuiString() {
-
-		string pre = "Process Queue: ";
-
-		if( emptyQueue ) {
-			return pre + "[empty]";
-		} else {
-			string s = "\n";
-			foreach( Process p in queue ) {
-				s = "\n" + p.ToString() + s;
-			}
-			return pre + s;
-		}
-
-	}
-
-	public override string ToString() {
-		if( emptyQueue ) {
-			return "[empty]";
-		} else {
-			return "current process: " + currentProcess.ToString();
-		}
-	}
-
-	public static ProcessQueue operator +( ProcessQueue pq, Process p ) { pq.Add( p ); return pq; }
-
-	//-- -- -- -- -- -- -- -- -- -- -- TREE
-
-	protected readonly List<Process> current = new List<Process>();
-	public bool aempty { get { return current.Count == 0; } }
-	public bool arunning = false;
-
-	void aUpdate() {
-
-		if( !aempty ) {
-			arunning = true;
-			for( int i = 0 ; i < current.Count ; i++ ) {
-				UpdateProcess( current[i] );
-			}
-		} else {
-			arunning = false;
-		}
-
-	}
-
-}
-
-
-
-public abstract class Process {
-
-	public readonly string name;
-	public readonly bool stackable;
-
-	public bool started = false;
-	public bool ended = false;
-	public event EventHandler eventStarted = delegate { };
-	public event EventHandler eventEnded = delegate { };
-
-	public bool hasAttached { get { return attachedPassiveProcesses.Count > 0; } }
-	public readonly List<Process> attachedPassiveProcesses = new List<Process>();
-
-	public readonly bool strictlyBackground = false; //TODO replace the process queues with ProcessTree and deprecate this shit
-
-	public Process( string name, bool stackable = true ) {
-		this.name = name;
-		this.stackable = stackable;
-	}
-
-	public virtual void Update() {
-
-		if( !started ) {
-			Start();
-		}
-
-		if( !ended ) {
-			_Update();
-		}
-
-	}
-
-	protected virtual void _Update() { }
-
-	protected void Start() {
-
-		started = true;
-		eventStarted.Invoke();
-
-		_Start();
-
-	}
-
-	protected virtual void _Start() { }
-
-	protected void End() {
-
-		_End();
-
-		ended = true;
-		eventEnded.Invoke();
-
-	}
-
-	protected virtual void _End() { }
-
-	public Process AttachPassive( Process process ) {
-
-		attachedPassiveProcesses.Add( process );
-
-		return process;
-
-	}
-
-	public override string ToString() {
-
-		return name;
-
-	}
-
-	//-- -- -- -- -- -- -- -- -- -- -- TREE
-
-	public readonly List<Process> enqueued = new List<Process>();
-
-	public Process Enqueue( Process process ) {
-		enqueued.Add( process );
-		return process;
-	}
-
-}
-
-
+using Random = UnityEngine.Random;
 
 public class ProcessBook : MissionBaseClass {
 
@@ -278,7 +19,7 @@ public class ProcessBook : MissionBaseClass {
 
 		public event EventHandler eventOnStart;
 
-		public InstantProcess( EventHandler eventOnStart ) : base( "InstantProcess" ) { this.eventOnStart = eventOnStart; }
+		public InstantProcess( EventHandler eventOnStart, string name = null ) : base( name??"InstantProcess" ) { this.eventOnStart = eventOnStart; }
 
 		protected override void _Start() {
 
@@ -290,13 +31,22 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
-	public class Nothing : SimpleProcess {
+	public class Trace : InstantProcess {
 
-		public Nothing() : base( "Nothing" ) { }
+		public string msg;
 
-		protected override void _Update() { End(); }
+		public Trace( string msg ) : 
+			base( () => Debug.Log( msg ) , "Trace" ) {}
 
 	}
+
+
+
+
+
+
+
+
 
 	public class Wait : SimpleProcess {
 
@@ -342,14 +92,25 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
+
+
+
+
+
+
+
+
+
+
+
 	public class ChangeTimeSpeed : SimpleProcess {
 
-		private float newSpeed;
-		private float processDuration;
+		private readonly float newSpeed;
+		private readonly float processDuration;
 
 		private float stepPerSecond;
 		private bool negative;
-		private bool instant = false;
+		private bool instant;
 
 		public ChangeTimeSpeed( float newSpeed, float processDuration = 0f )
 			: base( "ChangeTimeSpeed", false ) {
@@ -363,8 +124,8 @@ public class ProcessBook : MissionBaseClass {
 
 			if( processDuration > 0f ) {
 
-				this.stepPerSecond = newSpeed - GodOfTime.speed;
-				this.negative = stepPerSecond < 0;
+				stepPerSecond = newSpeed - GodOfTime.speed;
+				negative = stepPerSecond < 0;
 				stepPerSecond /= processDuration;
 
 			} else {
@@ -382,7 +143,7 @@ public class ProcessBook : MissionBaseClass {
 				End();
 			} else {
 
-				if( GodOfTime.speed == newSpeed || negative == ( GodOfTime.speed < newSpeed ) ) {
+				if( Math.Abs( GodOfTime.speed - newSpeed ) < Mathf.Epsilon || negative == ( GodOfTime.speed < newSpeed ) ) {
 					GodOfTime.speed = newSpeed;
 					End();
 				} else {
@@ -420,9 +181,8 @@ public class ProcessBook : MissionBaseClass {
 			this.tempSpeed = tempSpeed;
 			this.duration = duration;
 			this.fade = fade;
-			this.time = 0;
-
-			this.instant = fade <= 0;
+			time = 0;
+			instant = fade <= 0;
 
 		}
 
@@ -510,10 +270,10 @@ public class ProcessBook : MissionBaseClass {
 		protected readonly Unit u;
 		protected readonly bool evenInDeath;
 
-		public UnitProcess( string name, Unit subject, bool evenInDeath = false )
+		protected UnitProcess( string name, Unit subject, bool evenInDeath = false )
 			: base( name ) {
 			this.evenInDeath = evenInDeath;
-			this.u = subject;
+			u = subject;
 		}
 
 		public sealed override void Update() {
@@ -535,14 +295,12 @@ public class ProcessBook : MissionBaseClass {
 	public class HighlightTilesInVisibleRange : UnitProcess {
 
 		protected readonly Unit subjectUnit;
-		protected readonly GridTile centerTile;
 		protected readonly float range;
 
 		public HighlightTilesInVisibleRange( Unit subject, float range )
 			: base( "HighlightTilesInRange", subject ) {
 
-			this.subjectUnit = subject;
-			this.centerTile = subject.currentTile;
+			subjectUnit = subject;
 			this.range = range;
 
 		}
@@ -567,74 +325,77 @@ public class ProcessBook : MissionBaseClass {
 
 	}
 
-	public class HighlightWalkableTiles : UnitProcess {
+	public class HighlightWalkableTiles : UnitProcess { //TODO add abstract base class CalculateSelectables
 
 		protected readonly Unit subjectUnit;
-		protected readonly GridTile startTile;
 		protected readonly float range;
 
 		public HighlightWalkableTiles( Unit subject, float customRange = 0 )
 			: base( "HighlightWalkableTiles", subject ) {
 
-			this.subjectUnit = subject;
-			this.startTile = subject.currentTile;
-			this.range = customRange > 0 ? customRange : subject.propMovementRange;
+			subjectUnit = subject;
+			range = customRange > 0 ? customRange : subject.propMovementRange;
 
 		}
 
 		protected override void _Start() {
 
 			GodOfPathfinding.CalculateWalkables( subjectUnit, range );
-			GodOfPathfinding.eventWalkablesCalculated += End;
+			Events.calculateSelectablesFinished += End;
 
 		}
 
+		protected override void _End() {
+			Events.calculateSelectablesFinished -= End;
+		}
 
 	}
 
-	public class HighlightWalkableTiles2 : UnitProcess {
+	//public class HighlightWalkableTiles2 : UnitProcess {
 
-		protected readonly Unit subjectUnit;
-		protected readonly GridTile startTile;
-		protected readonly float range;
+	//	protected readonly Unit subjectUnit;
+	//	protected readonly GridTile startTile;
+	//	protected readonly float range;
 
-		private readonly List<GridTile> prevStepNodes = new List<GridTile>();
-		private readonly List<GridTile> nextStepNodes = new List<GridTile>();
+	//	private readonly List<GridTile> prevStepNodes = new List<GridTile>();
+	//	private readonly List<GridTile> nextStepNodes = new List<GridTile>();
 
-		private readonly Dictionary<GridTile,PathNode> nodes = new Dictionary<GridTile, PathNode>();
+	//	private readonly Dictionary<GridTile,PathNode> nodes = new Dictionary<GridTile, PathNode>();
 
-		float tempPathLen;
-
-
-		public HighlightWalkableTiles2( Unit subject, float customRange = 0 )
-			: base( "HighlightWalkableTiles", subject ) {
-
-			this.subjectUnit = subject;
-			this.startTile = subject.currentTile;
-			this.range = customRange > 0 ? customRange : subject.propMovementRange;
-
-		}
-
-		protected override void _Start() {
-
-			God.grid.ResetTiles();
-
-			nextStepNodes.Clear();
-			prevStepNodes.Clear();
-			prevStepNodes.Add( startTile );
-			nodes.Add( startTile, new PathNode( null, 0 ) );
-
-		}
-
-		protected override void _Update() {
+	//	float tempPathLen;
 
 
-		}
+	//	public HighlightWalkableTiles2( Unit subject, float customRange = 0 )
+	//		: base( "HighlightWalkableTiles", subject ) {
+
+	//		subjectUnit = subject;
+	//		startTile = subject.currentTile;
+	//		range = customRange > 0 ? customRange : subject.propMovementRange;
+
+	//	}
+
+	//	protected override void _Start() {
+
+	//		grid.ResetTiles();
+
+	//		nextStepNodes.Clear();
+	//		prevStepNodes.Clear();
+	//		prevStepNodes.Add( startTile );
+	//		nodes.Add( startTile, new PathNode( null, 0 ) );
+
+	//	}
+
+	//	protected override void _Update() {
 
 
-	}
+	//	}
+
+
+	//}
 
 	public class UnitMoveAlongPath : UnitProcess {
+
+		public readonly Unit movingUnit;
 
 		protected readonly GridTile targetTile;
 		protected readonly List<GridTile> path;
@@ -645,6 +406,7 @@ public class ProcessBook : MissionBaseClass {
 
 		public UnitMoveAlongPath( Unit subject, GridTile targetTile )
 			: base( "Reposition", subject ) {
+			this.movingUnit = subject;
 			this.targetTile = targetTile;
 			this.path = GodOfPathfinding.GetPathTo( targetTile );
 		}
@@ -693,7 +455,7 @@ public class ProcessBook : MissionBaseClass {
 			} else {
 
 				if( path[0].obstructed ) {
-					processQueue.Add( new ProcessBook.BulletTime( .22f, .4f ) );
+					processQueue.Add( new BulletTime( .22f, .4f ) );
 				}
 
 			}
@@ -724,8 +486,8 @@ public class ProcessBook : MissionBaseClass {
 			this.attacker = attacker;
 			this.attackee = attackee;
 
-			this.result = attacker.relations.GetAttackResult( attackee );
-			this.weapon = attacker.currentWeapon;
+			result = attacker.relations.GetAttackResult( attackee );
+			weapon = attacker.currentWeapon;
 
 		}
 
@@ -744,13 +506,12 @@ public class ProcessBook : MissionBaseClass {
 
 				Process p;
 
-				p = new ProcessBook.WaitSeconds( weapon.ranged ? UnitAnimation.RANGE_HIT_DELAY : UnitAnimation.MELEE_HIT_DELAY );
+				p = new WaitSeconds( weapon.ranged ? UnitAnimation.RANGE_HIT_DELAY : UnitAnimation.MELEE_HIT_DELAY );
 				processQueue.Add( p, true );
 
 				if( result.hittee != null ) {
-					p.eventEnded += delegate {
-						result.hittee.Damage( attacker.propAttackDamage, attacker.currentWeapon.damageType, attacker );
-					};
+					p.eventEnded +=
+						() => result.hittee.Damage( attacker.propAttackDamage , attacker.currentWeapon.damageType , attacker );
 				}
 
 				p.eventEnded += End;
@@ -774,22 +535,22 @@ public class ProcessBook : MissionBaseClass {
 
 	public class UnitHeal : UnitProcess {
 
-		public readonly float healingSpeed = .25f;
+		public const float HEALING_SPEED = .25f;
 
 		public readonly float healingAmount;
 		public float healingProgress;
 
 		public UnitHeal( Unit subject, float amount )
 			: base( "Healing", subject ) {
-			this.healingAmount = amount;
+			healingAmount = amount;
 		}
 
 		protected override void _Update() {
 
 			if( healingProgress < healingAmount ) {
 
-				healingProgress += healingSpeed;
-				u.propHealth += healingSpeed;
+				healingProgress += HEALING_SPEED;
+				u.propHealth += HEALING_SPEED;
 
 			} else {
 
@@ -803,9 +564,9 @@ public class ProcessBook : MissionBaseClass {
 
 	public class Throw : UnitProcess {
 
-		protected const float speed		= .02f;
+		protected const float SPEED		= .02f;
 		//protected const float speed		= .04f;
-		protected const float height	= 1.5f;
+		protected const float HEIGHT	= 1.5f;
 
 		protected readonly Unit thrower;
 		protected readonly Transform throwee;
@@ -814,9 +575,7 @@ public class ProcessBook : MissionBaseClass {
 		protected Vector3 positionStart;
 		protected float distance;
 
-		protected Vector3 startPosition;
-
-		protected float progress = 0;
+		protected float progress;
 
 		public Throw( Unit thrower, Transform throwee, Vector3 destination, float inaccuracy = 0f )
 			: base( "Throw", thrower ) {
@@ -826,7 +585,7 @@ public class ProcessBook : MissionBaseClass {
 
 			positionEnd = destination;
 
-			if( !inaccuracy.NotZero( ) ) return;
+			if( !inaccuracy.NotZero() ) return;
 
 			positionEnd += Vector3.forward * Random.Range( -inaccuracy, inaccuracy );
 			positionEnd += Vector3.left * Random.Range( -inaccuracy, inaccuracy );
@@ -835,15 +594,15 @@ public class ProcessBook : MissionBaseClass {
 
 		protected override void _Start() {
 			thrower.model.Reload();
-			this.positionStart = throwee.transform.position;
-			this.distance = Vector3.Distance( positionStart, positionEnd );
+			positionStart = throwee.transform.position;
+			distance = Vector3.Distance( positionStart, positionEnd );
 			throwee.transform.parent = null;
 			throwee.transform.localPosition = Vector3.zero;
 		}
 
 		protected override void _Update() {
 
-			progress += speed;
+			progress += SPEED;
 
 			throwee.position = CalculatePosition();
 
@@ -855,11 +614,11 @@ public class ProcessBook : MissionBaseClass {
 
 		private Vector3 CalculatePosition() {
 
-			Vector3 r = new Vector3();
+			Vector3 r;
 
 			r = Vector3.MoveTowards( positionStart, positionEnd, progress * distance );
 
-			r += Vector3.up * Mathf.Sin( progress * Mathf.PI ) * height;
+			r += Vector3.up * Mathf.Sin( progress * Mathf.PI ) * HEIGHT;
 
 			return r;
 
@@ -890,9 +649,9 @@ public class ProcessBook : MissionBaseClass {
 	public class AreaDamage : SimpleProcess {
 
 		private Vector3 center;
-		private float range;
-		private float damageAmount;
-		private DamageType damageType;
+		private readonly float range;
+		private readonly float damageAmount;
+		private readonly DamageType damageType;
 
 		public AreaDamage( Vector3 center, float range, float damageAmount, DamageType damageType = DamageType.NORMAL )
 			: base( "AreaDamage" ) {
@@ -906,7 +665,7 @@ public class ProcessBook : MissionBaseClass {
 
 		protected override void _Start() {
 
-			foreach( Unit unit in God.allUnits ) {
+			foreach( Unit unit in allUnits ) {
 
 				if( Vector3.Distance( center, unit.transform.position ) < range ) {
 					unit.Damage( damageAmount, damageType );
@@ -917,7 +676,8 @@ public class ProcessBook : MissionBaseClass {
 
 			TempObject splosion = Instantiate(
 				BookOfEverything.me.gfx[0], center, Quaternion.identity ) as TempObject;
-			splosion.eventDeath += End;
+			if( splosion != null ) 
+				splosion.eventDeath += End;
 
 			Instantiate(
 				BookOfEverything.me.gfx[1], center, Quaternion.identity );

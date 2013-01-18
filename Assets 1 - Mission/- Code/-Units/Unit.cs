@@ -45,7 +45,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	private bool ready;
 	internal bool atCurrentTile;
-	internal bool acting;
 	internal float rotationY;
 
 	public bool selected { get { return ( selectedUnit == this ); } }
@@ -62,7 +61,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	//internal bool canAct { get { return inPlay && hasActions && actions.count > 0; } }
 	internal bool canMove { get { return canAct; } }
 	//internal bool canAttack { get { return canAct && objectsInRange.HaveEnemies() && currentWeapon.canAttack; } }
-	internal bool canAttack { get { return objectsInRange.HaveEnemies() && currentWeapon.canAttack && !buffs[BuffPropFlag.CantShoot]; } }
+	internal bool canAttack { get { return currentWeapon.canAttack && !buffs[BuffPropFlag.CantShoot]; } } //TODO move enemiesInRange check elsewhere
+	//internal bool canAttack { get { return objectsInRange.HaveEnemies() && currentWeapon.canAttack && !buffs[BuffPropFlag.CantShoot]; } }
 	internal bool hasActions { get { return ( status.actionPoints > 0 ); } }
 
 	// PROPERTY GETTERS
@@ -103,7 +103,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	internal event UnitExtraEventHandler<Weapon> eventWeaponEquipped = delegate { };
 	internal event UnitEventHandler eventTileReached = delegate { };
 	internal event UnitEventHandler eventCurrentTileReached = delegate { };
-	internal event UnitUnitEventHandler eventDeath = delegate { };
+	internal event UnitUnitEventHandler eventDeath = delegate { }; 
+	//TODO this whole thing is a mess.
 
 	// DEVELOPMENT
 
@@ -142,23 +143,23 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		name = props.unitName;
 		status.Init( props );
 
-		Equip( equipment.weaponPrimary );
-		Equip( equipment.weaponSecondary );
+		Add( equipment.weaponPrimary );
+		Add( equipment.weaponSecondary );
 
 		if( equipment.biomod != null ) {
-			Equip( equipment.biomod );
+			Add( equipment.biomod );
 		}
 
 		foreach( Equippable tool in equipment.misc ) {
 			if( tool != null ) {
-				Equip( tool );
+				Add( tool );
 			}
 		}
 
 		//foreach( Equippable tool in equipment.Everything() ) {
 		//    if( tool != null ) {
 		//        tool.Init( this );
-		//        model.Equip( tool );
+		//        model.Add( tool );
 		//        model.Hide( tool );
 		//    }
 		//}
@@ -199,15 +200,15 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	}
 
-	public void Equip( Equippable item ) {
+	public void Add( Equippable item ) {
 		item.Init( this );
 		model.Equip( item );
 		model.Hide( item );
 	}
 
-	public void Unequip( Equippable item ) {
+	public void Remove( Equippable item ) {
 		//item.Init( this );
-		//model.Equip( item );
+		//model.Add( item );
 		//model.Hide( item );
 	}
 
@@ -273,22 +274,19 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	/** ACTIONS * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 
-	internal void OnAction( Action action ) {
+	internal void OnActionStart( Action action ) {
 
-		acting = true;
-
-		status.actionPoints -= action.cost;
+		Events.unitActionStarted( this , action );
 
 		eventActionStarted.Invoke( action );
-		//if( ready ) {
-		//    GameMode.Disable();
-		//}
+
+		status.actionPoints -= action.cost;
 
 	}
 
 	internal void OnActionFinished( Action action ) {
 
-		acting = false;
+		Events.unitActionFinished( this, action );
 
 		eventActionFinished.Invoke( action );
 
@@ -547,6 +545,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			status.ResetActions();
 			actions.OnTurnStart();
 		}
+
+		Events.unitTurnStarted( this );
 
 		model.materialManager.SetMode( UnitMaterialMode.Normal );
 

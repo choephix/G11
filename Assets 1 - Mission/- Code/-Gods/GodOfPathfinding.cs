@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class GodOfPathfinding : MissionBaseClass {
 
 	internal static GodOfPathfinding me;
-	internal static event EventHandler eventWalkablesCalculated;
 
 	internal static bool ready = true;
 
@@ -49,7 +48,7 @@ public class GodOfPathfinding : MissionBaseClass {
 			yield return new WaitForSeconds( .02f ); // .04f
 
 			prevStepNodes.Sort( 
-				( GridTile t1, GridTile t2 ) => nodes[t1].pathLen.CompareTo( nodes[t2].pathLen ) );
+				( t1 , t2 ) => nodes[t1].pathLen.CompareTo( nodes[t2].pathLen ) );
 
 			foreach( GridTile prevTile in prevStepNodes ) {
 
@@ -117,15 +116,15 @@ public class GodOfPathfinding : MissionBaseClass {
 		}
 
 		ready = true;
-		eventWalkablesCalculated.Invoke();
+		Events.calculateSelectablesFinished.Invoke();
 
 	}
 
-	public static List<GridTile> GetPathTo( GridTile tile, bool animate = false ) {
-		return me ? me._GetPathTo( tile, animate ) : null;
+	public static List<GridTile> GetPathTo( GridTile tile ) {
+		return me ? me._GetPathTo( tile ) : null;
 	}
 
-	protected List<GridTile> _GetPathTo( GridTile tile, bool animate = false ) {
+	protected List<GridTile> _GetPathTo( GridTile tile ) {
 
 		List<GridTile> list = new List<GridTile>();
 
@@ -142,11 +141,11 @@ public class GodOfPathfinding : MissionBaseClass {
 
 	}
 
-	public static List<GridTile> GetLine( GridTile from, GridTile to, bool animate = false ) {
-		return me ? me._GetLine( from, to, animate ) : null;
+	public static List<GridTile> GetLine( GridTile from, GridTile to ) {
+		return me ? me._GetLine( from, to ) : null;
 	}
 
-	protected List<GridTile> _GetLine( GridTile from, GridTile to, bool animate = false ) {
+	protected List<GridTile> _GetLine( GridTile from, GridTile to ) {
 
 		List<GridTile> list = new List<GridTile>();
 		IEnumerable<Int2D> r;

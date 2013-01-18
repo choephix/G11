@@ -25,8 +25,6 @@ public class Firearm : Weapon {
 	internal bool haveAmmo { get { return ammoLeft>0; } }
 	internal new bool canAttack { get { return haveAmmo; } }
 
-	internal event EventHandler eventReload = delegate { };
-
 	public override void Init( Unit owner ) {
 
 		base.Init( owner );
@@ -75,7 +73,6 @@ public class Firearm : Weapon {
 
 	internal void Reload() {
 		ammoLeft = ammoClipSize;
-		eventReload.Invoke();
 	}
 
 	public IEnumerator AttackCoroutine() {

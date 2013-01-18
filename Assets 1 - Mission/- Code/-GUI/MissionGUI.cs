@@ -107,6 +107,8 @@ public class MissionGUI : MissionBaseClass {
 		GUI.Label( rect.screen, processQueue.ToGuiString(), "DebugProcessQueue" );
 
 		GUI.Label( rect.screen, processQueue.ToGuiStringBackground(), "DebugProcessQueue2" );
+
+		GUI.Label( rect.screen, processQueue.ToGuiStringWatchers(), "DebugWatchersQueue" );
 		
 	}
 

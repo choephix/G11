@@ -17,7 +17,7 @@ public class TempObject : WorldObject {
 
 		eventDeath.Invoke();
 		eventDeath = delegate { };
-		GameObject.Destroy( gameObject );
+		Destroy( gameObject );
 
 	}
 
