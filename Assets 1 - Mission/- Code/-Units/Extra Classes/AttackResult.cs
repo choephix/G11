@@ -10,11 +10,10 @@ public abstract class AttackResult {
 	public float hitChance;
 
 	public Message msg;
-	public bool evaded;
-	public IDamageable hittee = null;
+	public IDamageable hittee;
 
 	public string longDescription = "";
-		
+
 	protected static float ChanceFromAccuracy( Unit attacker ) {
 		if( Config.OVERRIDE_HIT_CHANCE_ACCURACY ) {
 			return 1.0f;
@@ -61,7 +60,7 @@ public class RangedAttackResult : AttackResult {
 		mul_TargetEvasion *= ChanceFromUnitEvasion( attackee );
 
 		//calculate total chance, which will be shown before attack for user consideration
-		this.hitChance = 100f * mul_DistanceAndAccuracy * mul_CoversAndTargetSize * mul_TargetEvasion;
+		hitChance = 100f * mul_DistanceAndAccuracy * mul_CoversAndTargetSize * mul_TargetEvasion;
 
 		longDescription =
 			"mul_DistanceAndAccuracy =" +
@@ -75,35 +74,29 @@ public class RangedAttackResult : AttackResult {
 
 		if( !this.Chance1( mul_DistanceAndAccuracy ) ) {
 
-			this.msg = Message.MISSED;
-			return;
+			msg = Message.MISSED;
 
 		} else {
 
 			if( !this.Chance1( mul_CoversAndTargetSize ) ) {
 
-				this.msg = Message.HIT_COVER;
+				msg = Message.HIT_COVER;
 
 				ICover[] covers = attackeeTile.relations.GetCoversAgainst( attacker.currentTile );
 				if( covers.Length > 0 ) {
-					this.hittee = covers[0] as IDamageable;
+					hittee = covers[0] as IDamageable;
 				}
-				return;
 
 			} else {
 
 				if( !this.Chance1( mul_TargetEvasion ) ) {
 
-					this.msg = Message.EVADED;
-					this.evaded = true;
-					return;
+					msg = Message.EVADED;
 
 				} else {
 
-					this.msg = Message.SUCCESS;
-					this.hittee = attackee;
-					return;
-
+					msg = Message.SUCCESS;
+					hittee = attackee;
 				}
 
 			}
@@ -159,44 +152,36 @@ public class MeleeAttackResult : AttackResult {
 		mul_TargetEvasion *= ChanceFromSpeed( attacker.currentWeapon as MeleeWeapon );
 
 		//calculate total chance, which will be shown before attack for user consideration
-		this.hitChance = 100f * mul_DistanceAndEfficiency * mul_TargetEvasion;
+		hitChance = 100f * mul_DistanceAndEfficiency * mul_TargetEvasion;
 
 		if( !this.Chance1( mul_DistanceAndEfficiency ) ) {
 
-			this.msg = Message.MISSED;
-			this.hittee = null;
-			return;
+			msg = Message.MISSED;
+			hittee = null;
 
 		} else {
 
 			if( !this.Chance1( mul_TargetEvasion ) ) {
 
-				this.msg = Message.EVADED;
-				this.hittee = null;
-				this.evaded = true;
-				return;
+				msg = Message.EVADED;
+				hittee = null;
 
 			} else {
 
-				this.msg = Message.SUCCESS;
-				this.hittee = attackee;
-				return;
+				msg = Message.SUCCESS;
+				hittee = attackee;
 
 			}
 
 		}
-
 	}
 
 	internal static float ChanceFromSpeed( MeleeWeapon weapon ) {
-
 		return ( weapon.speed / 100 ).ClipMaxMin();
-
 	}
+
 	private static float ChanceFromDistance( float distance ) {
-
 		return ( distance <= 1.5f ) ? 1f : 0f;
-
 	}
 
 }

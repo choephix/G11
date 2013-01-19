@@ -88,6 +88,42 @@ public static class Extensions {
 
 	}
 
+	//public static string RoundToString( this float value, int decimals ) {
+
+	//	if( decimals == 0 ) {
+	//		return Round( value ).ToString();
+	//	}
+
+	//	int suff0s = 0;
+		
+	//	decimals *= 10;
+	//	value *= decimals;
+	//	value = Mathf.Round( value );
+
+	//	for( int i = 1 ; i <= decimals ; i++ ) {
+
+	//		if( ( ( int ) value ) % ( 10 * i ) == 0 ) {
+
+	//			suff0s++;
+
+	//		}
+
+	//	}
+
+	//	value /= decimals;
+
+	//	string s = value.ToString();
+
+	//	for( int i = 0 ; i < suff0s ; i++ ) {
+
+	//		s += "0";
+
+	//	}
+
+	//	return s;
+
+	//}
+
 	public static float ClipMaxMin( this float theValue, float max = 1.0f, float min = 0.0f ) {
 		if( theValue < min )
 			return min;

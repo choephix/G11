@@ -35,7 +35,7 @@ public class MissionGUI : MissionBaseClass {
 
 				StringBuilder sb = new StringBuilder();
 
-				F.NullCheck( processQueue );
+				F.NullCheck( processManager );
 
 				sb.AppendLine( TurnManager.currentTeam.name + "'s turn." );
 				
@@ -104,11 +104,11 @@ public class MissionGUI : MissionBaseClass {
 
 
 
-		GUI.Label( rect.screen, processQueue.ToGuiString(), "DebugProcessQueue" );
+		GUI.Label( rect.screen, processManager.ToGuiString(), "DebugProcessQueue" );
 
-		GUI.Label( rect.screen, processQueue.ToGuiStringBackground(), "DebugProcessQueue2" );
+		GUI.Label( rect.screen, processManager.ToGuiStringBackground(), "DebugProcessQueue2" );
 
-		GUI.Label( rect.screen, processQueue.ToGuiStringWatchers(), "DebugWatchersQueue" );
+		GUI.Label( rect.screen, processManager.ToGuiStringWatchers(), "DebugWatchersQueue" );
 		
 	}
 

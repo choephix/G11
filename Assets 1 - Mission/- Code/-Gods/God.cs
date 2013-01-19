@@ -29,33 +29,33 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 		if( gameStarted ) {
 
-			if( GameMode.Is( GameModes.PickUnit ) && 
-				( targetedUnit == null || !CanTarget( targetedUnit ) ) ) { //TODO TESTER FIX - remove this and find the cause of the NULL attackee bug
-				GameMode.Reset();
-			}
+			//if( GameMode.Is( GameModes.PickUnit ) && 
+			//	( targetedUnit == null || !CanTarget( targetedUnit ) ) ) { //TODO TESTER FIX - remove this and find the cause of the NULL attackee bug
+			//	GameMode.Reset();
+			//}
 
-			if( selectedUnit && GameMode.interactive ) {
+			//if( selectedUnit && GameMode.interactive ) {
 
-				if( selectedUnit.canAct ) {
+			//	if( selectedUnit.canAct ) {
 
-					if( selectedAction == null && TurnManager.isUserTurn ) {
+			//		if( selectedAction == null && TurnManager.isUserTurn ) {
 
-						Debug.Log( "God: NULL action handling" );
-						if( selectedUnit.actions.shouldSelectPreviousAction ) {
-							selectedUnit.actions.SelectPrevious();
-						} else {
-							selectedUnit.actions.SelectDefault();
-						}
+			//			Debug.Log( "God: NULL action handling" );
+			//			if( selectedUnit.actions.shouldSelectPreviousAction ) {
+			//				selectedUnit.actions.SelectPrevious();
+			//			} else {
+			//				selectedUnit.actions.SelectDefault();
+			//			}
 
-					}
+			//		}
 
-				} else {
+			//	} else {
 
-					God.OnSelectedUnitCantAct();
+			//		God.OnSelectedUnitCantAct();
 
-				}
+			//	}
 
-			}
+			//}
 
 		}
 
@@ -244,6 +244,7 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 	}
 
+/*
 	internal static void OnSelectedUnitCantAct() {
 
 		Debug.Log( "Selected unit can't act anymore" );
@@ -262,6 +263,7 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 		}
 
 	}
+*/
 
 	internal static void OnUnitDeath( Unit unit, Unit killer ) {
 

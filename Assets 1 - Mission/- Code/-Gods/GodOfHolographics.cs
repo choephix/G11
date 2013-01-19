@@ -110,11 +110,11 @@ public class GodOfHolographics : MissionBaseClass {
 
 		//float danger = 0;
 		//RangedAttackResult r;
-		//foreach( Unit u in allUnits ) {
-		//    if( selectedUnit.team.IsEnemy( u ) ) {
-		//        if( u.inPlay && u.CanSee( tile ) ) {
-		//            u.__SetFlag( true );
-		//            r = new RangedAttackResult( u, selectedUnit, tile );
+		//foreach( Unit subjectUnit in allUnits ) {
+		//    if( selectedUnit.team.IsEnemy( subjectUnit ) ) {
+		//        if( subjectUnit.inPlay && subjectUnit.CanSee( tile ) ) {
+		//            subjectUnit.__SetFlag( true );
+		//            r = new RangedAttackResult( subjectUnit, selectedUnit, tile );
 		//            danger += r.hitChance * (1-danger/100) ;
 		//        }
 		//    }

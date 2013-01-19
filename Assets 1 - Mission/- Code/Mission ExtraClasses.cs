@@ -17,7 +17,7 @@ public class MissionBaseClass : BaseClass {
 	public static SmartCamera smartCamera;
 	public static MissionGUI gui;
 
-	public static ProcessQueue processQueue;
+	public static GodOfProcesses processManager;
 
 	protected static List<Team> allTeams;
 	protected static List<Unit> allUnits;
@@ -154,6 +154,11 @@ public class SelectionManager : MissionBaseClass {
 			if( unit == null ) {
 				unit = selectedUnit.relations.primaryEnemy;
 			}
+
+			if( unit == null ) {
+				unit = targetableUnits[0];
+			}
+
 			Debug.Log( "Targeting " + unit + ". (Previous targeted unit was " + F.ToStringOrNull( targetedUnit ) );
 
 			Unit prevTargetedUnit = targetedUnit;
@@ -250,7 +255,7 @@ public class GameMode {
 	internal static bool interactive {
 		get {
 			return
-				( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && God.processQueue.empty );
+				( !Is( GameModes.Disabled ) && !Is( GameModes.GameOver ) && !cinematic && God.processManager.empty );
 		}
 	}
 

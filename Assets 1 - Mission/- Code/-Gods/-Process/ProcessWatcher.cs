@@ -38,6 +38,7 @@ public class Watcher<T> : Watcher {
 			Terminate();
 
 		}
+
 	}
 
 }

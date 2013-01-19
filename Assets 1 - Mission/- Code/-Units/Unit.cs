@@ -180,7 +180,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		if( model && alive ) {
 
-			if( currentTile != null && !atCurrentTile && activated && processQueue.empty ) {
+			if( currentTile != null && !atCurrentTile && activated && processManager.empty ) {
 				transform.position = currentTile.transform.position;
 				OnCurrentTileReached();
 			}
@@ -364,33 +364,31 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	public void Die( Unit killer ) {
 
-		if( alive ) {
+		if( !alive ) return;
 
-			alive = false;
-			currentTile.currentUnit = null;
-			collider.enabled = false;
-			model.Die();
-			eventDeath.Invoke( this, killer );
+		alive = false;
+		currentTile.currentUnit = null;
+		collider.enabled = false;
+		model.Die();
+		eventDeath.Invoke( this, killer );
 
-			processQueue.Add( new ProcessBook.BulletTime( .05f, .85f, .2f ), true );
+		processManager.Add( new ProcessBook.BulletTime( .05f, .85f, .2f ), true );
 
-			if( Config.GORE ) {
-				TempObject bloodspatter = Instantiate(
-						BookOfEverything.me.gfx[2],
-						transform.position,
-						transform.rotation ) as TempObject;
+		if( Config.GORE ) {
+			TempObject bloodspatter = Instantiate(
+			                                      BookOfEverything.me.gfx[2],
+			                                      transform.position,
+			                                      transform.rotation ) as TempObject;
 
-				if( killer ) {
-					if( bloodspatter != null )
-						bloodspatter.transform.LookAt( killer.transform );
-				}
+			if( killer ) {
+				if( bloodspatter != null )
+					bloodspatter.transform.LookAt( killer.transform );
 			}
-
-			model.BloodyUp();
-
-			model.BloodyUp();
-
 		}
+
+		model.BloodyUp();
+
+		model.BloodyUp();
 
 	}
 

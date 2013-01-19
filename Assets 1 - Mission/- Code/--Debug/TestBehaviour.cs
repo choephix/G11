@@ -5,59 +5,64 @@ public class TestBehaviour : BaseClass {
 
 	private Texture2D tex;
 
+	[ SerializeField ] 
+	private GUIText[] t;
+
+	private GodOfProcesses pm;
+
 	void Start() {
 
-		//renderer.material.mainTexture = tex = new Texture2D( 32, 32 );
+		pm = GetComponent<GodOfProcesses>();
 
-		//GUI_TextureFactory.PaintPercentBar( tex, 0 );
+		renderer.material.mainTexture = tex = new Texture2D( 32, 32 );
+
+		GUI_TextureFactory.PaintPercentBar( tex, 0 );
 
 	}
 
+	void Update() {
 
+		t[0].text = pm.ToGuiString();
+		t[1].text = pm.ToGuiStringWatchers();
+
+	}
 
 
 	public void OnMouseUp() {
-		//GUI_TextureFactory.PaintPercentBar( tex, rand * 100 );
-	}
 
-}
+		GUI_TextureFactory.PaintPercentBar( tex, rand * 100 );
 
-public static class GUI_TextureFactory {
+		Process p;
 
-	public static void PaintPercentBar( Texture2D tex, float percentage ) {
+		p = PDelay( .5f );
 
-		float lim = percentage / 100 * tex.height;
+		p.Enqueue( PDelay( .5f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) )
+			.Enqueue( PDelay( .1f ) ).Enqueue( PDelay( 50 ) ).Attach( PDelay( .25f ) );
 
-		int i = 0;
-		int j = 0;
-		Color c;
-		float a;
+		pm.Add( p );
 
-		int w = tex.width;
-		int h = tex.height;
+		Watcher<ProcessBook.Wait> w = new Watcher<ProcessBook.Wait>();
 
-		for( j = 0 ; j < h ; j++ ) {
-			for( i = 0 ; i < w ; i++ ) {
-				//a = h - j > lim ? .125f : 1f;
-				a = j > lim ? .125f : 1f;
-				if( a == 1f ) {
-					a = j % 2 > 0 ? .75f : 1f;
-				}
-				if( j == 0 || j == ( h - 1 ) || i == 0 || i == ( w - 1 ) ) {
-					a = .5f;
-				}
-				//a *= percentage / 100;
-				if( percentage >= 50 ) {
-					c = new Color( 1f, .2f, 0f, a );
-				} else {
-					c = new Color( 0f, .4f, 1f, a );
-				}
-				tex.SetPixel( i, j, c );
-			}
-		}
+		w.eventWillStart += delegate( Process p1 ) {
+			Process p2 = PDelay( 50 );
+			p2.Attach( PDelay( 50 ) ).Attach( PDelay( 50 ) ).Attach( PDelay( 50 ) );
+			p2.Enqueue( PDelay( 50 ) ).Enqueue( PDelay( 50 ) ).Enqueue( PDelay( 50 ) );
+			pm.OvertakeAdd( p2, p1 );
+			Debug.LogWarning( "BAZINGA! >> " + p1 );
+		};
 
-		tex.Apply();
+		pm.Add( w );
 
 	}
+
+	public static Process PDelay( int time ) { return new ProcessBook.Wait( time ); }
+	public static Process PDelay( float time ) { return new ProcessBook.WaitForSeconds( time ); }
 
 }

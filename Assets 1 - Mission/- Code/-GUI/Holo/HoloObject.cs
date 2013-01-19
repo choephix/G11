@@ -10,7 +10,7 @@ public class HoloObject : MissionBaseClass {
 	public bool visible { set { 
 		foreach( Renderer renderer in renderers ) renderer.enabled = value; } }
 	public new bool active { set { 
-			//foreach( Renderer renderer in renderers ) renderer.gameObject.active = value; 
+			//foreach( Renderer renderer in renderers ) renderer.gameObject.started = value; 
 			gameObject.SetActive( value ); } }
 
 }

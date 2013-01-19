@@ -181,18 +181,13 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void _Execute( object subject ) {
 
-			Process p;
+			Process p = new ProcessBook.Wait( 10 );
+			processManager.Add( p );
 
-
-			p = new ProcessBook.Wait( 3 );
-			processQueue += p;
-
-
-
-			//p = new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 4 );
-			//processQueue += p;
+			//p = p.Enqueue( new ProcessBook.AreaDamage( owner.spots.torso.position, 4, 4 ) );
 
 			Watcher w = new WatchingUnit<ProcessBook.UnitMoveAlongPath>( owner );
+			processManager += w;
 			w.instances = 2;
 			w.eventWillStart +=
 				delegate( Process process ) {
@@ -203,17 +198,13 @@ public class ActionsBook : MissionBaseClass {
 					Process p3 = new ProcessBook.UnitAttack( owner , ( ( ProcessBook.UnitMoveAlongPath ) process ).movingUnit );
 					p2.Enqueue( p3 );
 					process.Enqueue( p2 );
-					//processQueue.JumpAdd( p3 );
+					//GodOfProcesses.JumpAdd( p3 );
 
 				};
 
-
-			processQueue += w;
-
 			owner.buffs += BuffsBook.Bleeding( owner );
 
-			p = new ProcessBook.Wait( 10 );
-			processQueue += p;
+			p = p.Enqueue( new ProcessBook.Wait( 10 ) );
 
 			p.eventEnded += Finish;
 
@@ -224,32 +215,10 @@ public class ActionsBook : MissionBaseClass {
 	public class CoverAlly : Action {
 
 		public CoverAlly( Unit owner )
-			: base( owner, owner, "Test", ActionSubjectType.Self, 3 ) { }
+			: base( owner, owner, "Cover Ally", ActionSubjectType.Self, 3 ) { }
 
 		public override void _Execute( object subject ) {
-
-			Watcher w = new WatchingUnit<ProcessBook.UnitMoveAlongPath>( owner );
-			w.instances = 2;
-			w.eventWillStart +=
-				delegate( Process process ) {
-
-					Debug.LogWarning( ( (ProcessBook.UnitMoveAlongPath)process ).movingUnit + " IS MOVING MOVING MOVING!!!!" );
-
-					Process p2 = new ProcessBook.Trace( "I'LL SHOOT HIM!!!!" );
-					Process p3 = new ProcessBook.UnitAttack( owner, ( (ProcessBook.UnitMoveAlongPath)process ).movingUnit );
-					p2.Enqueue( p3 );
-					process.Enqueue( p2 );
-					//processQueue.JumpAdd( p3 );
-
-				};
-
-			Process p;
-
-			p = new ProcessBook.Wait( 10 );
-			processQueue += p;
-
-			p.eventEnded += Finish;
-
+			Finish();
 		}
 
 	}
@@ -266,8 +235,8 @@ public class ActionsBook : MissionBaseClass {
 			owner.buffs.Add( BuffsBook.Ducked( owner ) );
 
 			Process p;
-			p = new ProcessBook.WaitSeconds( .75f );
-			processQueue += p;
+			p = new ProcessBook.WaitForSeconds( .75f );
+			processManager.Add( p );
 			p.eventEnded += Finish;
 
 		}
@@ -290,8 +259,7 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void _OnSelected() {
 			GameMode.Set( GameModes.PickTile );
-			processQueue.Add( new ProcessBook.Wait( 1 ) );
-			processQueue.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
+			processManager.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.HoloUnit;
 		}
 
@@ -303,18 +271,8 @@ public class ActionsBook : MissionBaseClass {
 
 				Process p;
 
-				//p = new ProcessBook.ChangeTimeSpeed( .2f, 3f );
-				//processQueue.Add( p, true );
-
-				p = new ProcessBook.Wait( DELAY );
-				processQueue.Add( p );
-
 				p = new ProcessBook.UnitMoveAlongPath( owner, subject as GridTile );
-				processQueue.Add( p );
-
-				p = new ProcessBook.Wait( DELAY );
-				processQueue.Add( p );
-				p.AttachPassive( new ProcessBook.ChangeTimeSpeed( 1f, .5f ) );
+				processManager.Add( p );
 
 				p.eventEnded += Finish;
 
@@ -355,10 +313,7 @@ public class ActionsBook : MissionBaseClass {
 				Process p;
 
 				p = new ProcessBook.UnitAttack( owner, subject as Unit );
-				processQueue += p;
-
-				p = new ProcessBook.WaitSeconds( .20f );
-				processQueue += p;
+				processManager.Add( p );
 
 				p.eventEnded += Finish;
 
@@ -463,7 +418,7 @@ public class ActionsBook : MissionBaseClass {
 		public override void _Execute( object subject ) {
 
 			Process p = new ProcessBook.UnitHeal( owner, healAmount );
-			processQueue += p;
+			processManager.Add( p );
 			p.eventEnded += Finish;
 
 		}
@@ -487,8 +442,8 @@ public class ActionsBook : MissionBaseClass {
 		public override sealed void _OnSelected() {
 
 			GameMode.Set( GameModes.PickTile );
-			processQueue.Add( new ProcessBook.Wait( 1 ) );
-			processQueue.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, ( source as Throwable ).throwRange ) );
+
+			processManager.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, ( ( Throwable ) source ).throwRange ) );
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.Cross;
 			GodOfHolographics.setRange( ( (Throwable)source ).effectRange );
 			owner.model.Hide( owner.currentWeapon );
@@ -510,36 +465,24 @@ public class ActionsBook : MissionBaseClass {
 
 				Process p;
 
-				p = new ProcessBook.Wait( 30 );
-				processQueue.Add( p );
+				p = new ProcessBook.Wait( 10 );
+				processManager.Add( p );
 
 				if( destinationTile.occupied && owner.team.IsAlly( destinationTile.currentUnit ) ) {
 
 					destination += Vector3.up * destinationTile.currentUnit.propHeight;
-
-					p = new ProcessBook.Throw( owner, source as Grenade, destination );
-					processQueue.Add( p );
-
-					p = new ProcessBook.Wait( 10 );
-					processQueue.Add( p );
-
-					//p = new ProcessBook.InstantProcess( () => PassEquipment( destinationTile.currentUnit ) );
-					//processQueue.Add( p );
+					p = p.Enqueue( new ProcessBook.Throw( owner, source as Grenade, destination ) );
+					p = p.Enqueue( new ProcessBook.Wait( 10 ) );
+					//p = p.Enqueue( new ProcessBook.InstantProcess( () => PassEquipment( destinationTile.currentUnit ) ) );
 
 				} else {
 
 					if( destinationTile.obstructed ) {
 						destination += Vector3.up * destinationTile.obstruction.height * 2;
 					}
-
-					p = new ProcessBook.Throw( owner, source as Grenade, destination, .5f );
-					processQueue.Add( p );
-
-					p = new ProcessBook.Wait( 10 );
-					processQueue.Add( p );
-
-					p = OnFallen( destinationTile );
-					processQueue.Add( p );
+					p = p.Enqueue( new ProcessBook.Throw( owner, source as Grenade, destination, .5f ) );
+					p = p.Enqueue( new ProcessBook.Wait( 10 ) );
+					p = p.Enqueue( OnFallen( destinationTile ) );
 
 				}
 
