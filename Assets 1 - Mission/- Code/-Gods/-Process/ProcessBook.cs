@@ -7,11 +7,19 @@ public partial class ProcessBook : MissionBaseClass {
 
 	// COMMON PROCESSES
 
-	public class SimpleProcess : Process {
+	public abstract class SimpleProcess : Process {
 
-		public SimpleProcess( string name, bool stackable = true ) : base( name, stackable ) { }
+		protected SimpleProcess( string name, bool stackable = true ) : base( name, stackable ) { }
 
 		public sealed override void Update() { base.Update(); }
+
+	}
+
+	public class Nothing : SimpleProcess {
+
+		public Nothing() : base( "Nothing" ) {}
+
+		protected override void _Start() { End(); }
 
 	}
 
@@ -19,7 +27,7 @@ public partial class ProcessBook : MissionBaseClass {
 
 		public event EventHandler eventOnStart;
 
-		public InstantProcess( EventHandler eventOnStart, string name = null ) : base( name??"InstantProcess" ) { this.eventOnStart = eventOnStart; }
+		public InstantProcess( EventHandler eventOnStart, string name = null ) : base( name ?? "InstantProcess" ) { this.eventOnStart = eventOnStart; }
 
 		protected override void _Start() {
 

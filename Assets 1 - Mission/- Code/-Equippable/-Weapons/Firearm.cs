@@ -9,7 +9,7 @@ public class Firearm : Weapon {
 
 	public AmmoType ammoType = AmmoType.BulletSmall;
 	public int baseAmmoClipSize = 8;
-	public float accuracy = 100f; //TODO not implemented
+	public float accuracy = 100f;
 
 	// CHANGABLES
 

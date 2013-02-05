@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile {
 
 	internal UnitModel model;
+	internal UnitAnimator animator;
 
 	public UnitTransformSpots spots;
 	public TextMesh label;
@@ -116,6 +117,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	/** * * * * * * * * * * * * * * * * * * * * * * * * * * * * * **/
 
 	void Awake() {
+
+		animator = GetComponent<UnitAnimator>();
 
 		actions.Init( this );
 
@@ -321,7 +324,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			model.UpdatePosture();
 
 			rotationY = transform.eulerAngles.y;
-			model.LoopIdleClip();
 
 			if( !ready ) {
 				ready = true;
@@ -372,7 +374,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		model.Die();
 		eventDeath.Invoke( this, killer );
 
-		processManager.Add( new ProcessBook.BulletTime( .05f, .85f, .2f ), true );
+		processManager.AddImmediately( new ProcessBook.BulletTime( .05f, .85f, .2f ) );
 
 		if( Config.GORE ) {
 			TempObject bloodspatter = Instantiate(
@@ -385,10 +387,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 					bloodspatter.transform.LookAt( killer.transform );
 			}
 		}
-
-		model.BloodyUp();
-
-		model.BloodyUp();
 
 	}
 
@@ -579,7 +577,6 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	}
 
 	internal void OnUntargetingUnit() {
-		model.LoopIdleClip();
 		transform.eulerAngles = Vector3.up * rotationY;
 	}
 

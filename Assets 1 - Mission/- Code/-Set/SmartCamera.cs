@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 
@@ -81,10 +82,8 @@ public class SmartCamera : MissionBaseClass {
 	}
 
 	internal void UpdateObjectVisibilities() {
-		foreach( WorldObject o in GodOfTheStage.objects ) {
-			if( o != null ) {
-				o.model.enabled = !(theCamera.transform.position.DistanceTo(o.transform.position) < .59);
-			}
+		foreach( WorldObject o in GodOfTheStage.objects.Where( o => o != null ) ) {
+			o.visible = !( theCamera.transform.position.DistanceTo( o.transform.position ) < .59 );
 		}
 	}
 

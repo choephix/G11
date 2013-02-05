@@ -8,15 +8,13 @@ public class Obstruction : HoloObject, IDamageable, ICover {
 	public TextMesh label;
 	public Material scratchesMaterial;
 
-	public bool holoFlag;
-
 	public GridTile currentTile;
 	public float coverValue { get { return height; } }
 
 	public Transform decor;
 
 	void Start () {
-		holoOut();
+		HoloDown();
 	}
 
 	void Update() {
@@ -56,26 +54,11 @@ public class Obstruction : HoloObject, IDamageable, ICover {
 
 	}
 
-	internal void holoUp() {
-		if( !holoFlag ) {
-			holoFlag =
-			model.enabled = true;
-			label.renderer.enabled = true;
-			//animation.Play( "holoUp" );
-			//animation.CrossFadeQueued( "IDLE", .05f );
-			animation.Play( "idle" );
-			animation.Rewind();
-		}
+	internal void HoloUp() {
+		model.enabled = true;
+		label.renderer.enabled = true;
 	}
-	internal void holoDown() {
-		if( holoFlag ) {
-			holoFlag =
-			label.renderer.enabled = false;
-			animation.Rewind();
-			animation.CrossFade( "holoDown", .05f );
-		}
-	}
-	internal void holoOut() {
+	internal void HoloDown() {
 		label.renderer.enabled = false;
 		model.enabled = false;
 	}

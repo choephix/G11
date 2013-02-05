@@ -192,10 +192,10 @@ public class ActionsBook : MissionBaseClass {
 			w.eventWillStart +=
 				delegate( Process process ) {
 
-					Debug.LogWarning( ( (ProcessBook.UnitMoveAlongPath)process ).movingUnit + " IS MOVING MOVING MOVING!!!!" );
+					Debug.LogWarning( ( (ProcessBook.UnitMoveAlongPath)process ).subjectUnit + " IS MOVING MOVING MOVING!!!!" );
 
 					Process p2 = new ProcessBook.Trace( "I'LL SHOOT HIM!!!!" );
-					Process p3 = new ProcessBook.UnitAttack( owner , ( ( ProcessBook.UnitMoveAlongPath ) process ).movingUnit );
+					Process p3 = new ProcessBook.UnitAttack( owner, ( (ProcessBook.UnitMoveAlongPath)process ).subjectUnit );
 					p2.Enqueue( p3 );
 					process.Enqueue( p2 );
 					//GodOfProcesses.JumpAdd( p3 );
@@ -259,7 +259,7 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void _OnSelected() {
 			GameMode.Set( GameModes.PickTile );
-			processManager.Add( new ProcessBook.HighlightWalkableTiles( owner ) );
+			processManager.Add( new ProcessBook.HighlightWalkableTiles( owner, .1f ) );
 			GodOfHolographics.mode = GodOfHolographics.HoloMode.HoloUnit;
 		}
 
@@ -272,6 +272,7 @@ public class ActionsBook : MissionBaseClass {
 				Process p;
 
 				p = new ProcessBook.UnitMoveAlongPath( owner, subject as GridTile );
+			//	p = new ProcessBook.UnitMoveToTile( owner, subject as GridTile );
 				processManager.Add( p );
 
 				p.eventEnded += Finish;
@@ -305,6 +306,7 @@ public class ActionsBook : MissionBaseClass {
 		public override void _OnSelected() {
 			//	GameMode.Set( GameModes.PickUnit );
 			SelectionManager.TargetUnit();
+			owner.model.animator.aiming = true;
 		}
 
 		public override void _Execute( object subject ) {
@@ -323,25 +325,8 @@ public class ActionsBook : MissionBaseClass {
 
 		public override void OnDeselected() {
 
-			//else {
-			//    if( !owner.canAttack ) {
-			//        Debug.Log( owner + " cannot attack anymore." );
-			//        GameMode.Reset();
-			//    } else {
-			//        if( targetedUnit != null && !targetedUnit.inPlay ) {
-			//            Debug.Log( "Targeted unit no longer in play. Will switch to another." );
-			//            SelectionManager.TargetAnotherUnit();
-			//        }
-			//        GameMode.Reenable();
-			//    }
-
-
-			//    else {
-			//        GameMode.Reenable();
-			//    }
-			//}
-
 			GameMode.Reset();
+			owner.model.animator.aiming = false;
 
 		}
 
@@ -448,7 +433,7 @@ public class ActionsBook : MissionBaseClass {
 			GodOfHolographics.setRange( ( (Throwable)source ).effectRange );
 			owner.model.Hide( owner.currentWeapon );
 			owner.model.Show( source as Equippable );
-			owner.model.Equip( source as Equippable, owner.model.finger );
+			owner.model.Equip( source as Equippable, owner.model.mainHand );
 			owner.model.Reload();
 
 		}
@@ -499,7 +484,7 @@ public class ActionsBook : MissionBaseClass {
 
 		protected override sealed void _Finish() {
 
-			owner.model.Equip( source as Equippable, owner.model.finger );
+			owner.model.Equip( source as Equippable, owner.model.mainHand );
 
 			owner.model.Hide( source as Equippable );
 			owner.model.Show( owner.currentWeapon );

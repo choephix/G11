@@ -7,7 +7,6 @@ public class WorldObject : BaseClass {
 	//	public float mass = 1.0f;
 
 	public Renderer[] renderers;
-	public Renderer model;
 	
     internal float x {
           get{ return transform.position.x;  }

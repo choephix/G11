@@ -5,11 +5,7 @@ using LitJson;
 
 public class GodOfTheStage : MissionBaseClass {
 
-	internal static GodOfTheStage me;
-
 	internal static List<WorldObject> objects;
-
-	internal MissionInitProps initProps;
 
 	public WorldContainer worldContainer;
 
@@ -21,7 +17,6 @@ public class GodOfTheStage : MissionBaseClass {
 	public Transform genericFloorTile;
 
 	void Awake() {
-		me =
 		stage = this;
 	}
 
@@ -115,10 +110,9 @@ public class GodOfTheStage : MissionBaseClass {
 			foreach( UnitInitProps unitProps in teamProps.units ) {
 
 				unit = SpawnUnit( god.initProps.unitSample, team, grid.GetTile( teamProps.spawnTileCoordinates ) );
-				//unit.SetModel( unitProps.model );
-				unit.SetModel( god.initProps.defaultUnitModel );
-				unit.SetMaterial( unitProps.skin );
-				//unit.SetMaterial( god.initProps.defaultUnitMaterial );
+				unit.SetModel( unitProps.model ?? god.initProps.defaultUnitModel );
+				unit.SetMaterial( unitProps.skin ?? god.initProps.defaultUnitMaterial );
+				unit.SetMaterial( god.initProps.defaultUnitMaterial );
 				unit.props.unitName = unitProps.name;
 				unit.props.skillRanged = unitProps.accuracy;
 				unit.props.maxHealth = unitProps.health;
@@ -165,7 +159,7 @@ public class GodOfTheStage : MissionBaseClass {
 	}
 
 	internal Transform AddDecor( Transform model, GridTile tile ) {
-		Transform o = Instantiate( model, tile.transform.position, tile.transform.rotation ) as Transform;
+		Transform o = Instantiate( model, tile.transform.position, model.transform.rotation ) as Transform;
 		if( o != null ) {
 			o.parent = worldContainer.decorationHolder;
 			return o;

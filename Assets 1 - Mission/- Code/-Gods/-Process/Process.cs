@@ -20,6 +20,7 @@ public abstract class Process {
 	protected List<Process> enqueued;
 
 	public bool @checked;
+	public bool background;
 
 	protected Process( string name, bool stackable = true ) {
 		this.name = name;

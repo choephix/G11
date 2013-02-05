@@ -11,6 +11,7 @@ public partial class GodOfProcesses : MissionBaseClass {
 	protected readonly List<Process> activePool = new List<Process>();
 	
 	public bool empty { get { return activePool.Count == 0; } }
+	public bool interactive { get; private set; }
 
 
 	void Awake() {
@@ -26,8 +27,8 @@ public partial class GodOfProcesses : MissionBaseClass {
 		if( empty ) {
 			
 			if( waitingList.Count > 0 ) {
-				
-				activePool.Add( waitingList[0] );
+
+				AddImmediately( waitingList[0] );
 				waitingList.RemoveAt( 0 );
 
 			}
@@ -50,40 +51,36 @@ public partial class GodOfProcesses : MissionBaseClass {
 
 	}
 
+	private void OnChanged() {
+
+		interactive = activePool.FindAll( p => !p.background ).Count == 0;
+		interactive = true;
+
+	}
+
 	//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//**\\**//
 
-	//public void Add( Process process, bool boo = false ) {
+	public void Add( Process process ) {
+		waitingList.Add( process );
+	}
 
-	//	process.Terminate();
-
-	//}
-
-	public void Add( Process process, bool immediate = false ) {
-
-		if( immediate ) {
-			activePool.Add( process );
-		} else {
-			waitingList.Add( process );
-		}
-
+	public void AddImmediately( Process process ) {
+		activePool.Add( process );
+		OnChanged();
 	}
 
 	public void AddImmediately( IEnumerable<Process> processes ) {
 		activePool.AddRange( processes );
+		OnChanged();
 	}
 
 	public void OvertakeAdd( Process overtaker, Process overtakee ) {
-
 		Postpone( overtakee );
-
 		JumpAdd( overtaker );
-
 	}
 
 	public void JumpAdd( Process process ) {
-
 		waitingList.Insert( 0, process );
-
 	}
 
 	public void Postpone( Process process ) {
@@ -93,6 +90,7 @@ public partial class GodOfProcesses : MissionBaseClass {
 		process.@checked = false;
 		activePool.Remove( process );
 		JumpAdd( process );
+		OnChanged();
 
 	}
 

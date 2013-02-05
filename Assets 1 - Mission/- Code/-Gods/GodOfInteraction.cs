@@ -64,28 +64,17 @@ public class GodOfInteraction : MissionBaseClass {
 	}
 
 	private static Vector3 tempV;
-	internal static void OnInput_Horizontal( float amount ) {
-		tempV = new Vector3( amount, 0, 0 );
-		smartCamera.defaultDestination.position += tempV;
-		smartCamera.defaultLookTargetDestination.position += tempV;
+
+	internal static void OnInput_Directional( Vector2 amount ) {
+		freeCameraHolder.InputMove( amount );
 	}
-	internal static void OnInput_Vertical( float amount ) {
-		tempV = new Vector3( 0, 0, amount );
-		smartCamera.defaultDestination.position += tempV;
-		smartCamera.defaultLookTargetDestination.position += tempV;
-	}
+
 	internal static void OnInput_Rotary( float amount ) {
-		smartCamera.defaultDestination.RotateAroundLocal(smartCamera.defaultLookTargetDestination.position, amount);
+		freeCameraHolder.InputRotate( amount );
 	}
+
 	internal static void OnInput_Wheel( float amount ) {
-		tempV = new Vector3( 0, amount, 0 );
-		if( amount < 0 && smartCamera.defaultDestination.position.y < -amount ) {
-			return;
-		}
-		if( amount > 0 && smartCamera.defaultDestination.position.y > 10 ) {
-			return;
-		}
-		smartCamera.defaultDestination.position += tempV;
+		freeCameraHolder.InputZoom( amount );
 	}
 
 	/// <summary>

@@ -12,6 +12,7 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 
 	public BookOfEverything theBook;
 	public SmartCamera theSmartCamera;
+	public FreeCameraController theFreeCameraHolder;
 	public Grid theGrid;
 	public MissionGUI theGUI;
 
@@ -20,6 +21,7 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 		god = this;
 		gui = theGUI;
 		smartCamera = theSmartCamera;
+		freeCameraHolder = theFreeCameraHolder;
 		grid = theGrid;
 		allTeams = new List<Team>();
 		allUnits = new List<Unit>();

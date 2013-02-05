@@ -112,11 +112,19 @@ public class GridTile : MissionBaseClass {
 	internal float CalculateDanger( Unit unit ) {
 
 		float danger = 0;
-		RangedAttackResult r;
+		AttackResult r;
+
 		foreach( Unit u in allUnits.Where( u => unit.team.IsEnemy( u ) ).Where( u => u.inPlay && u.CanSee( this ) ) ) {
-			r = new RangedAttackResult( u, unit, this );
+
+			if( u.currentWeapon.ranged )
+				r = new RangedAttackResult( u , unit , this );
+			else 
+				r = new MeleeAttackResult( u, unit );
+
 			danger += r.hitChance / 100 * ( 1 - danger );
+
 		}
+
 		return danger;
 
 	}
@@ -149,15 +157,13 @@ public class GridTile : MissionBaseClass {
 
 		focused = true;
 
-		if( selectable && GameMode.Is( GameModes.PickTile ) ) {
-			foreach( GridTile tile in relations.neighbours ) {
-				if( tile.obstructed ) {
-					tile.obstruction.holoUp();
-				}
-				//GodOfPathfinding.GetPathTo( this, true );
-			}
-			GodOfHolographics.HighlightGridTile( this );
+		if( !selectable || !GameMode.Is( GameModes.PickTile ) ) return;
+
+		foreach( GridTile tile in relations.neighbours.Where( tile => tile.obstructed ) ) {
+			tile.obstruction.HoloUp();
 		}
+
+		GodOfHolographics.HighlightGridTile( this );
 
 		//	OnFocusDebug();
 
@@ -169,7 +175,7 @@ public class GridTile : MissionBaseClass {
 
 		foreach( GridTile tile in relations.neighbours ) {
 			if( tile.obstructed ) {
-				tile.obstruction.holoDown();
+				tile.obstruction.HoloDown();
 			}
 		}
 

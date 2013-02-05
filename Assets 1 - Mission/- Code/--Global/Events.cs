@@ -2,6 +2,14 @@
 
 
 
+public delegate void EventHandler();
+public delegate void EventHandler<T>( T param );
+public delegate void EventHandler<T1, T2>( T1 param1, T2 param2 );
+
+public delegate void UnitEventHandler( Unit unit );
+public delegate void UnitUnitEventHandler( Unit unit1, Unit unit2 );
+public delegate void UnitExtraEventHandler<T>( Unit unit, T arg );
+
 
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 

@@ -77,6 +77,5 @@ public class Grid : MonoBehaviour {
 	public GridTile[,] GetAllTiles() {
 		return tiles;
 	}
-	
 
 }

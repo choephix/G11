@@ -30,7 +30,7 @@ public class MissionGUI : MissionBaseClass {
 		if( true ) {
 		//if( GameMode.interactive ) {
 
-			if( true ) {
+			if( TurnManager.currentTeam != null ) {
 			//if( TurnManager.currentTeam.isUserControlled ) {
 
 				StringBuilder sb = new StringBuilder();

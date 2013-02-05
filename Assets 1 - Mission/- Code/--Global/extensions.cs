@@ -166,11 +166,9 @@ public static class Extensions {
 	/// TRANSFORMS
 
 	public static void AttachTo( this Transform @this, Transform to ) {
-
-		@this.transform.position = to.transform.position;
-		@this.transform.rotation = to.transform.rotation;
 		@this.transform.parent = to;
-
+		@this.transform.localPosition = Vector3.zero;
+		@this.transform.localRotation = Quaternion.identity;
 	}
 
 	public static float AngleTo( this Transform from, Transform to ) {

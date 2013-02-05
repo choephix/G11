@@ -8,12 +8,12 @@ using System.Collections.Generic;
 public class UnitModel : WorldObject {
 
 	internal SkinnedMeshRenderer meshRenderer;
+	internal UnitAnimator animator;
 
 	public Transform mainHand;
 	public Transform offHand;
 	public Transform head;
 	public Transform torso;
-	public Transform finger;
 
 	internal Weapon currentWeapon;
 
@@ -33,9 +33,10 @@ public class UnitModel : WorldObject {
 	public Holders equiomentHolders;
 	public UnitMaterialManager materialManager;
 
-	public void Init(Unit unit) {
+	public void Init( Unit unit ) {
+		this.animator = GetComponent<UnitAnimator>();
 		this.owner = unit;
-		this.meshRenderer = model as SkinnedMeshRenderer;
+		this.meshRenderer = renderers[0] as SkinnedMeshRenderer;
 		this.materialManager = new UnitMaterialManager( this );
 		//this.equiomentHolders = new Holders();
 	}
@@ -101,9 +102,6 @@ public class UnitModel : WorldObject {
 
 	internal void RefreshPosture() {
 		SetPosture( posture );
-		if( idle ) {
-			LoopIdleClip();
-		}
 	}
 
 	internal void Equip( Equippable item, Transform hand = null ) {
@@ -123,85 +121,51 @@ public class UnitModel : WorldObject {
 			item.transform.AttachTo( equiomentHolders.NextAvailable( item.equipmentType ) );
 		}
 
+		//if( item.animation != null && item.animation.GetClip( "load" ) != null ) {
+		//	item.animation.Play( "load" );
+		//}
+
 	}
 	internal void Show( Equippable item ) {
 
 		item.transform.AttachTo( mainHand );
-		item.gameObject.SetActive( true );
+		//item.gameObject.SetActive( true );
 
-		if( item.animation != null && item.animation.GetClip( "load" ) != null ) {
-			item.animation.Play( "load" );
-		} else {
-			Spit( 321 );
-		}
+		//if( item.animation != null && item.animation.GetClip( "load" ) != null ) {
+		//	item.animation.Play( "load" );
+		//}
 
-	}
-
-	private string loopingClip = UnitAnimation.IDLE;
-	public void LoopClip( string clipName, float fadeLength = 0f ) {
-		idle = false;
-		if( loopingClip != clipName ) {
-			loopingClip = clipName;
-			animation.CrossFade( clipName, fadeLength/GodOfTime.speed );
-		}
-	}
-	public void LoopIdleClip( float fadeLength = .25f ) {
-		LoopClip( idleClip, fadeLength );
-		idle = true;
-	}
-
-	public void PlayClip( string clipName ) {
-		animation.Play( clipName );
-		animation.CrossFadeQueued( loopingClip, .1f / GodOfTime.speed );
 	}
 
 	public void Aim() {
-		LoopClip( currentWeapon.ranged ? UnitAnimation.AIM : UnitAnimation.IDLE, .25f );
+		animator.aiming = true;
 	}
 
 	public void Attack( Unit unit, bool hit ) {
-
-		switch( currentWeapon.equipmentType ) {
-			case EquipmentType.SideArm:
-				PlayClip( UnitAnimation.ATTACK_RANGED );
-				break;
-			case EquipmentType.Rifle:
-				PlayClip( UnitAnimation.ATTACK_RANGED );
-				break;
-			case EquipmentType.Sword:
-				PlayClip( UnitAnimation.ATTACK_WIELD );
-				break;
-			case EquipmentType.Claws:
-				PlayClip( UnitAnimation.ATTACK_FIST );
-				break;
-			case EquipmentType.Misc:
-				PlayClip( UnitAnimation.ATTACK_RANGED );
-				break;
-			default:
-				throw new ArgumentOutOfRangeException( );
-		}
-
+		animator.QuickSetRevert( "shoot" );
 	}
-		
+
 	public void Damage() {
-		PlayClip( UnitAnimation.HURT );
+		animator.QuickSetRevert("damage");
+		BloodyUp();
 	}
-	
+
 	public void Die() {
-		PlayClip( UnitAnimation.DEATH );
+		animator.dead = true;
+		BloodyUp();
 	}
-	
+
 	public void Reload() {
 
-		if( posture.Equals( UnitModelPosture.Normal ) || GameMode.Is( GameModes.PickUnit ) ) {
-			PlayClip( UnitAnimation.RELOAD );
-			return;
-		}
+		animator.QuickSetRevert( "reload" );
 
-		if( posture.Equals( UnitModelPosture.CoverDucked ) ) {
-			PlayClip( actionSide ? UnitAnimation.RELOAD_DUCKED_R : UnitAnimation.RELOAD_DUCKED_L );
-			return;
-		}
+		//if( posture.Equals( UnitModelPosture.Normal ) || GameMode.Is( GameModes.PickUnit ) ) {
+		//	return;
+		//}
+
+		//if( posture.Equals( UnitModelPosture.CoverDucked ) ) {
+		//	return;
+		//}
 
 	}
 
@@ -214,8 +178,7 @@ public class UnitModel : WorldObject {
 
 		list.AddRange( meshRenderer.materials );
 
-		Material m = new Material( bloodyMat );
-		m.mainTextureOffset = new Vector2( rand, rand );
+		Material m = new Material( bloodyMat ) { mainTextureOffset = new Vector2( rand , rand ) };
 
 		list.Add( m );
 
@@ -223,7 +186,7 @@ public class UnitModel : WorldObject {
 
 	}
 
-	[System.Serializable]
+	[Serializable]
 	public class Holders {
 
 		public Transform[] holsters;

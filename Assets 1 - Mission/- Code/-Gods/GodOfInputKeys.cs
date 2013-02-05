@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -5,33 +6,34 @@ using System.Collections;
 
 public class GodOfInputKeys : MonoBehaviour {
 
-	internal static string B_ATTACK	= "Attack";
-	internal static string B_NEXT	= "Next";
-	internal static string B_PREV	= "Previous";
-	internal static string B_WEAPON	= "SwitchWeapon";
-	internal static string B_AXIS_H	= "Horizontal";
-	internal static string B_AXIS_V	= "Vertical";
-	internal static string B_AXIS_ROTATE = "Rotate";
-	internal static string B_AXIS_WHEEL	 = "MouseWheel";
-	//internal static string B_SWITCH	 = "SwitchUnit";
-	internal static string B_CONFIRM	 = "Confirm";
-	internal static string B_BACK		 = "Back";
-	
-	internal static string B_PAUSE	 = "Pause";
-	//internal static string B_MENU		 = "Back";
+	internal const string B_ATTACK	= "Attack";
+	internal const string B_NEXT	= "Next";
+	internal const string B_PREV	= "Previous";
+	internal const string B_WEAPON	= "SwitchWeapon";
+	internal const string B_AXIS_H	= "Horizontal";
+	internal const string B_AXIS_V	= "Vertical";
+	internal const string B_AXIS_ROTATE = "Rotate";
+	internal const string B_AXIS_WHEEL	 = "MouseWheel";
+	//internal const string B_SWITCH	 = "SwitchUnit";
+	internal const string B_CONFIRM	 = "Confirm";
+	internal const string B_BACK		 = "Back";
 
-	internal static string ACTION_1 = "Action1";
-	internal static string ACTION_2 = "Action2";
-	internal static string ACTION_3 = "Action3";
-	internal static string ACTION_4 = "Action4";
-	internal static string ACTION_5 = "Action5";
-	internal static string ACTION_6 = "Action6";
-	internal static string ACTION_7 = "Action7";
-	internal static string ACTION_8 = "Action8";
-	internal static string ACTION_9 = "Action9";
-	internal static string ACTION_0 = "Action0";
+	internal const string B_PAUSE	 = "Pause";
+	//internal const string B_MENU		 = "Back";
+
+	internal const string ACTION_1 = "Action1";
+	internal const string ACTION_2 = "Action2";
+	internal const string ACTION_3 = "Action3";
+	internal const string ACTION_4 = "Action4";
+	internal const string ACTION_5 = "Action5";
+	internal const string ACTION_6 = "Action6";
+	internal const string ACTION_7 = "Action7";
+	internal const string ACTION_8 = "Action8";
+	internal const string ACTION_9 = "Action9";
+	internal const string ACTION_0 = "Action0";
 
 
+	private Vector2 movementVector;
 
 	void Update() {
 
@@ -40,20 +42,19 @@ public class GodOfInputKeys : MonoBehaviour {
 
 			if( Input.GetButtonDown( B_PAUSE ) ) {
 				GodOfTime.speed = GodOfTime.speed == 1f ? .001f : 1f;
-				Debug.Log( "TIME SPEED SET TO " + GodOfTime.speed );
 			}
 
-			if( Input.GetAxis( B_AXIS_H ) != 0 ) {
-				GodOfInteraction.OnInput_Horizontal( -Input.GetAxis( B_AXIS_H ) * Time.deltaTime * 6 );
+			if( Mathf.Abs( Input.GetAxis( B_AXIS_H ) ) > .01 || Mathf.Abs( Input.GetAxis( B_AXIS_V ) ) > .01 ) {
+				movementVector.Set( Input.GetAxis( B_AXIS_H ) , Input.GetAxis( B_AXIS_V ) );
+				GodOfInteraction.OnInput_Directional( movementVector * Time.deltaTime );
 			}
-			if( Input.GetAxis( B_AXIS_V ) != 0 ) {
-				GodOfInteraction.OnInput_Vertical( -Input.GetAxis( B_AXIS_V ) * Time.deltaTime * 6 );
+
+
+			if( Mathf.Abs( Input.GetAxis( B_AXIS_ROTATE ) ) > .01 ) {
+				GodOfInteraction.OnInput_Rotary( Input.GetAxis( B_AXIS_ROTATE ) * Time.deltaTime );
 			}
-			if( Input.GetAxis( B_AXIS_ROTATE ) != 0 ) {
-				GodOfInteraction.OnInput_Rotary( Input.GetAxis( B_AXIS_ROTATE ) * Time.deltaTime * 6 );
-			}
-			if( Input.GetAxis( B_AXIS_WHEEL ) != 0 ) {
-				GodOfInteraction.OnInput_Wheel( Input.GetAxis( B_AXIS_WHEEL ) * Time.deltaTime );
+			if( Mathf.Abs( Input.GetAxis( B_AXIS_WHEEL ) ) > .01 ) {
+				GodOfInteraction.OnInput_Wheel( Input.GetAxis( B_AXIS_WHEEL ) );
 			}
 
 		}
@@ -83,8 +84,7 @@ public class GodOfInputKeys : MonoBehaviour {
 
 			///////////////////////////////////////// ACTIONS
 
-			for( int i=0 ; i < 10 ; i++ ) {
-				//if( Input.GetButtonDown( "Action__DEPRICATING" + i ) ) {
+			for( int i = 0 ; i < 10 ; i++ ) {
 				if( Input.GetKeyDown( i.ToString() ) ) {
 					GodOfInteraction.OnInput_Action( i );
 				}

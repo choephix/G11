@@ -105,6 +105,13 @@ public class RangedAttackResult : AttackResult {
 
 	}
 
+	protected new static float ChanceFromAccuracy( Unit attacker ) {
+		if( Config.OVERRIDE_HIT_CHANCE_ACCURACY ) {
+			return 1.0f;
+		}
+		return attacker.propAccuracy * ( (Firearm)attacker.currentWeapon ).accuracy / 10000;
+	}
+
 	protected static float ChanceFromDistance( float distance, float range ) {
 		if( Config.OVERRIDE_HIT_CHANCE_DISTANCE ) {
 			return 1.0f;

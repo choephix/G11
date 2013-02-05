@@ -72,8 +72,8 @@ public static class GUI_TextureFactory {
 
 		float lim = percentage / 100 * tex.height;
 
-		int i = 0;
-		int j = 0;
+		int i;
+		int j;
 		Color c;
 		float a;
 
@@ -84,18 +84,16 @@ public static class GUI_TextureFactory {
 			for( i = 0 ; i < w ; i++ ) {
 				//a = h - j > lim ? .125f : 1f;
 				a = j > lim ? .125f : 1f;
-				if( a == 1f ) {
+				if( a >= 1f ) {
 					a = j % 2 > 0 ? .75f : 1f;
 				}
 				if( j == 0 || j == ( h - 1 ) || i == 0 || i == ( w - 1 ) ) {
 					a = .5f;
 				}
 				//a *= percentage / 100;
-				if( percentage >= 50 ) {
-					c = new Color( 1f, .2f, 0f, a );
-				} else {
-					c = new Color( 0f, .4f, 1f, a );
-				}
+				c = percentage >= 50 ? 
+					new Color( 1f, .2f, 0f, a ) : 
+					new Color( 0f, .4f, 1f, a );
 				tex.SetPixel( i, j, c );
 			}
 		}
