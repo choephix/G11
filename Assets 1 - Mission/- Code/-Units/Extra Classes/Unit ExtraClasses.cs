@@ -47,7 +47,7 @@ public static class UnitAnimation {
 }
 
 [System.Serializable]
-public class UnitTransformSpots {
+public sealed class UnitTransformSpots {
 	public Transform left;
 	public Transform right;
 	public Transform overHead;
@@ -91,54 +91,72 @@ public class UnitStatus {
 		_health = props.maxHealth;
 		_maxHealth = props.maxHealth;
 		_maxActions = Config.BASE_UNIT_ACTIONS;
-		ResetActions();
+		ResetActionPoints();
 	}
 
-	internal void ResetActions() {
+	internal void ResetActionPoints() {
 		actionPoints = _maxActions;
 	}
 
 	internal void ReceiveDamage( float amount, DamageType type ) {
 		switch( type ) {
-			case DamageType.NORMAL:
-				if( armor > 0 ) {
-					if( armor >= amount ) {
-						armor -= amount;
-					} else {
-						amount -= armor;
-						armor = 0;
-						health -= amount;
-					}
-				} else {
-					health -= amount;
-				}
-				return;
 			case DamageType.INTERNAL:
 				health -= amount;
 				return;
 			case DamageType.ANTIARMOR:
-				if( armor > 0 ) {
-					amount *= 2;
-					if( armor >= amount ) {
-						armor -= amount;
-						return;
-					} else {
-						amount -= armor;
-						armor = 0;
-						amount = ( amount - amount % 2 ) / 2;
-						health -= amount;
-						return;
-					}
-				} else {
-					health -= amount;
-				}
+				ReceiveAntiArmorDamage( amount );
+				return;
+			case DamageType.CORROSIVE:
+				ReceiveCorrosiveDamage( amount );
 				return;
 			case DamageType.HEALING:
 				health += amount;
 				return;
+			case DamageType.CONCUSSIVE:
+				ReceiveNormalDamage( amount * .25f );
+				return;
+			case DamageType.TRANQUILIZER:
+				return;
+			case DamageType.NORMAL:
 			default:
+				ReceiveNormalDamage( amount );
 				return;
 		}
+	}
+
+	private void ReceiveNormalDamage( float amount ) {
+		if( armor > 0 ) {
+			if( armor >= amount ) {
+				armor -= amount;
+			} else {
+				amount -= armor;
+				armor = 0;
+				health -= amount;
+			}
+		} else {
+			health -= amount;
+		}
+	}
+
+	private void ReceiveAntiArmorDamage( float amount ) {
+		if( !( armor > 0 ) ) {
+			health -= amount;
+			return;
+		}
+		amount *= 2;
+		if( armor >= amount ) {
+			armor -= amount;
+			return;
+		}
+		amount -= armor;
+		armor = 0;
+		amount = ( amount - amount % 2 ) / 2;
+		health -= amount;
+	}
+
+	private void ReceiveCorrosiveDamage( float amount ) {
+		if( armor <= 0 ) return;
+		armor -= amount;
 	}
 
 }

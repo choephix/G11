@@ -5,7 +5,7 @@ using LitJson;
 
 public class GodOfTheStage : MissionBaseClass {
 
-	internal static List<WorldObject> objects;
+	internal List<WorldObject> objects;
 
 	public WorldContainer worldContainer;
 
@@ -66,6 +66,8 @@ public class GodOfTheStage : MissionBaseClass {
 				case StageMap.U2:
 				case StageMap.U3:
 				case StageMap.U4:
+				case StageMap.U5:
+				case StageMap.U6:
 					if( userUnits.Count > 0 ) {
 						userUnits[0].currentTile = tile;
 						userUnits[0].transform.position = tile.transform.position;
@@ -112,7 +114,6 @@ public class GodOfTheStage : MissionBaseClass {
 				unit = SpawnUnit( god.initProps.unitSample, team, grid.GetTile( teamProps.spawnTileCoordinates ) );
 				unit.SetModel( unitProps.model ?? god.initProps.defaultUnitModel );
 				unit.SetMaterial( unitProps.skin ?? god.initProps.defaultUnitMaterial );
-				unit.SetMaterial( god.initProps.defaultUnitMaterial );
 				unit.props.unitName = unitProps.name;
 				unit.props.skillRanged = unitProps.accuracy;
 				unit.props.maxHealth = unitProps.health;
@@ -120,10 +121,7 @@ public class GodOfTheStage : MissionBaseClass {
 				unit.props.size = unitProps.size;
 				unit.transform.localScale = new Vector3( 1, unitProps.size * 2, 1 );
 				
-				if( unitProps.equipment.weaponPrimary == null )
-					unit.equipment = god.initProps.defaultEquipment.instance;
-				else
-					unit.equipment = unitProps.equipment.instance;
+				unit.equipment = unitProps.equipment.weaponPrimary == null ? god.initProps.defaultEquipment.instance : unitProps.equipment.instance;
 
 			}
 
@@ -144,7 +142,9 @@ public class GodOfTheStage : MissionBaseClass {
 	}
 
 	internal Obstruction AddObstruction( Obstruction prefab, GridTile tile, float coverValue, Transform model = null ) {
+
 		Obstruction o = Instantiate( prefab, tile.transform.position, prefab.transform.rotation ) as Obstruction;
+
 		if( o != null ) {
 			o.transform.parent = worldContainer.obstructionsHolder;
 			o.height = coverValue;
@@ -155,20 +155,27 @@ public class GodOfTheStage : MissionBaseClass {
 			}
 			return o;
 		}
+
 		return null;
+
 	}
 
-	internal Transform AddDecor( Transform model, GridTile tile ) {
-		Transform o = Instantiate( model, tile.transform.position, model.transform.rotation ) as Transform;
-		if( o != null ) {
-			o.parent = worldContainer.decorationHolder;
-			return o;
-		}
-		return null;
+	internal WorldObject AddDecor( Transform model, GridTile tile ) {
+
+		Transform o = (Transform)Instantiate( model, tile.transform.position, model.transform.rotation );
+
+		objects.Add( o.GetComponent<WorldObject>() );
+		tile.objects.Add( o.GetComponent<WorldObject>()  );
+
+		o.transform.parent = worldContainer.decorationHolder;
+		return o.GetComponent<WorldObject>();
+
 	}
 
 	internal Unit SpawnUnit( Unit prefab, Team team, GridTile spawnTile, GridTile firstTile = null ) {
+
 		Unit unit = Instantiate( prefab, spawnTile.transform.position, prefab.transform.rotation ) as Unit;
+
 		if( unit != null ) {
 			unit.currentTile = firstTile ?? spawnTile;
 			unit.team = team;
@@ -178,7 +185,9 @@ public class GodOfTheStage : MissionBaseClass {
 			unit.transform.parent = worldContainer.unitsHolder;
 			return unit;
 		}
+
 		return null;
+
 	}
 
 }

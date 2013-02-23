@@ -6,18 +6,26 @@ using UnityEngine;
 	public class UnitUnitRelations {
 
 		private readonly Dictionary<Unit,UnitUnitRelation> relations;
+		private readonly Unit owner;
 
 		public Unit primaryEnemy;
 
-		internal UnitUnitRelations() {
+		internal UnitUnitRelations( Unit ownUnit  ) {
 			relations = new Dictionary<Unit, UnitUnitRelation>();
+			owner = ownUnit;
 		}
 
-		internal void Update( Unit owner, List<Unit> units ) {
+		internal void Update() {
 			relations.Clear();
-			foreach( Unit unit in units ) {
+			foreach( Unit unit in God.allUnits ) {
 				relations.Add( unit, new UnitUnitRelation( owner, unit ) );
 			}
+		}
+
+		internal void Update( Unit subject ) {
+
+			relations[subject] = new UnitUnitRelation( owner, subject );
+
 		}
 
 		internal UnitUnitRelation GetRelation( Unit unit ) {
@@ -51,6 +59,18 @@ using UnityEngine;
 
 		internal int CompareHitChances( Unit u1, Unit u2 ) {
 			return GetAttackResult( u2 ).hitChance.CompareTo( GetAttackResult( u1 ).hitChance );
+		}
+
+		//////
+
+		public static void recalculateRelations( Unit unit ) {
+
+			foreach( Unit owner in God.allUnits ) {
+
+				owner.relations.Update( unit );
+
+			}
+
 		}
 
 	}

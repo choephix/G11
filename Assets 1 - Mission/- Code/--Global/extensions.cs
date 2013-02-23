@@ -155,6 +155,10 @@ public static class Extensions {
 
 	/// VECTOR3
 
+	public static bool IsInRange( this Vector3 @this, Vector3 v, float range ) { //TODO put this everywhere
+		return (v - @this).sqrMagnitude <= range * range;
+	}
+
 	public static float DistanceTo( this Vector3 @this, Vector3 v ) {
 		return Vector3.Distance( @this, v );
 	}

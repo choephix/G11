@@ -36,11 +36,11 @@ public class SmartCamera : MissionBaseClass {
 			InstantMoveTargetToDestination();
 		}
 
-		transform.LookAt(lookTarget, Vector3.up);
+		//transform.LookAt(lookTarget, Vector3.up);
 		//if( selectedUnit ) {
 		//    torch.transform.LookAt( selectedUnit.spots.torso );
 		//}
-		torch.transform.LookAt( lookTarget );
+		//torch.transform.LookAt( lookTarget );
 
 	//	updateObjectVisibilities();
 
@@ -82,7 +82,7 @@ public class SmartCamera : MissionBaseClass {
 	}
 
 	internal void UpdateObjectVisibilities() {
-		foreach( WorldObject o in GodOfTheStage.objects.Where( o => o != null ) ) {
+		foreach( WorldObject o in stage.objects.Where( o => o != null ) ) {
 			o.visible = !( theCamera.transform.position.DistanceTo( o.transform.position ) < .59 );
 		}
 	}

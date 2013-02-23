@@ -29,7 +29,8 @@ public class GridTile : MissionBaseClass {
 	internal bool selectable;
 	internal bool obstructed { get { return obstruction != null; } }
 	internal bool occupied { get { return currentUnit && currentUnit.alive; } }
-	internal bool walkable { get { return !occupied && !obstructed; } }
+	//internal bool walkable { get { return !occupied && !obstructed; } }
+	internal bool walkable { get { return !occupied; } }
 	internal bool traversable { get { return walkable || ( obstructed && obstruction.height <= .5f ); } }
 
 	internal float coverValue { get { return cover == null ? 0 : cover.coverValue; } }
@@ -45,14 +46,21 @@ public class GridTile : MissionBaseClass {
 	internal int x { get { return location.x; } }
 	internal int y { get { return location.y; } }
 
+	internal List<WorldObject> objects = new List<WorldObject>();
+
 	void Start() {
 
 		UpdateMaterial();
 		label.renderer.enabled = false;
 		relations = new GridTileTileRelations( this, grid.GetAllTiles() );
 
+		Fog();
 		if( !Config.USE_FOG ) {
 			UnFog();
+		}
+
+		if( obstructed ) {
+			transform.position += Vector3.up * obstruction.height * 2f;
 		}
 
 	}
@@ -157,7 +165,8 @@ public class GridTile : MissionBaseClass {
 
 		focused = true;
 
-		if( !selectable || !GameMode.Is( GameModes.PickTile ) ) return;
+		if( !selectable ) return;
+		//if( !selectable || !GameMode.Is( GameModes.PickTile ) ) return;
 
 		foreach( GridTile tile in relations.neighbours.Where( tile => tile.obstructed ) ) {
 			tile.obstruction.HoloUp();
@@ -216,14 +225,28 @@ public class GridTile : MissionBaseClass {
 		//	animation.PlayQueued( "IDLE" );
 	}
 
+	internal void Fog() {
+		if( fogged ) return;
+		fogged = true;
+		//transform.Find( "fog" ).renderer.enabled = true;
+		if( currentUnit ) {
+			currentUnit.model.visible = false;
+		}
+		foreach( WorldObject o in objects ) {
+			o.alpha = 0f;
+			print( 56 );
+		}
+	}
+
 	internal void UnFog() {
-		if( fogged ) {
-			fogged = false;
-			transform.Find( "fog" ).renderer.enabled = false;
-			//transform.Find( "fog" ).animation.Play( "unfog" );
-			if( currentUnit ) {
-				currentUnit.model.meshRenderer.renderer.enabled = true;
-			}
+		if( !fogged ) return;
+		fogged = false;
+		transform.Find( "fog" ).renderer.enabled = false;
+		if( currentUnit ) {
+			currentUnit.model.visible = true;
+		}
+		foreach( WorldObject o in objects ) {
+			o.alpha = 1f;
 		}
 	}
 
@@ -295,6 +318,21 @@ internal class GridTileTileRelations {
 			}
 		}
 		neighbours = covers.ToArray();
+	}
+
+	internal GridTile GetClosestNeighbourTo( GridTile subject ) {
+
+		GridTile result = null;
+		float dist = float.MaxValue;
+
+		foreach( GridTile neighbour in neighbours ) {
+			if( result != null && neighbour.transform.position.DistanceTo( subject.transform.position ) >= dist ) continue;
+			result = neighbour;
+			dist = neighbour.transform.position.DistanceTo( subject.transform.position );
+		}
+
+		return result;
+
 	}
 
 	internal ICover[] GetCoversAgainst( GridTile attackerTile ) {

@@ -11,20 +11,37 @@ public class SelectionManager : MissionBaseClass {
 	internal static event UnitEventHandler UnitUnselectedEvent = delegate { };
 	internal static event UnitEventHandler UnitUntargetedEvent = delegate { };
 
-	internal static void RefreshList() {
-		selectableUnits.Clear();
-		selectableUnits.AddRange( allUnits.FindAll( u => u.selectable ) );
-		targetableUnits.Clear();
-		targetableUnits.AddRange( allUnits.FindAll( God.CanTarget ) );
-		ReorderLists();
+	internal static void RefreshLists() {
+		RefreshSelectablesList();
+		RefreshTargetablesList();
 	}
 
-	internal static void ReorderLists() {
-		selectableUnits.Sort( ( u1 , u2 ) =>
-		                      u2.transform.position.x.CompareTo( u1.transform.position.x ) );
-		targetableUnits.Sort( ( u1 , u2 ) =>
-		                      selectedUnit == null ? u2.transform.position.x.CompareTo( u1.transform.position.x ) :
-			                      selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) )
+	internal static void RefreshSelectablesList() {
+		selectableUnits.Clear();
+		selectableUnits.AddRange( allUnits.FindAll( u => u.selectable ) );
+		ReorderSelectablesList();
+	}
+
+	internal static void ReorderSelectablesList() {
+		selectableUnits.Sort( ( u1, u2 ) =>
+							  u2.transform.position.x.CompareTo( u1.transform.position.x ) );
+	}
+
+
+	internal static void RefreshTargetablesList() {
+		targetableUnits.Clear();
+		targetableUnits.AddRange( allUnits.FindAll( God.CanTarget ) );
+		ReorderTargetablesList();
+
+		foreach( Unit unit in allUnits ) {
+			unit.MakeTargetable( God.CanTarget( unit ) );
+		}
+	}
+
+	internal static void ReorderTargetablesList() {
+		targetableUnits.Sort( ( u1, u2 ) =>
+							  selectedUnit == null ? u2.transform.position.x.CompareTo( u1.transform.position.x ) :
+								  selectedUnit.relations.GetAngle( u2 ).CompareTo( selectedUnit.relations.GetAngle( u1 ) )
 			);
 	}
 
@@ -32,7 +49,7 @@ public class SelectionManager : MissionBaseClass {
 
 		Debug.Log( "Selecting another unit. (Previous selected unit was " + F.ToStringOrNull( selectedUnit ) + ")" );
 
-		RefreshList();
+		RefreshSelectablesList();
 
 		if( selectableUnits.Count == 0 ) {
 			Debug.LogError( "Failed to SelectAnotherUnit. Selectable units list is empty" );
@@ -52,13 +69,16 @@ public class SelectionManager : MissionBaseClass {
 
 		SelectUnit( selectableUnits[n], TurnManager.isUserTurn ); //TODO change this back
 		//SelectUnit( selectableUnits[n], true );
+
+		RefreshTargetablesList();
+
 		return true;
 
 	}
 
 	internal static bool TargetAnotherUnit( bool backwards = false ) {
 
-		RefreshList();
+		RefreshTargetablesList();
 		if( targetableUnits.Count > 0 ) {
 			int n = targetableUnits.IndexOf( targetedUnit );
 			Debug.Log( selectedUnit + " targeting another unit. (Previous targeted unit was " + F.ToStringOrNull( targetedUnit ) + ", [" + n + "] in the targetableUnits list" );
@@ -89,7 +109,7 @@ public class SelectionManager : MissionBaseClass {
 		Debug.Log( "Selecting " + unit + ". (Previous selected unit was " + F.ToStringOrNull( selectedUnit ) );
 
 		if( unit == null ) {
-			RefreshList();
+			RefreshSelectablesList();
 			unit = selectableUnits[0];
 		}
 
@@ -104,6 +124,8 @@ public class SelectionManager : MissionBaseClass {
 		UnitSelectedEvent( unit );
 		selectedUnit.OnSelected();
 
+		RefreshTargetablesList();
+
 		if( moveCamera ) {
 			smartCamera.moveTo( selectedUnit.transform );
 		}
@@ -112,7 +134,7 @@ public class SelectionManager : MissionBaseClass {
 
 	internal static void TargetUnit( Unit unit = null, bool setAttackMode = true ) {
 
-		RefreshList();
+		RefreshTargetablesList();
 
 		if( targetableUnits.Count > 0 ) {
 
@@ -153,5 +175,38 @@ public class SelectionManager : MissionBaseClass {
 		}
 
 	}
+
+	// NEW SHIT
+
+	internal static void MakeUnitTargetable( Unit unit, bool targetable = true ) {
+		
+	}
+
+	internal static void ResetUnits() {
+		
+	}
+
+
+	//
+	/// <summary>
+	/// Relations between targetable subject and marker
+	/// </summary>
+	private static Dictionary<Transform, Transform> targetables = new Dictionary<Transform , Transform>();
+
+	internal static void MarkTargetable( Transform subject , bool targetable = true ) {
+		
+		if( targetable ) {
+			if( targetables.ContainsKey( subject ) )
+				return;
+			targetables.Add( subject , ( Transform ) Instantiate( markerTargetable , subject.position , Quaternion.identity ) );
+		} else {
+			if( !targetables.ContainsKey( subject ) )
+				return;
+			Destroy( targetables[subject].gameObject );
+			targetables.Remove( subject );
+		}
+
+	}
+
 
 }

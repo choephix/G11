@@ -43,7 +43,8 @@ public partial class ProcessBook {
 			Process p = new Nothing();
 
 			foreach( GridTile tile in grid.GetAllTiles() )
-				if( subjectUnit.CanSee( tile ) && subjectUnit.GetDistance( tile ) < range )
+				if( subjectUnit.CanSee( tile ) && tile.transform.position.IsInRange( subjectUnit.transform.position, range ) )
+				//if( subjectUnit.CanSee( tile ) && subjectUnit.GetDistance( tile ) < range )
 					tile.MakeSelectable();
 
 			End();
@@ -106,6 +107,9 @@ public partial class ProcessBook {
 						}
 					} else {
 
+						if( nodes.ContainsKey( neighbour ) )
+							continue;
+
 						if( neighbour.traversable ) {
 
 							tempPathLen = nodes[prevTile].pathLen;
@@ -145,6 +149,52 @@ public partial class ProcessBook {
 			} else {
 				End();
 			}
+
+		}
+
+	}
+
+	public class HighlightTargetableUnits : UnitProcess {
+
+		protected readonly TargetType targetType;
+		protected readonly bool onlyVisible;
+
+		public HighlightTargetableUnits( Unit subject , TargetType targetType = TargetType.Enemy , bool onlyVisible = true )
+			: base( "HighlightTargetableUnits" , subject ) {
+			this.onlyVisible = onlyVisible;
+			this.targetType = targetType;
+		}
+
+		protected override void _Start() {
+
+			grid.ResetTiles();
+
+			Process p = new Nothing();
+
+			int i = 0;
+
+			foreach( Unit unit in allUnits ) {
+				if( !subjectUnit.team.IsAlly( unit ) && targetType == TargetType.Ally )
+					continue;
+
+				if( !subjectUnit.team.IsEnemy( unit ) && targetType == TargetType.Enemy )
+					continue;
+
+				if( onlyVisible && !subjectUnit.CanSee( unit.currentTile ) )
+					continue;
+
+				unit.currentTile.MakeSelectable();
+				unit.collider.enabled = true;
+
+				SelectionManager.MarkTargetable( unit );
+
+				i++;
+
+			}
+
+			print( i + " targetable units found." );
+
+			End();
 
 		}
 

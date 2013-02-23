@@ -8,10 +8,12 @@ public class Obstruction : HoloObject, IDamageable, ICover {
 	public TextMesh label;
 	public Material scratchesMaterial;
 
-	public GridTile currentTile;
 	public float coverValue { get { return height; } }
 
-	public Transform decor;
+	internal GridTile currentTile;
+	internal WorldObject decor;
+
+	public Transform deathplosion;
 
 	void Start () {
 		HoloDown();
@@ -35,7 +37,20 @@ public class Obstruction : HoloObject, IDamageable, ICover {
 
 		//GameObject.Destroy( this );
 
-		ScratchUp();
+		//ScratchUp();
+
+		Die( attacker );
+
+	}
+
+	public void Die( Unit attacker = null ) {
+
+		decor.visible = false;
+		Destroy( decor.gameObject );
+
+		height = 0;
+
+		Instantiate( deathplosion , transform.position , Quaternion.identity );
 
 	}
 
@@ -43,14 +58,13 @@ public class Obstruction : HoloObject, IDamageable, ICover {
 
 		List<Material> list = new List<Material>();
 
-		list.AddRange( decor.Find("model").renderer.materials );
+		list.AddRange( decor.transform.Find("model").renderer.materials );
 
-		Material m = new Material( scratchesMaterial );
-		m.mainTextureOffset = new Vector2( God.rand, God.rand );
+		Material m = new Material( scratchesMaterial ) {mainTextureOffset = new Vector2( rand , rand )};
 
 		list.Add( m );
 
-		decor.Find( "model" ).renderer.materials = list.ToArray();
+		decor.transform.Find( "model" ).renderer.materials = list.ToArray();
 
 	}
 

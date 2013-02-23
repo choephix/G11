@@ -36,6 +36,7 @@ public partial class ProcessBook {
 
 	}
 
+	//
 
 	public class UnitAttack : UnitProcess {
 
@@ -99,6 +100,122 @@ public partial class ProcessBook {
 		}
 
 	}
+
+
+	public class UnitStrike : UnitProcess {
+
+		protected readonly Unit attacker;
+		protected readonly Unit attackee;
+		protected readonly MeleeWeapon weapon;
+
+		protected readonly AttackResult result;
+
+		public UnitStrike( Unit attacker, Unit attackee, MeleeWeapon weapon )
+			: base( "Strike", attacker ) {
+
+			this.attacker = attacker;
+			this.attackee = attackee;
+			this.weapon = weapon;
+
+			result = attacker.relations.GetAttackResult( attackee );
+
+		}
+
+		protected override void _Start() {
+
+			Debug.Log( attacker + " strikes " + attackee + ". Hit chance: " + result.hitChance );
+
+			if( !attacker.canAttack ) {
+				Debug.Log( "Attack failed because " + attacker + " cannot attack. " );
+				End();
+				return;
+			}
+
+			bool successful = result.msg == AttackResult.Message.SUCCESS;
+
+			attacker.model.Attack( attackee , successful );
+			weapon.Attack( attackee , result.hittee );
+
+			Process p;
+
+			p = new WaitForSeconds( UnitAnimation.MELEE_HIT_DELAY );
+
+			processManager.AddImmediately( p );
+
+			if( result.hittee != null ) {
+				p.eventEnded +=
+					() => result.hittee.Damage( attacker.propAttackDamage , attacker.currentWeapon.damageType , attacker );
+			}
+
+			p.eventEnded += End;
+
+			Logger.Respond( "Attack result: " + result );
+
+		}
+
+		protected override void _End() {
+			GameMode.cinematic = false;
+		}
+
+	}
+
+	public class UnitShoot : UnitProcess {
+
+		protected readonly Unit attacker;
+		protected readonly Unit attackee;
+		protected readonly Firearm weapon;
+
+		protected readonly AttackResult result;
+
+		public UnitShoot( Unit attacker, Unit attackee, Firearm weapon )
+			: base( "Shoot", attacker ) {
+
+			this.attacker = attacker;
+			this.attackee = attackee;
+			this.weapon = weapon;
+
+			result = attacker.relations.GetAttackResult( attackee );
+
+		}
+
+		protected override void _Start() {
+			Debug.Log( attacker + " shoots " + attackee + ". Hit chance: " + result.hitChance );
+
+			if( !attacker.canAttack ) {
+				Debug.Log( "Attack failed because " + attacker + " cannot attack. " );
+				End();
+				return;
+			}
+
+			bool successful = result.msg == AttackResult.Message.SUCCESS;
+
+			attacker.model.Attack( attackee , successful );
+			weapon.Attack( attackee , result.hittee );
+
+			Process p;
+
+			p = new WaitForSeconds( UnitAnimation.RANGE_HIT_DELAY );
+
+			processManager.AddImmediately( p );
+
+			if( result.hittee != null ) {
+				p.eventEnded +=
+					() => result.hittee.Damage( attacker.propAttackDamage , attacker.currentWeapon.damageType , attacker );
+			}
+
+			p.eventEnded += End;
+
+			Logger.Respond( "Attack result: " + result );
+
+		}
+
+		protected override void _End() {
+			GameMode.cinematic = false;
+		}
+
+	}
+
+	//
 
 	public class UnitHeal : UnitProcess {
 
@@ -191,6 +308,95 @@ public partial class ProcessBook {
 		}
 
 		protected override void _End() {
+			GameMode.cinematic = false;
+		}
+
+	}
+
+	public abstract class ParabolicMove : UnitProcess {
+
+		protected readonly Transform subject;
+		protected readonly Transform destination;
+
+		protected readonly float height;
+		protected readonly float speed;
+
+		protected Vector3 positionEnd;
+		protected Vector3 positionStart;
+		protected float distance;
+
+		protected float progress;
+
+		private readonly float slomoAt;
+		private bool slomoDone;
+
+		protected ParabolicMove( string processName, Unit unit, Transform subject, Transform destination, float height = 5f, float speed = 3f )
+			: base( processName, unit ) {
+
+			this.subject = subject;
+			this.destination = destination;
+
+			this.height = height;
+			this.speed = speed;
+
+			slomoAt = rand;
+
+		}
+
+		protected override void _Start() {
+
+			positionStart = subject.transform.position;
+			positionEnd = destination.transform.position;
+
+			distance = Vector3.Distance( positionStart, positionEnd );
+
+		}
+
+		protected override void _Update() {
+
+			progress += speed * GodOfTime.deltaTime;
+
+			if( !slomoDone && progress > slomoAt ) {
+				processManager.AddImmediately( new BulletTime( .02f, .75f ) );
+				slomoDone = true;
+			}
+
+			if( progress >= 1f ) {
+				subject.transform.position = positionEnd;
+				End();
+				return;
+			}
+
+			subject.transform.position = CalculatePosition();
+
+		}
+
+		private Vector3 CalculatePosition() {
+
+			return Vector3.MoveTowards( positionStart, positionEnd, progress * distance )
+				+ Vector3.up * Mathf.Sin( progress * Mathf.PI ) * height;
+
+		}
+		
+	} // TODO THIS SHOULD NOT BE A UNIT PROCESS
+
+	public class UnitJump : ParabolicMove { // TODO make this invoke and track a new ParabolicMove process instead of extending one
+
+		protected readonly Unit jumper;
+		protected readonly GridTile destinationTile;
+
+		public UnitJump( Unit jumper, GridTile destinationTile, float height = 5f, float speed = 3f )
+			: base( "Jump", jumper, jumper.transform, destinationTile.transform, height, speed ) {
+
+			this.jumper = jumper;
+			this.destinationTile = destinationTile;
+
+		}
+
+		protected override void _End() {
+			jumper.currentTile = destinationTile;
+			jumper.OnTileReached();
+			jumper.OnCurrentTileReached();
 			GameMode.cinematic = false;
 		}
 

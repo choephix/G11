@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 
@@ -50,12 +51,10 @@ public class WorldObject : BaseClass {
 	internal float alpha {
 		get { return renderers[0].material.color.a; }
 		set {
-			foreach( Renderer r in renderers ) {
-				foreach( Material m in r.materials ) {
-					tempMaterialColor = m.GetColor( "_Color" );
-					tempMaterialColor.a = value;
-					m.SetColor( "_Color", tempMaterialColor );
-				}
+			foreach( Material m in renderers.SelectMany( r => r.materials ) ) {
+				tempMaterialColor = m.GetColor( "_Color" );
+				tempMaterialColor.a = value;
+				m.SetColor( "_Color", tempMaterialColor );
 			}
 		}
 	}

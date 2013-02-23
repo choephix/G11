@@ -3,6 +3,8 @@ using System.Collections;
 
 public class GodOfTime : MonoBehaviour {
 
+	private const float MAX_DELTA = .25f;
+
 	public static float globalSpeed = 1f;
 	public static float speed = 1f;
 
@@ -14,7 +16,14 @@ public class GodOfTime : MonoBehaviour {
 
 	void Update() {
 
-		deltaTime = Time.deltaTime * speed * globalSpeed;
+		realTime = Time.deltaTime;
+
+		if( realTime > MAX_DELTA ) {
+			realTime = MAX_DELTA;
+		}
+
+		deltaTime = realTime * speed * globalSpeed;
+
 		time += deltaTime;
 
 	}

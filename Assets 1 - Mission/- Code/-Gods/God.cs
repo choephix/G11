@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 	public Grid theGrid;
 	public MissionGUI theGUI;
 
+	public Transform theMarkerTargetable;
+
 	void Awake() {
 		me = this;
 		god = this;
@@ -25,41 +28,59 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 		grid = theGrid;
 		allTeams = new List<Team>();
 		allUnits = new List<Unit>();
+
+		markerTargetable = theMarkerTargetable;
 	}
 
 	void Update() {
 
-		if( gameStarted ) {
+		if( !gameStarted ) return;
 
-			//if( GameMode.Is( GameModes.PickUnit ) && 
-			//	( targetedUnit == null || !CanTarget( targetedUnit ) ) ) { //TODO TESTER FIX - remove this and find the cause of the NULL attackee bug
-			//	GameMode.Reset();
-			//}
+		float d;
 
-			//if( selectedUnit && GameMode.interactive ) {
+		int i = 0;
 
-			//	if( selectedUnit.canAct ) {
+		foreach( WorldObject o in stage.objects.Where( o => o != null ) ) {
+			d = Vector3.Distance( o.transform.position , Camera.mainCamera.transform.position );
 
-			//		if( selectedAction == null && TurnManager.isUserTurn ) {
+			if( d < 4 ) {
+				o.alpha = d / 4;
+			} else {
+				o.alpha = 1f;
+			}
 
-			//			Debug.Log( "God: NULL action handling" );
-			//			if( selectedUnit.actions.shouldSelectPreviousAction ) {
-			//				selectedUnit.actions.SelectPrevious();
-			//			} else {
-			//				selectedUnit.actions.SelectDefault();
-			//			}
-
-			//		}
-
-			//	} else {
-
-			//		God.OnSelectedUnitCantAct();
-
-			//	}
-
-			//}
-
+			i++;
 		}
+
+		//print(  i  );
+
+		//if( GameMode.Is( GameModes.PickUnit ) && 
+		//	( targetedUnit == null || !CanTarget( targetedUnit ) ) ) { //TODO TESTER FIX - remove this and find the cause of the NULL attackee bug
+		//	GameMode.Reset();
+		//}
+
+		//if( selectedUnit && GameMode.interactive ) {
+
+		//	if( selectedUnit.canAct ) {
+
+		//		if( selectedAction == null && TurnManager.isUserTurn ) {
+
+		//			Debug.Log( "God: NULL action handling" );
+		//			if( selectedUnit.actions.shouldSelectPreviousAction ) {
+		//				selectedUnit.actions.SelectPrevious();
+		//			} else {
+		//				selectedUnit.actions.SelectDefault();
+		//			}
+
+		//		}
+
+		//	} else {
+
+		//		God.OnSelectedUnitCantAct();
+
+		//	}
+
+		//}
 
 	}
 
@@ -127,7 +148,7 @@ public class God : MissionBaseClass { //TODO rename this GodOfGameplay
 			}
 		}
 
-		SelectionManager.RefreshList();
+		//SelectionManager.RefreshLists();
 
 		Debug.Log( "Enemies in " + selectedUnit + "'s effectRange: " + selectedUnit.objectsInRange.enemies.Count );
 

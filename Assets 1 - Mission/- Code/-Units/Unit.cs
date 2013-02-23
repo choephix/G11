@@ -40,7 +40,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 	internal Actions actions = new Actions();
 	internal UnitBuffs buffs = new UnitBuffs();
 	internal readonly UnitObjectsInRange objectsInRange = new UnitObjectsInRange();
-	internal readonly UnitUnitRelations relations = new UnitUnitRelations();
+	internal UnitUnitRelations relations;
 
 	//
 
@@ -118,6 +118,8 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	void Awake() {
 
+		relations = new UnitUnitRelations( this );
+
 		animator = GetComponent<UnitAnimator>();
 
 		actions.Init( this );
@@ -133,15 +135,14 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		action = new ActionsBook.Defend( this, this );
 		actions += action;
 
-		action = new ActionsBook.StitchUp( this );
-		actions += action;
-
 		action = new ActionsBook.Test( this );
 		actions += action;
 
 	}
 
 	void Start() {
+
+		MakeTargetable( false );
 
 		name = props.unitName;
 		status.Init( props );
@@ -271,6 +272,14 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 		}
 
+
+	}
+
+
+
+	public void MakeTargetable( bool flag ) {
+
+		transform.Find( "targetMarker" ).renderer.enabled = flag;
 
 	}
 
@@ -467,7 +476,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 
 	internal void UpdateEverything() {
 
-		relations.Update( this, allUnits );
+		relations.Update();
 		objectsInRange.Update( this, allUnits );
 
 		if( !activated && objectsInRange.enemies.Count > 0 ) {
@@ -507,7 +516,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 			model.Show( currentWeapon );
 		}
 		model.Reload();
-		status.ResetActions();
+		status.ResetActionPoints();
 
 		model.materialManager.SetMode( UnitMaterialMode.Normal );
 
@@ -538,7 +547,7 @@ public class Unit : MissionBaseClass, IDamageable, ICover, ISomethingOnGridTile 
 		if( inPlay ) {
 			UpdateEverything();
 			buffs.OnTurnStart();
-			status.ResetActions();
+			status.ResetActionPoints();
 			actions.OnTurnStart();
 		}
 

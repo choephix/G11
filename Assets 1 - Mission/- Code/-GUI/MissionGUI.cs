@@ -77,7 +77,7 @@ public class MissionGUI : MissionBaseClass {
 				sb = new StringBuilder("Round " + TurnManager.roundN +
 					"\n[TeamsWithTurn:" + TurnManager.activeTeamsWithTurn.Count + "/" + TurnManager.activeTeams.Count + "]" +
 					"\n[Units:" + SelectionManager.selectableUnits.Count + "/" + TurnManager.currentTeam.units.Count + "]" +
-					"\nWorldObjects:" + GodOfTheStage.objects.Count +
+					"\nWorldObjects:" + stage.objects.Count +
 					"\nGameMode:" + GameMode.Get() +
 					"\nTimeSpeed:" + GodOfTime.speed +
 					"\n..");

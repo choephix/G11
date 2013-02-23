@@ -11,13 +11,15 @@ public class MissionBaseClass : BaseClass {
 
 	public static GodOfProcesses processManager;
 
-	protected static List<Team> allTeams;
-	protected static List<Unit> allUnits;
+	public static List<Team> allTeams;
+	public static List<Unit> allUnits;
 	public static Grid grid;
 
 	public static Unit selectedUnit;
 	public static Unit targetedUnit;
 	public static Action selectedAction;
+
+	public static Transform markerTargetable;
 
 	public static implicit operator Transform( MissionBaseClass instance ) {
 		return instance.transform;

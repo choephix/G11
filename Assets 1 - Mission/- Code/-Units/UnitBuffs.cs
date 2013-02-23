@@ -1,6 +1,5 @@
 using System.Linq;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class UnitBuffs {
@@ -75,6 +74,10 @@ public class UnitBuffs {
 		Remove( buff.name );
 	}
 
+	private void RemoveOneDuplicate( Buff buff ) { //TODO DO
+		Remove( buff.name );
+	}
+
 	//private void RemoveDuplicates( string name ) {
 
 	//	//List<Buff> dups = list.FindAll( b => b.name.Equals( name ) );
@@ -119,204 +122,6 @@ public class UnitBuffs {
 	public static UnitBuffs operator +( UnitBuffs bm, Buff b ) { bm.Add( b ); return bm; }
 
 }
-
-[System.Serializable]
-public class Buff : object {
-
-	public readonly string name;
-
-	public int duration = 1;
-
-	public bool stackable = true; //TODO test
-	public BuffTerminationCondition terminationCondition = BuffTerminationCondition.Timeout;
-
-	public readonly List<BuffPropFlag> flagProps = new List<BuffPropFlag>();
-	public readonly List<Mult> multProps = new List<Mult>();
-
-	public event EventHandler AppliedEvent;
-	public event EventHandler RemovedEvent;
-	public event EventHandler TerminatedEvent;
-	public event EventHandler TurnStartEvent;
-	public event EventHandler<int> TurnsPassedEvent = delegate { };
-
-	private int turnsPassed;
-
-	//CONSTRUCTORS
-
-	public Buff( string name, Mult multiplier )
-		: this( name ) {
-		multProps.Add( multiplier );
-	}
-
-/*
-	public Buff( string name, BuffPropFlag flagProp, Mult multiplier = null )
-		: this( name ) {
-
-		flagProps.Add( flagProp );
-
-		if( multiplier != null ) {
-			multProps.Add( multiplier );
-		}
-
-	}
-*/
-
-	public Buff( string name, IEnumerable<BuffPropFlag> flagProps, IEnumerable<Mult> multipliers = null )
-		: this( name ) {
-
-		this.flagProps.AddRange( flagProps );
-
-		if( multipliers != null ) {
-			multProps.AddRange( multipliers );
-		}
-
-	}
-
-	public Buff( string name ) {
-
-		this.name = name;
-
-	}
-
-
-	//OTHER STUFF
-
-	public bool GetFlag( BuffPropFlag flag ) {
-		return flagProps.Contains( flag );
-	}
-
-	public float GetMultiplier( BuffPropMult prop ) {
-		return multProps.Where( mul => mul.prop == prop ).Aggregate( 1f, ( current, mul ) => current * mul.value );
-	}
-
-	public void Terminate( object o = null ) {
-		Debug.Log( "Buff " + this + " expired" );
-		if( TerminatedEvent != null ) TerminatedEvent.Invoke();
-	}
-
-	//HANDLERS
-
-	public void OnTurnStart() {
-
-		if( TurnStartEvent != null ) {
-			Debug.Log( this + " doing something on turn start--" );
-			TurnStartEvent.Invoke();
-		}
-
-		turnsPassed++;
-		if( TurnsPassedEvent != null ) TurnsPassedEvent.Invoke( turnsPassed );
-
-	}
-
-	public void OnApplied() {
-		if( AppliedEvent != null ) AppliedEvent.Invoke();
-	}
-
-	public void OnRemoved() {
-		AppliedEvent = null;
-		RemovedEvent = null;
-		TerminatedEvent = null;
-		TurnStartEvent = null;
-		if( RemovedEvent != null ) RemovedEvent.Invoke();
-	}
-
-	//OPERATORS
-
-	public bool this[BuffPropFlag flag] {
-		get { return GetFlag( flag ); }
-	}
-
-	public float this[BuffPropMult mul] {
-		get { return GetMultiplier( mul ); }
-	}
-
-	//VIRTUAL
-
-	public Buff Clone() {
-		return new Buff( name, flagProps.ToArray(), multProps.ToArray() );
-	}
-
-	public string ToLongString() {
-		return flagProps.Aggregate( "", ( current, flag ) => current + ( '[' + flag + ']' ) );
-	}
-
-	public override string ToString() {
-		return name;
-	}
-
-	//CLASSES
-
-	[System.Serializable]
-	public class Mult : object {
-
-		public readonly BuffPropMult prop;
-		public readonly float value;
-
-		public Mult( BuffPropMult prop, float value = 1f ) {
-			this.prop = prop;
-			this.value = value;
-		}
-
-		public override string ToString() {
-			return prop.ToString();
-		}
-
-	}
-
-}
-
-public class BuffsBook {
-
-	public static Buff Ducked( Unit buffee ) {
-
-
-		Buff b = new Buff( "Ducked", new Buff.Mult( BuffPropMult.Height, .5f ) ) {
-			stackable = false,
-			terminationCondition = BuffTerminationCondition.NextAction
-		};
-
-		b.AppliedEvent += delegate {
-			buffee.eventActionStarted += b.Terminate;
-			buffee.model.SetPosture( UnitModelPosture.CoverDucked );
-		};
-
-		b.RemovedEvent += delegate {
-			buffee.eventActionStarted -= b.Terminate;
-			buffee.model.SetPosture( UnitModelPosture.Normal );
-		};
-
-		return b;
-
-	}
-
-	public static Buff Alert( float amount = .5f ) {
-
-		return new Buff( "Alert", new Buff.Mult( BuffPropMult.Evasion, amount ) ) { duration = 1 };
-
-	}
-
-	public static Buff Bleeding( Unit buffee, int amount = 2 ) {
-
-		Buff b = new Buff( "Bleeding" );
-		b.terminationCondition = BuffTerminationCondition.Eternal;
-		b.TurnStartEvent += () => buffee.Damage( amount, DamageType.INTERNAL, buffee );
-		return b;
-
-	}
-
-	public static Buff Poisoned( Unit buffee, int duration = 5 ) {
-
-		Buff b = new Buff( "Poisoned" ) { duration = duration };
-		b.TurnStartEvent += () => buffee.Damage( 1, DamageType.INTERNAL, buffee );
-		return b;
-
-	}
-
-}
-
-
-
-
 
 
 

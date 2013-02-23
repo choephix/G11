@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class FreeCameraController : MonoBehaviour {
+public class FreeCameraController : BaseClass {
 
 	private TransformSpot cameraSpot;
 	private Transform cameraTarget;
@@ -35,11 +35,17 @@ public class FreeCameraController : MonoBehaviour {
 
 	void Update() {
 
-		cameraSpot.transform.localPosition = 
-			Vector3.Lerp( cameraSpot.transform.localPosition, 
-			3 * new Vector3( 0, zoom * zoom, -zoom ), 
+		//cameraSpot.transform.localPosition =
+		//	Vector3.Lerp( cameraSpot.transform.localPosition,
+		//	3 * new Vector3( 0, zoom * zoom, -zoom ),
+		//	.25f );
+		cameraSpot.transform.localPosition =
+			Vector3.Lerp( cameraSpot.transform.localPosition,
+			3 * new Vector3( 0, zoom * 1.25f , -zoom ),
 			.25f );
 		cameraSpot.transform.LookAt( transform.position );
+
+
 		
 	}
 
@@ -57,11 +63,9 @@ public class FreeCameraController : MonoBehaviour {
 
 	public void InputZoom( float delta ) {
 
-		zoom -= delta * .2f;
+		zoom -= delta * .005f;
 		if( zoom > DISTANCE_MAX ) zoom = DISTANCE_MAX;
 		if( zoom < DISTANCE_MIN ) zoom = DISTANCE_MIN;
-
-		print( zoom );
 
 	}
 

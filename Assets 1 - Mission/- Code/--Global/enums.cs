@@ -12,7 +12,7 @@ using System.Collections;
 
 public enum GameModes : byte { Disabled, Normal, PickTile, PickUnit, GameOver, Default }
 
-public enum DamageType : byte { NORMAL, INTERNAL, ANTIARMOR, HEALING, TRANQUILIZER } //normal, biological, armor-piercing
+public enum DamageType : byte { NORMAL, INTERNAL, ANTIARMOR, HEALING, TRANQUILIZER, CONCUSSIVE, CORROSIVE } //normal, biological, armor-piercing
 
 internal enum Clip : byte { Idle, Run, Shoot, Die }
 
@@ -26,7 +26,7 @@ public enum AmmoType : byte { BulletSmall, BulletLarge, Rocket }
 
 //public enum ItemType : byte { undefined, rangedOneHanded, rangedTwoHanded, rangedHeavy, meleeFist, meleeWielded, throwable }
 
-public enum ActionSubjectType { Self, GridTile, Unit }
+public enum ActionSubjectType { Self, GridTile, Unit, Damageable }
 
 
 public enum BuffTerminationCondition { Eternal, Timeout, NextAction }

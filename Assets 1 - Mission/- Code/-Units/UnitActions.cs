@@ -208,7 +208,9 @@ public class Actions {
 	}
 
 	internal void OnUnitPicked( Unit unit ) {
-		if( !active || selectedAction.subjectType != ActionSubjectType.Unit ) return;
+		if( !active ) return;
+		if( selectedAction.subjectType != ActionSubjectType.Unit ) return;
+		if( selectedAction.subjectType != ActionSubjectType.Damageable ) return;
 		if( ( selectedAction ).IsSubjectViable( unit ) ) {
 			ConfirmSelectedActionOn( unit );
 		}

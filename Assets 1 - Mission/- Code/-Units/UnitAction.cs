@@ -110,7 +110,6 @@ public abstract class Action {
 		return possible ? '{' + name + '}' : '/' + name + '/';
 	}
 
-
 }
 
 //public abstract class Action<T> : Action {
@@ -202,7 +201,7 @@ public class ActionsBook : MissionBaseClass {
 
 				};
 
-			owner.buffs += BuffsBook.Bleeding( owner );
+			owner.buffs += BuffBook.Bleeding( owner );
 
 			p = p.Enqueue( new ProcessBook.Wait( 10 ) );
 
@@ -228,11 +227,11 @@ public class ActionsBook : MissionBaseClass {
 		public Crouch( Unit owner )
 			: base( owner, owner, "Crouch" ) { }
 
-		protected override bool _possible { get { return !owner.buffs.HasBuff( BuffsBook.Ducked( owner ).name ); } }
+		protected override bool _possible { get { return !owner.buffs.HasBuff( BuffBook.Ducked( owner ).name ); } }
 
 		public override void _Execute( object subject ) {
 
-			owner.buffs.Add( BuffsBook.Ducked( owner ) );
+			owner.buffs.Add( BuffBook.Ducked( owner ) );
 
 			Process p;
 			p = new ProcessBook.WaitForSeconds( .75f );
@@ -292,6 +291,41 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
+	public class Shoot : Action {
+
+		public Shoot( Unit owner, Weapon source )
+			: base( owner, source, "Shoot", ActionSubjectType.Damageable ) { }
+
+		protected override bool _possible { get { return owner.canAttack && ( (Weapon)source ).canAttack; } }
+
+		public override void _OnSelected() {
+			SelectionManager.TargetUnit();
+			owner.model.animator.aiming = true;
+		}
+
+		public override void _Execute( object subject ) {
+			if( subject is IDamageable ) {
+
+				Process p;
+
+				p = new ProcessBook.UnitAttack( owner, subject as Unit );
+				processManager.Add( p );
+
+				p.eventEnded += Finish;
+
+			} else
+				Debug.LogWarning( name.ToUpper() + " ACTION SUBJECT IS INCORRECT TYPE" );
+		}
+
+		public override void OnDeselected() {
+
+			GameMode.Reset();
+			owner.model.animator.aiming = false;
+
+		}
+
+	}
+
 	public class Attack : Action {
 
 		public Attack( Unit owner, Weapon source )
@@ -338,7 +372,7 @@ public class ActionsBook : MissionBaseClass {
 
 		public Defend( Unit owner, object source )
 			: base( owner, source, "Alert" ) {
-			buff = BuffsBook.Alert();
+			buff = BuffBook.Alert();
 		}
 
 		protected override bool _possible { get { return !owner.buffs.HasDuplicates( buff ); } }
@@ -353,16 +387,22 @@ public class ActionsBook : MissionBaseClass {
 
 	}
 
-	public class StitchUp : InstantAction {
+	public class ClearBuff : InstantAction {
 
-		public StitchUp( Unit owner )
-			: base( owner, owner, "Stitch Up" ) { }
+		private readonly string buffName;
+		private readonly bool all; //TODO implement
 
-		protected override bool _possible { get { return owner.buffs.HasBuff( "Bleeding" ); } } //TODO this should not be string
+		public ClearBuff( Unit owner, string actionName, string buffName, bool all = true )
+			: base( owner, owner, actionName ) {
+			this.buffName = buffName;
+			this.all = all;
+		}
+
+		protected override bool _possible { get { return owner.buffs.HasBuff( buffName ); } } //TODO this should not be string
 
 		public override void _Execute( object subject ) {
 
-			owner.buffs.Remove( "Bleeding" );
+			owner.buffs.Remove( buffName );
 
 			Finish();
 
@@ -523,6 +563,166 @@ public class ActionsBook : MissionBaseClass {
 				destinationTile.transform.position,
 				source.effectRange,
 				source.damage );
+
+		}
+
+	}
+
+	public class Jump : Action {
+
+		public Jump( Unit owner, Equippable source )
+			: base( owner, source, "JumpTo", ActionSubjectType.GridTile, 2 ) { }
+
+		protected override bool _possible { get { return owner.canMove; } }
+		protected override bool _canDoAgain { get { return false; } }
+
+		public override bool _IsSubjectViable( object subject ) {
+			return subject is GridTile && ( subject as GridTile ).selectable;
+		}
+
+		public override void _OnSelected() {
+			GameMode.Set( GameModes.PickTile );
+			processManager.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, owner.propMovementRange ) );
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.HoloUnit;
+		}
+
+		public override void _Execute( object subject ) {
+
+			if( subject is GridTile ) {
+
+				Debug.Log( owner + " moving from " + owner.currentTile + " to " + subject );
+
+				Process p = new ProcessBook.UnitJump( owner, subject as GridTile );
+				processManager.Add( p );
+
+				p.eventEnded += Finish;
+
+			} else
+				Debug.LogWarning( name.ToUpper() + " ACTION SUBJECT IS INCORRECT TYPE" );
+
+		}
+
+		public override void OnDeselected() {
+
+			grid.ResetTiles();
+			GameMode.Reset();
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
+
+		}
+
+	}
+
+	public class Stomp : Action {
+
+		public Stomp( Unit owner, Equippable source )
+			: base( owner, source, "Stomp!", ActionSubjectType.GridTile ) { }
+
+		protected override bool _possible { get { return owner.canMove; } }
+		protected override bool _canDoAgain { get { return false; } }
+
+		public override bool _IsSubjectViable( object subject ) {
+			return subject is GridTile && ( subject as GridTile ).selectable && ( subject as GridTile ).walkable;
+		}
+
+		public override void _OnSelected() {
+			GameMode.Set( GameModes.PickTile );
+			processManager.Add( new ProcessBook.HighlightTilesInVisibleRange( owner, owner.propMovementRange ) );
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.HoloUnit;
+		}
+
+		public override void _Execute( object subject ) {
+
+			if( subject is GridTile ) {
+
+				Debug.Log( owner + " stomping from " + owner.currentTile + " to " + subject );
+
+				Process p = new ProcessBook.UnitJump( owner, subject as GridTile );
+				processManager.Add( p );
+
+				p = p.Enqueue( new ProcessBook.AreaDamage( ( ( GridTile ) subject ).transform.position, 8, 8, DamageType.CONCUSSIVE ) );
+
+				p.eventEnded += Finish;
+
+			} else
+				Debug.LogWarning( name.ToUpper() + " ACTION SUBJECT IS INCORRECT TYPE" );
+
+		}
+
+		public override void OnDeselected() {
+
+			grid.ResetTiles();
+			GameMode.Reset();
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
+
+		}
+
+	}
+
+	public class Lunge : Action {
+
+		public Lunge( Unit owner, Equippable source )
+			: base( owner, source, "LungeAttack!", ActionSubjectType.Unit ) { }
+
+		protected override bool _possible { get { return owner.canMove; } }
+		protected override bool _canDoAgain { get { return false; } }
+
+		public override bool _IsSubjectViable( object subject ) {
+			return subject is Unit && ( subject as Unit ).targetable;
+		}
+
+		public override void _OnSelected() {
+			GameMode.Set( GameModes.PickUnit );
+			processManager.Add( new ProcessBook.HighlightTargetableUnits( owner ) );
+			//SelectionManager.TargetUnit();
+			owner.model.animator.aiming = true;
+		}
+
+		public override void _Execute( object subject ) {
+
+			if( subject is Unit ) {
+
+				Debug.Log( owner + " stomping from " + owner.currentTile + " to " + subject );
+
+				Process p = new ProcessBook.UnitJump( owner ,  
+					( (Unit)subject ).currentTile.relations.GetClosestNeighbourTo( owner.currentTile ) ,
+					2f, 5f );
+				processManager.Add( p );
+
+				p = p.Enqueue( new ProcessBook.UnitAttack( owner , ( Unit ) subject ) );
+
+				p.eventEnded += Finish;
+
+			} else
+				Debug.LogWarning( name.ToUpper() + " ACTION SUBJECT IS INCORRECT TYPE" );
+
+		}
+
+		public override void OnDeselected() {
+
+			grid.ResetTiles();
+			GameMode.Reset();
+			GodOfHolographics.mode = GodOfHolographics.HoloMode.None;
+			owner.model.animator.aiming = false;
+
+			foreach( Unit unit in allUnits ) {
+				SelectionManager.MarkTargetable( unit, false );
+			}
+
+		}
+
+	}
+
+	public class ToxicRush : InstantAction {
+
+		public ToxicRush( Unit owner, Equippable source )
+			: base( owner, source, "Toxic Rush", 1, 0 ) { }
+
+		protected override bool _possible { get { return owner.status.actionPoints < Config.BASE_UNIT_ACTIONS; } }
+
+		public override void _Execute( object subject ) {
+
+			owner.status.ResetActionPoints();
+			owner.buffs.Add( BuffBook.Intoxicated( owner ) );
 
 		}
 

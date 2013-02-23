@@ -14,7 +14,7 @@ public static class Config {
 	public static float DEV_HIT_CHANCE_MULTIPLIER = 1.25f;
 
 	/// Number of actions a unit starts each turn with, before any effects and abilities are applied
-	public static byte BASE_UNIT_ACTIONS = 2; //2
+	public static byte BASE_UNIT_ACTIONS = 22; //2
 
 	/// Every unit in play has 100 accuracy
 	public static bool OVERRIDE_HIT_CHANCE_ACCURACY = false;
